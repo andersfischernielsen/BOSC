@@ -20,7 +20,9 @@
 /* --- use the /proc filesystem to obtain the hostname --- */
 char *gethostname(char *hostname)
 {
-  hostname = "";
+  FILE *host = fopen("/proc/sys/kernel/hostname", "r");
+  fscanf(host, "%s", hostname);
+  close(host);
   return hostname;
 }
 
