@@ -28,10 +28,26 @@ char *gethostname(char *hostname)
 
 /* --- execute a shell command --- */
 int executeshellcmd (Shellcmd *shellcmd)
-{
-  printshellcmd(shellcmd);
-
-  return 0;
+{ 
+    Cmd *command = shellcmd->the_cmds;
+    char** commands = command->cmd;          //Extract the first command from the user input.
+    
+    pid_t process_id1 = fork();              //Instantiate new process.
+    
+    if (process_id1 == 0) {                  //This is a child process.
+        execvp(commands[0], commands);       //Execute.
+    }
+    
+    else {
+        int exit_code;
+        waitpid(process_id1, &exit_code, 0);   //Assert that the process executed succesfully.
+        
+        if (exit_code != 0) {
+            printf("Command not executed succesfully.");
+        }
+    }
+    
+    return 0;
 }
 
 /* --- main loop of the simple shell --- */
