@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <signal.h>
 #include <ctype.h>
 #include <string.h>
 #include <readline/readline.h>
@@ -35,7 +36,8 @@ int executeshellcmd (Shellcmd *shellcmd)
     pid_t process_id1 = fork();              //Instantiate new process.
     
     if (process_id1 == 0) {                  //This is a child process.
-        execvp(commands[0], commands);       //Execute.
+      signal(SIGINT, SIG_DFL);               //Enable CTRL+C to exit a program.
+      execvp(commands[0], commands);       //Execute.
     }
     
     else {
@@ -43,7 +45,7 @@ int executeshellcmd (Shellcmd *shellcmd)
         waitpid(process_id1, &exit_code, 0);   //Assert that the process executed succesfully.
         
         if (exit_code != 0) {
-            printf("Command not executed succesfully.");
+            printf("Command not executed succesfully.\n");
         }
     }
     
@@ -52,7 +54,7 @@ int executeshellcmd (Shellcmd *shellcmd)
 
 /* --- main loop of the simple shell --- */
 int main(int argc, char* argv[]) {
-
+  signal(SIGINT, SIG_IGN);
   /* initialize the shell */
   char *cmdline;
   char hostname[HOSTNAMEMAX];
@@ -79,4 +81,3 @@ int main(int argc, char* argv[]) {
     
   return EXIT_SUCCESS;
 }
-
