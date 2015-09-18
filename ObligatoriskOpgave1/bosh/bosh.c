@@ -23,7 +23,7 @@ char *gethostname(char *hostname)
 {
   FILE *host = fopen("/proc/sys/kernel/hostname", "r");
   fscanf(host, "%s", hostname);
-  close(host);
+  fclose(host);
   return hostname;
 }
 
