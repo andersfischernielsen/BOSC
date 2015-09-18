@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
     /* parse commands until exit or ctrl-c */
     while (!terminate) {
       printf("%s", hostname);
-      if (cmdline = readline(":# ")) {
+      if (strcmp(cmdline = readline(":# "), "exit") != 0) {
 	if(*cmdline) {
 	  add_history(cmdline);
 	  if (parsecommand(cmdline, &shellcmd)) {
