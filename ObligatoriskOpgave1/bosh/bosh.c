@@ -38,6 +38,9 @@ int executeshellcmd (Shellcmd *shellcmd)
     if (process_id1 == 0) {                  //This is a child process.
       signal(SIGINT, SIG_DFL);               //Enable CTRL+C to exit a program.
       execvp(commands[0], commands);       //Execute.
+      // If this code is run, it means command not found
+      exit(-1);
+      return;
     }
     
     else {
@@ -45,7 +48,7 @@ int executeshellcmd (Shellcmd *shellcmd)
         waitpid(process_id1, &exit_code, 0);   //Assert that the process executed succesfully.
         
         if (exit_code != 0) {
-            printf("Command not executed succesfully.\n");
+            printf("%s: Command not found.\n", commands[0]);
         }
     }
     
