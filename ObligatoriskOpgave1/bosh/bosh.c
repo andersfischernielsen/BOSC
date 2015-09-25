@@ -18,6 +18,9 @@
 /* --- symbolic constants --- */
 #define HOSTNAMEMAX 100
 
+#define STDIN_FILENUMBER 0
+#define STDOUT_FILENUMBER 1
+
 /* --- use the /proc filesystem to obtain the hostname --- */
 char *gethostname(char *hostname)
 {
@@ -30,27 +33,64 @@ char *gethostname(char *hostname)
 /* --- execute a shell command --- */
 int executeshellcmd (Shellcmd *shellcmd)
 { 
-    Cmd *command = shellcmd->the_cmds;
-    char** commands = command->cmd;          //Extract the first command from the user input.
-    
-    pid_t process_id1 = fork();              //Instantiate new process.
-    
-    if (process_id1 == 0) {                  //This is a child process.
-      signal(SIGINT, SIG_DFL);               //Enable CTRL+C to exit a program.
-      execvp(commands[0], commands);         //Execute.
-      
-      printf("%s: Command not found.\n", commands[0]); //If this code is run, it means command not found
-      exit(-1);
-      return;
-    }
-    
-    else {
-        if (!shellcmd->background) {                //If the user specified to execute in bacground, then don't wait.
-            int exit_code;
-            waitpid(process_id1, &exit_code, 0);   //Assert that the process executed succesfully.
+    Cmd *current_cmd = shellcmd->the_cmds;
+    int first = 1;
+    int pipe_ends[2];
+    pipe(pipe_ends);                                    //TODO: Error handling if piping fails.
+
+    while (current_cmd) {
+        pid_t process_id = fork();                      //Instantiate new process.
+        
+        if (process_id == 0) {                          //This is a child process.
+            signal(SIGINT, SIG_DFL);                    //Enable CTRL+C to exit a program.
+            
+            if (current_cmd->next) {
+                if (first) {
+                    first = 0;                              // The cmd can no longer be the first.
+                    close(pipe_ends[STDIN_FILENUMBER]);
+                }
+                else {                                      //If this is not the first command.
+                    close(STDIN_FILENUMBER);                //Close stdin for the process.
+                    dup(pipe_ends[STDIN_FILENUMBER]);       //Set the process stdin to the pipes read end.
+                }
+                
+                close(STDOUT_FILENUMBER);                   //Always set the stdout for the process to the pipe write end.
+                dup(pipe_ends[STDOUT_FILENUMBER]);
+            }
+            
+            else {                                          //This is the last (or the only) command.
+                if (!first) {
+                    close(STDIN_FILENUMBER);                //Don't dup the write end of the pipe to stdout of the process.
+                    dup(pipe_ends[STDIN_FILENUMBER]);           
+                }
+                else {                                      //If we only have one command.
+                    close(pipe_ends[STDIN_FILENUMBER]);
+                }
+                
+                close(pipe_ends[STDOUT_FILENUMBER]);
+            }
+            
+            char** command_and_parameters = current_cmd->cmd;                   //Extract the first command from the user input.
+            execvp(command_and_parameters[0], command_and_parameters);          //Execute.
+            
+            printf("%s: Command not found.\n", command_and_parameters[0]);      //If this code is run, it means command not found
+            exit(-1);                                                           //Exit with error state.
+            return;
+        }
+        
+        else {                                          //Parent process.
+            current_cmd = current_cmd->next;
+            
+            if (!shellcmd->background) {                //If the user specified to execute in bacground, then don't wait.
+                int exit_code;
+                waitpid(process_id, &exit_code, 0);     //Assert that the process executed succesfully.
+            }
         }
     }
     
+    close(pipe_ends[STDIN_FILENUMBER]);                 //Close the pipe.
+    close(pipe_ends[STDOUT_FILENUMBER]);
+
     return 0;
 }
 
