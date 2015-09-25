@@ -35,39 +35,42 @@ int executeshellcmd (Shellcmd *shellcmd)
 { 
     Cmd *current_cmd = shellcmd->the_cmds;
     int first = 1;
-    int pipe_ends[2];
-    pipe(pipe_ends);                                    //TODO: Error handling if piping fails.
-
+    
     while (current_cmd) {
-        pid_t process_id = fork();                      //Instantiate new process.
+        int pipe_ends[2];
+        pipe(pipe_ends);                                    //TODO: Error handling if piping fails.
         
-        if (process_id == 0) {                          //This is a child process.
-            signal(SIGINT, SIG_DFL);                    //Enable CTRL+C to exit a program.
+        pid_t process_id = fork();                          //Instantiate new process.
+        
+        if (process_id == 0) {                              //This is a child process.
+            signal(SIGINT, SIG_DFL);                        //Enable CTRL+C to exit a program.
             
             if (current_cmd->next) {
                 if (first) {
                     first = 0;                              // The cmd can no longer be the first.
-                    close(pipe_ends[STDIN_FILENUMBER]);
+                    close(pipe_ends[STDIN_FILENUMBER]);     
+                    close(STDOUT_FILENUMBER);               //Set stdout for the process to the pipe write end.
+                    dup(pipe_ends[STDOUT_FILENUMBER]);
                 }
                 else {                                      //If this is not the first command.
                     close(STDIN_FILENUMBER);                //Close stdin for the process.
+                    close(STDOUT_FILENUMBER);               
+                    
                     dup(pipe_ends[STDIN_FILENUMBER]);       //Set the process stdin to the pipes read end.
+                    dup(pipe_ends[STDOUT_FILENUMBER]);      //Set stdout for the process to the pipe write end.
                 }
-                
-                close(STDOUT_FILENUMBER);                   //Always set the stdout for the process to the pipe write end.
-                dup(pipe_ends[STDOUT_FILENUMBER]);
             }
             
             else {                                          //This is the last (or the only) command.
                 if (!first) {
                     close(STDIN_FILENUMBER);                //Don't dup the write end of the pipe to stdout of the process.
-                    dup(pipe_ends[STDIN_FILENUMBER]);           
+                    dup(pipe_ends[STDIN_FILENUMBER]);       
+                    close(pipe_ends[STDOUT_FILENUMBER]);
                 }
                 else {                                      //If we only have one command.
                     close(pipe_ends[STDIN_FILENUMBER]);
+                    close(pipe_ends[STDOUT_FILENUMBER]);
                 }
-                
-                close(pipe_ends[STDOUT_FILENUMBER]);
             }
             
             char** command_and_parameters = current_cmd->cmd;                   //Extract the first command from the user input.
@@ -85,12 +88,12 @@ int executeshellcmd (Shellcmd *shellcmd)
                 int exit_code;
                 waitpid(process_id, &exit_code, 0);     //Assert that the process executed succesfully.
             }
+            
+            //close(pipe_ends[STDIN_FILENUMBER]);                 //Close the pipe.
+            //close(pipe_ends[STDOUT_FILENUMBER]);
         }
     }
     
-    close(pipe_ends[STDIN_FILENUMBER]);                 //Close the pipe.
-    close(pipe_ends[STDOUT_FILENUMBER]);
-
     return 0;
 }
 
