@@ -57,7 +57,7 @@ int executeshellcmd (Shellcmd *shellcmd)
 
 /* --- main loop of the simple shell --- */
 int main(int argc, char* argv[]) {
-  signal(SIGINT, SIG_IGN);
+  signal(SIGINT, SIG_IGN); // Ignore Ctrl + C - so we don't close the shell
   /* initialize the shell */
   char *cmdline;
   char hostname[HOSTNAMEMAX];
