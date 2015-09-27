@@ -41,16 +41,6 @@ Cmd* reverse(Cmd* root) {
   return new_root;
 }
 
-void dupStd(int filenumber, int pipe_ends[]) {
-    close(filenumber);
-    dup(pipe_ends[filenumber]);
-}
-
-void closePipe(int pipe_ends[]) {
-    close(pipe_ends[0]);
-    close(pipe_ends[1]);
-}
-
 void startChild(Cmd *command, int readPipe, int writePipe, int first) {
     signal(SIGINT, SIG_DFL);                        //Enable CTRL+C to exit a program.
 
