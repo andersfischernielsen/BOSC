@@ -101,7 +101,8 @@ int executeshellcmd (Shellcmd *shellcmd)
             current_cmd = current_cmd->next;
         }
     }
-    closePipe(pipe_ends);                      	//Close the pipe in parent
+    close(pipe_ends[STDIN_FILENUMBER]);                      	//Close the pipe in parent
+    close(pipe_ends[STDOUT_FILENUMBER]);
 
     if (!shellcmd->background) {                //If the user specified to execute in background, then don't wait.
         int exit_code;
