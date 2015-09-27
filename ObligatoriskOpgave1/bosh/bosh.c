@@ -30,70 +30,93 @@ char *gethostname(char *hostname)
   return hostname;
 }
 
+Cmd* reverse(Cmd* root) {
+  Cmd* new_root = 0;
+  while (root) {
+    Cmd* next = root->next;
+    root->next = new_root;
+    new_root = root;
+    root = next;
+  }
+  return new_root;
+}
+
+void dupStd(int filenumber, int pipe_ends[]) {
+    close(filenumber);
+    dup(pipe_ends[filenumber]);
+}
+
+void closePipe(int pipe_ends[]) {
+    close(pipe_ends[0]);
+    close(pipe_ends[1]);
+}
+
+void startChild(Cmd *command, int readPipe, int writePipe, int first) {
+    signal(SIGINT, SIG_DFL);                        //Enable CTRL+C to exit a program.
+
+    if (command->next) {
+        if (first) {
+            close(readPipe);
+            close(STDOUT_FILENUMBER);               // substitute stdout.
+            dup(writePipe);
+            close(writePipe);
+        }
+        else {                                      //If this is not the first command.
+            close(STDIN_FILENUMBER);
+            dup(readPipe);
+            close(readPipe);
+
+            close(STDOUT_FILENUMBER);
+            dup(writePipe);
+            close(writePipe);
+        }
+    }
+    else {
+        if (!first) {                               //This is the last command.
+            close(writePipe);
+            close(STDIN_FILENUMBER);                // substitute stdin.
+            dup(readPipe);
+            close(readPipe);
+        } else {
+            close(readPipe);
+            close(writePipe);
+        }
+    }
+    char** command_and_parameters = command->cmd;                   //Extract the first command from the user input.
+    execvp(command_and_parameters[0], command_and_parameters);          //Execute.
+    
+    printf("%s: Command not found.\n", command_and_parameters[0]);      //If this code is run, it means command not found
+    exit(-1);                                                           //Exit with error state.
+}
+
 /* --- execute a shell command --- */
 int executeshellcmd (Shellcmd *shellcmd)
 { 
-    Cmd *current_cmd = shellcmd->the_cmds;
-    int first = 1;
     int pipe_ends[2];
-    pipe(pipe_ends);                                    //TODO: Error handling if piping fails.
+    pid_t process_id;
+    Cmd *current_cmd = reverse(shellcmd->the_cmds);
+    int first = 1;
     
+    pipe(pipe_ends);
+
     while (current_cmd) {
-        pid_t process_id = fork();                          //Instantiate new process.
+        process_id = fork();                          //Instantiate new process.
         
         if (process_id == 0) {                              //This is a child process.
-            signal(SIGINT, SIG_DFL);                        //Enable CTRL+C to exit a program.
-            
-            if (current_cmd->next) {
-                if (first) {
-                    first = 0;                              // The cmd can no longer be the first.
-                    
-                    close(pipe_ends[STDIN_FILENUMBER]);
-                    close(STDOUT_FILENUMBER);               //Set stdout for the process to the pipe write end.
-                    dup(pipe_ends[STDOUT_FILENUMBER]);
-                }
-                else {                                      //If this is not the first command.
-                    close(STDIN_FILENUMBER);                //Close stdin for the process.
-                    dup(pipe_ends[STDIN_FILENUMBER]);       //Set the process stdin to the pipes read end.
-                    
-                    close(STDOUT_FILENUMBER);               
-                    dup(pipe_ends[STDOUT_FILENUMBER]);      //Set stdout for the process to the pipe write end.
-                }
-            }
-            
-            else {                                          
-                if (!first) {                               //This is the last command.
-                    close(pipe_ends[STDOUT_FILENUMBER]);
-                    close(STDIN_FILENUMBER);                //Don't dup the write end of the pipe to stdout of the process.
-                    dup(pipe_ends[STDIN_FILENUMBER]);       
-                }
-                else {                                      //This is the only command.
-                    close(pipe_ends[STDIN_FILENUMBER]);
-                    close(pipe_ends[STDOUT_FILENUMBER]);
-                }
-            }
-            
-            char** command_and_parameters = current_cmd->cmd;                   //Extract the first command from the user input.
-            execvp(command_and_parameters[0], command_and_parameters);          //Execute.
-            
-            printf("%s: Command not found.\n", command_and_parameters[0]);      //If this code is run, it means command not found
-            exit(-1);                                                           //Exit with error state.
-            return;
+            startChild(current_cmd, pipe_ends[0], pipe_ends[1], first);
         }
-        
         else {                                          //Parent process.
+            first = 0;
             current_cmd = current_cmd->next;
-            
-            if (!shellcmd->background) {                //If the user specified to execute in background, then don't wait.
-                int exit_code;
-                waitpid(process_id, &exit_code, 0);     //Assert that the process executed succesfully.
-            }
-            
-            //close(pipe_ends[STDIN_FILENUMBER]);                 //Close the pipe.
-            //close(pipe_ends[STDOUT_FILENUMBER]);
         }
     }
-    
+    closePipe(pipe_ends);                               //Close the pipe in parent
+
+    if (!shellcmd->background) {                //If the user specified to execute in background, then don't wait.
+        int exit_code;
+        waitpid(process_id, &exit_code, 0);     //Assert that the process executed succesfully.
+    }
+
     return 0;
 }
 
