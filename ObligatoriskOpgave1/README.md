@@ -18,8 +18,6 @@ Because it is reenabled in another process, the BOSH-process keeps ignoring this
 The only way to exit BOSH is to write exit at the command line. This is handled by comparing the given command to the string "exit". If an exact match is found, the terminate-flag is set, and BOSH will terminate next time the flag is checked (which is instantly, as it is checked after every command is executed).
 
 # Missing features
-* Backround processes (&)
-    * According to the TA's were not required to be able to start multiple processes in the same line.
 * Piping (|)
 * Reading from file (<)
 * Writing output to file (>)
