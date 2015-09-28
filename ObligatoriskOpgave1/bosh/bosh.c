@@ -81,22 +81,31 @@ void startChild(Cmd *command, int readPipe, int writePipe, int first) {
 int executeshellcmd (Shellcmd *shellcmd)
 { 
     int pipe_ends[2];
+    int pipe_in;                                    // Used for a future command, to read from a previous one.
     pid_t process_id;
     Cmd *current_cmd = reverse(shellcmd->the_cmds); //Commands are parsed back-to-front, so we reverse.
     
     int first = 1;                              //We're at the first command at first run.
-    if (pipe(pipe_ends) == -1) return -1;
 
     while (current_cmd) {
+        if (!first) {
+            close(pipe_ends[STDOUT_FILENUMBER]);
+        }
+        if (pipe(pipe_ends) == -1) return -1;
+
         process_id = fork();                   	//Instantiate new process.
         
         if (process_id == 0) {                 	//This is a child process.
-            startChild(current_cmd, pipe_ends[0], pipe_ends[1], first);
+            startChild(current_cmd, pipe_in, pipe_ends[STDOUT_FILENUMBER], first);
         }
-        
-        //If we reach this, then this is the parent process.
-        first = 0;                              //No longer the first command.
-        current_cmd = current_cmd->next;        //Assign the next command for execution.
+        else {                                  // Parent process.
+            if (!first) {
+                close(pipe_in);
+            }
+            pipe_in = pipe_ends[STDIN_FILENUMBER];
+            first = 0;                              //No longer the first command.
+            current_cmd = current_cmd->next;        //Assign the next command for execution.
+        }
     }
     
     close(pipe_ends[STDIN_FILENUMBER]);         //Close the pipe in parent
