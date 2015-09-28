@@ -32,3 +32,8 @@
 *.dSYM/
 
 bosh
+*.aux
+*.log
+*.pdf
+*.gz
+*.toc
