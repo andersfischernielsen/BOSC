@@ -43,32 +43,16 @@ Cmd* reverse(Cmd* root) {
   return new_root;
 }
 
-void startChild(Cmd *command, int readPipe, int writePipe, int first) {
+void startChild(Cmd *command, int readPipe, int writePipe) {
     signal(SIGINT, SIG_DFL);                        //Enable CTRL+C to exit a program.
 
-    if (command->next) {							//This is one of several commands.
-        if (first) {
-            close(readPipe);						//Close the pipe end we don't need.
-            dup2(writePipe, STDOUT_FILENUMBER);     //Substitute stdout with pipe.
-            close(writePipe);						//Close after "assigning" pipe end.
-        }
-        else {                                      //"Middle" command.
-            dup2(readPipe, STDIN_FILENUMBER);
-            close(readPipe);
-
-            dup2(writePipe, STDOUT_FILENUMBER);
-            close(writePipe);
-        }
+    if (readPipe != STDIN_FILENUMBER) {
+        dup2(readPipe, STDIN_FILENUMBER);
+        close(readPipe);
     }
-    else {											//This is the last or a single command.
-        if (!first) {                               //This is the last command.
-            close(writePipe);
-            dup2(readPipe, STDIN_FILENUMBER);       //Substitute stdin as above, now just stdin.
-            close(readPipe);
-        } else {                                    //Single command.
-            close(readPipe);
-            close(writePipe);
-        }
+    if (writePipe != STDOUT_FILENUMBER) {
+        dup2(writePipe, STDOUT_FILENUMBER);
+        close(writePipe);
     }
 
     char** command_and_parameters = command->cmd;                   	//Extract the first command from the user input.
@@ -78,56 +62,76 @@ void startChild(Cmd *command, int readPipe, int writePipe, int first) {
     exit(-1);                                                           //Exit with error state.
 }
 
+void setInOut(Shellcmd *shellcmd, Cmd *current_cmd, int pipe_ends[], int pipe_in, int first, int *in, int *out) {
+    close(pipe_ends[STDIN_FILENUMBER]); // Always close the in of the new pipe, as you should not read your own output.
+    if (first && shellcmd->rd_stdin) {                                  // First with redirect in
+        *in = open(shellcmd->rd_stdin, O_RDONLY);
+        if (!(current_cmd->next)) {                                         // Only command
+            close(pipe_ends[STDOUT_FILENUMBER]);
+            if (shellcmd->rd_stdout) {                                          // Only command with both redirect in and out.
+                *out = open(shellcmd->rd_stdout, O_WRONLY | O_CREAT, S_IRWXU);
+            } else {                                                            // Only command with redirect in
+                *out = STDOUT_FILENUMBER;
+            }
+        } else {                                                            // First but not last command with redirect in.
+            *out = pipe_ends[STDOUT_FILENUMBER];
+        }
+    } else if (!(current_cmd->next) && shellcmd->rd_stdout) {           // Last (or only) with redirect out
+        close(pipe_ends[STDOUT_FILENUMBER]);
+        *in = pipe_in;
+        *out = open(shellcmd->rd_stdout, O_WRONLY | O_CREAT, S_IRWXU);
+    } else {                                                            // No redirect
+        if (first && !(current_cmd->next)) {                                // Only command
+            close(pipe_ends[STDOUT_FILENUMBER]);
+            *in = pipe_in;
+            *out = STDOUT_FILENUMBER;
+        } else if (first) {                                                 // First
+            *in = pipe_in;
+            *out = pipe_ends[STDOUT_FILENUMBER];
+        } else if (!(current_cmd->next)) {                                  // Last
+            close(pipe_ends[STDOUT_FILENUMBER]);
+            *in = pipe_in;
+            *out = STDOUT_FILENUMBER;
+        } else {                                                            // Middle
+            *in = pipe_in;
+            *out = pipe_ends[STDOUT_FILENUMBER];
+        }
+    }
+}
+
 /* --- execute a shell command --- */
 int executeshellcmd (Shellcmd *shellcmd)
 { 
     int pipe_ends[2];
-    int pipe_in;                                    // Used for a future command, to read from a previous one.
+    int pipe_in = STDIN_FILENUMBER;                                    // Used for a future command, to read from a previous one.
     pid_t process_id;
     Cmd *current_cmd = reverse(shellcmd->the_cmds); //Commands are parsed back-to-front, so we reverse.
     
     int first = 1;                              //We're at the first command at first run.
 
     while (current_cmd) {
-        if (!first) {
-            close(pipe_ends[STDOUT_FILENUMBER]);
-        }
         if (pipe(pipe_ends) == -1) return -1;
 
         process_id = fork();                   	//Instantiate new process.
         
         if (process_id == 0) {                 	//This is a child process.
-            if (first && !(current_cmd->next) && shellcmd->rd_stdin && shellcmd->rd_stdout) { // Single process with in and out.
-                int finid = open(shellcmd->rd_stdin, O_RDONLY);
-                int foutid = open(shellcmd->rd_stdout, O_WRONLY | O_CREAT);
-                dup2(finid, STDIN_FILENUMBER);
-                dup2(foutid, STDOUT_FILENUMBER);
-                startChild(current_cmd, pipe_ends[STDIN_FILENUMBER], pipe_ends[STDOUT_FILENUMBER], first);
-            }
-            if (first && shellcmd->rd_stdin) {  // First with redirect
-                int fid = open(shellcmd->rd_stdin, O_RDONLY);
-                dup2(fid, STDIN_FILENUMBER);
-                startChild(current_cmd, pipe_ends[STDIN_FILENUMBER], pipe_ends[STDOUT_FILENUMBER], first);
-            } else if (!(current_cmd->next) && shellcmd->rd_stdout) { // Last with redirect
-                int fid = open(shellcmd->rd_stdout, O_WRONLY | O_CREAT);
-                dup2(fid, STDOUT_FILENUMBER);
-                startChild(current_cmd, pipe_in, pipe_ends[STDOUT_FILENUMBER], first);
-            } else { // No redirect - Any of first/middle/last
-                startChild(current_cmd, pipe_in, pipe_ends[STDOUT_FILENUMBER], first);
-            }
+            int *in, *out;
+            *in = -1; *out = -1;
+            setInOut(shellcmd, current_cmd, pipe_ends, pipe_in, first, in, out);
+            startChild(current_cmd, *in, *out);
         }
         else {                                  // Parent process.
             if (!first) {
                 close(pipe_in);
             }
             pipe_in = pipe_ends[STDIN_FILENUMBER];
+            close(pipe_ends[STDOUT_FILENUMBER]);
             first = 0;                              //No longer the first command.
             current_cmd = current_cmd->next;        //Assign the next command for execution.
         }
     }
     
     close(pipe_ends[STDIN_FILENUMBER]);         //Close the pipe in parent
-    close(pipe_ends[STDOUT_FILENUMBER]);
 
     if (shellcmd->background) {                 //If the user specified to execute in background, then don't wait.
         return 0;
