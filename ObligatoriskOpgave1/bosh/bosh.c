@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <ctype.h>
+#include <fcntl.h>
 #include <string.h>
 #include <readline/readline.h>
 #include <readline/history.h>
@@ -47,6 +48,9 @@ void startChild(Cmd *command, int readPipe, int writePipe, int first) {
 
     if (command->next) {							//This is one of several commands.
         if (first) {
+            if (readPipe == 0) {
+                // dont do anything
+            }
             close(readPipe);						//Close the pipe end we don't need.
             dup2(writePipe, STDOUT_FILENUMBER);     //Substitute stdout with pipe.
             close(writePipe);						//Close after "assigning" pipe end.
@@ -96,7 +100,24 @@ int executeshellcmd (Shellcmd *shellcmd)
         process_id = fork();                   	//Instantiate new process.
         
         if (process_id == 0) {                 	//This is a child process.
-            startChild(current_cmd, pipe_in, pipe_ends[STDOUT_FILENUMBER], first);
+            if (first && !(current_cmd->next) && shellcmd->rd_stdin && shellcmd->rd_stdout) { // Single process with in and out.
+                int finid = open(shellcmd->rd_stdin, O_RDONLY);
+                int foutid = open(shellcmd->rd_stdout, O_WRONLY | O_CREAT);
+                dup2(finid, STDIN_FILENUMBER);
+                dup2(foutid, STDOUT_FILENUMBER);
+                startChild(current_cmd, pipe_ends[STDIN_FILENUMBER], pipe_ends[STDOUT_FILENUMBER], first);
+            }
+            if (first && shellcmd->rd_stdin) {  // First with redirect
+                int fid = open(shellcmd->rd_stdin, O_RDONLY);
+                dup2(fid, STDIN_FILENUMBER);
+                startChild(current_cmd, pipe_ends[STDIN_FILENUMBER], pipe_ends[STDOUT_FILENUMBER], first);
+            } else if (!(current_cmd->next) && shellcmd->rd_stdout) { // Last with redirect
+                int fid = open(shellcmd->rd_stdout, O_WRONLY | O_CREAT);
+                dup2(fid, STDOUT_FILENUMBER);
+                startChild(current_cmd, pipe_in, pipe_ends[STDOUT_FILENUMBER], first);
+            } else { // No redirect - Any of first/middle/last
+                startChild(current_cmd, pipe_in, pipe_ends[STDOUT_FILENUMBER], first);
+            }
         }
         else {                                  // Parent process.
             if (!first) {
