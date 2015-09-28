@@ -48,9 +48,6 @@ void startChild(Cmd *command, int readPipe, int writePipe, int first) {
 
     if (command->next) {							//This is one of several commands.
         if (first) {
-            if (readPipe == 0) {
-                // dont do anything
-            }
             close(readPipe);						//Close the pipe end we don't need.
             dup2(writePipe, STDOUT_FILENUMBER);     //Substitute stdout with pipe.
             close(writePipe);						//Close after "assigning" pipe end.
