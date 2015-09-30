@@ -1,1 +1,17 @@
 \section{Indledning}
+Denne rapport har til formål at beskrive implementationen af en shell til Linux skrevet i C. Implementationen skal give brugeren funktionalitet svarende til en begrænset version af bash. 
+
+Shellen skal understøtte følgende funktionalitet:
+\begin{itemize}
+	\item Implementationen skal fungere uafhængig og det må ikke kræve et system kald at starte shellen.
+	\item Brugeren skal kunne køre enkeltstående operativ kommandoer.
+	\item Hvis en kommando ikke eksisterer skal der printes meddelelsen "Command not found"
+	\item Brugeren skal kunne starte processor i baggrunden ved at postfixe kommandoen med '\&'.
+	\item Brugeren skal kunne pipe kommandoer sammen ved hjælp af tegnet '|'.
+	\item Brugeren skal kunne redirecte input af den første kommando til en fil.
+	\item Brugeren skal kunne redirecte output af den sidste kommando til en fil.
+	\item Kommandoen 'exit' skal afslutte shellen.
+	\item Ctrl-C skal afslutte programmet der kører i shellen men ikke shellen selv.
+\end{itemize}
+
+Shellen vil i løbet af rapporten blive refereret til som BOSC.
