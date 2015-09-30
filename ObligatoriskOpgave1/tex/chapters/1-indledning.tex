@@ -1,12 +1,13 @@
 \section{Indledning}
-Denne rapport har til formål at beskrive implementationen af en shell til Linux skrevet i C. Implementationen skal give brugeren funktionalitet svarende til en begrænset version af bash. 
+Denne rapport har til formål at beskrive implementationen af en shell til Linux skrevet i C. Implementationen skal give brugeren funktionalitet svarende til en begrænset version af Bash\footnote{https://www.gnu.org/software/bash/}. 
 
 Shellen skal understøtte følgende funktionalitet:
 \begin{itemize}
 	\item Implementationen skal fungere uafhængig og det må ikke kræve et system kald at starte shellen.
-	\item Brugeren skal kunne køre enkeltstående operativ kommandoer.
+	\item Shellen skal vise hostname.
+	\item Brugeren skal kunne køre enkeltstående operativ kommandoer som starter programmer der ligger på styresystemet.\todo{muligvis tilføj ls}
 	\item Hvis en kommando ikke eksisterer skal der printes meddelelsen "Command not found"
-	\item Brugeren skal kunne starte processor i baggrunden ved at postfixe kommandoen med '\&'.
+	\item Brugeren skal kunne starte processor i baggrunden ved at postfixe sit input med '\&'.
 	\item Brugeren skal kunne pipe kommandoer sammen ved hjælp af tegnet '|'.
 	\item Brugeren skal kunne redirecte input af den første kommando til en fil.
 	\item Brugeren skal kunne redirecte output af den sidste kommando til en fil.

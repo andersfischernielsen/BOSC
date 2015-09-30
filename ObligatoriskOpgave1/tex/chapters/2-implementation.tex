@@ -1,6 +1,9 @@
 \section{Implementation}
 \subsection{Hostnavn}
 \subsection{Enkeltstående kommandoer}
+BOSC skal ikke reimplementere operativ programmer men derimod kalde starte dem. Dette gøres ved at forke shellen process ud i to processor ved hjælp af systemkaldet \verb+fork()+. Børne processen kan derefter ved hjælp af systemkaldet \verb+execvp()+ starte programmer der ligger i Path i operativsystemet. 
+
+Den udleverede \verb+parser.h+ opsplitter automatisk brugerens input i kommandoer og parametre. Derfor kan BOSC videreføre augumenter til \verb+execvp+ således at programmet udføres som forventet.
 \subsection{Baggrundsprocesser}
 En proces kan startes i baggrunden i BOSC. \\ 
 Dette indebærer at BOSC starter processen, og ikke venter på at processen bliver færdig med eksekvering. \\
