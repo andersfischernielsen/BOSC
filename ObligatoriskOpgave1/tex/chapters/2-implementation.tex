@@ -27,7 +27,7 @@ Hvis brugeren har tastet \verb+&+, er den bolske værdi \verb+background+ i \ver
 
 Det tjekkes i \verb+bosh.c+ hvorvidt værdien er \verb+true+, og hvis dette er tilfældet, returnerer \verb+executeshellcmd+. Hvis ikke anvendes systemkaldet \verb+waitpid()+, og forældreprocessen venter på børneprocessens eksekvering. Herefter returneres.
 \subsection{Redirection til og fra filer}
-For at 
+En process in og out kan sættes ved hjælp af \verb+dup()+ eller \verb+dup2()+ systemkaldene. Disse tager et programs standard in og out og sætter dem til den en og out som sættes i parametrene. I metoden \verb+start_child()+ i \verb+bosc.c+
 \subsection{Pipes}
 \subsection{Afslutning}
 For at brugeren kan skrive \verb+exit+ i BOSH og dermed afslutte programmet, er en enkelt linie tilføjet til \verb+bosh.c+'s \verb+main()+-funktion. 
@@ -40,4 +40,4 @@ For at gøre det muligt at CTRL+C'e sig ud af et givent kørende program anvende
 
 Dette er nødvendigt da der i \verb+main()+-funktionen (som vi har fået udleveret) er kaldt \verb+signal(SIGINT, SIG_IGN)+, der beder processen (dvs. forældreprocessen) ignorere \verb+interrupt+, da det er ønsket kun at kunne afbryde brugerens kaldte processer. 
 
-BOSH selv skal ikke afbryde.  
+BOSH selv skal ikke afbryde.

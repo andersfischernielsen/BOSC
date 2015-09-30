@@ -15,4 +15,10 @@ Shellen skal understøtte følgende funktionalitet:
 	\item Ctrl-C skal afslutte programmet der kører i shellen men ikke shellen selv.
 \end{itemize}
 
-Shellen vil i løbet af rapporten blive refereret til som BOSC.
+Shellen vil i løbet af rapporten blive refereret til som BOSH.
+
+BOSH implementation er skrevet i filen \verb+bosh.c+, i metoderne \verb+char *gethostname(char *hostname)+, \verb+Cmd* reverse(Cmd* root)+, \verb+void start_child(Cmd *command, int readPipe, int writePipe)+, \verb+void set_in_out(Shellcmd *shellcmd, Cmd *current_cmd, int pipe_ends[], int pipe_in, int first, int *in, int *out)+ og \verb+int executeshellcmd (Shellcmd *shellcmd)+. 
+
+Projektet inkluderer også en Makefile som tillader brugeren at kompilerer og fjerne de kompilerede filer ved henholdsvis kaldene \verb+make+ og \verb+make clean+. Disse kald skal laves fra terminalen, eller BOSH, mens terminalens aktuelle filsti er den samme som make.h
+
+BOSH køres ved kommandoen \verb+./bosh+ efter programmet er kompileret, mens terminalens aktuelle filsti er den samme som \verb+bosh+
