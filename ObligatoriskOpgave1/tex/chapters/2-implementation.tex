@@ -28,39 +28,51 @@ Dette er implementeret ved hjælp af systemkaldene \texttt{execvp} og \texttt{fo
 
 Der oprettes en barne-proces når brugeren indtaster en kommando. Denne proces står for eksekvering af den ønskede kommando ved hjælp af \texttt{execvp}. Hvis brugeren har tastet \texttt{\&}, er den bolske værdi \texttt{background} i input parameteren sat til \texttt{1}. Det tjekkes i \texttt{bosh.c} hvorvidt værdien er \texttt{1}, og hvis dette er tilfældet, returnerer \texttt{executeshellcmd} uden at vente på barne-processens eksekvering. Hvis ikke, anvendes systemkaldet \texttt{waitpid} med barne-processens proces-id. Forældreprocessen venter dermed på barne-processens eksekvering.\\
 
-\texttt{waitpid} systemkaldet tager imod en \texttt{pid\_t}, en status i form en \texttt{int}-pointer og et options-flag i form an en \texttt{int}-værdi. Den returnerer \texttt{pid\_t} på den process den ventede på.
+\texttt{waitpid} systemkaldet tager imod en \texttt{pid\_t}, en status i form en \texttt{int}-pointer og et options-flag i form an en \texttt{int}-værdi. Den returnerer \texttt{pid\_t} på den process den ventede på og sætter desuden status-flaget til værdien der blev returneret af barne-processen.
 
 \subsection{Pipes og redirection til og fra filer}
-En process in og out kan sættes ved hjælp af \texttt{dup} eller \texttt{dup2} systemkaldene. Disse tager et programs standard in og out og sætter dem til den en og out som sættes i parametrene. En pipe tillader to processer at kommunikere ved at sætte den ene process' out til pipens out og den anden process' in til pipens in.
+Når processer skal kommunikere, kan dette gøres ved hjælp af pipes. Pipes fungerer ved at operativsystemet opretholder en række fildeskriptorer pr. proces. I brugerprogrammer repræsenteres fildeskriptorer som \texttt{int}-værdier. 
 
-I BOSH skal vi håndterer både redirects og og pipes. Tilsammen er der 9 forskellige cases.
+Fildeskriptorer benyttes også til at henvise til filer. Dette betyder at en proces' input eller output kan henvises til en fil eller en pipe.
+
+Pipes oprettes af operativsystemet ved at forbinde to fildeskriptorer. Pipen har en læseende og en skriveende. Pipes oprettes af systemkaldet \texttt{pipe}.\\
+
+En proces' \texttt{standard in} og \texttt{standard out} kan sættes ved hjælp af \texttt{dup2} systemkaldet. Dette kald lukker en given fildeskriptor og kopierer en ny over på dens plads. 
+
+En pipe tillader to processer at kommunikere ved at sætte den ene proces' out til pipens out og den anden proces' in til pipens in ved hjælp af \texttt{dup2}.
+
+BOSH skal håndtere både redirects og pipes. Tilsammen er der 9 forskellige scenarier:
 \begin{enumerate}
 	\item Enkeltstående kommando har redirect in og out.
 	\item Enkeltstående kommando har redirect in.
-	\item Første kommando, men ikke sidste, har redirect in, og skal skrive til en ny pipe.
-	\item Eneste kommando har redirect out.
-	\item Sidste, men ikke første, kommando har redirect out og skal læse fra pipen.
+	\item Første kommando, men \textit{ikke} sidste, har redirect in, og skal skrive til en ny pipe.
+	\item Enkeltstående kommando har redirect out.
+	\item Sidste, men \textit{ikke} første, kommando har redirect out og skal læse fra pipen.
 	\item Enkeltstående kommando har ingen redirects.
-	\item Første, men ikke sidste, kommando skal skrive til en ny pipe.
-	\item Sidste kommando, men ikke første, uden redirect men skal læse fra pipe.
-	\item Mellemstående kommando, skal læse fra pipe og skrive til en ny pipe.
+	\item Første, men \textit{ikke} sidste, kommando skal skrive til en ny pipe.
+	\item Sidste kommando, men \textit{ikke} første, skal læse fra pipe.
+	\item Mellemstående kommando, skal læse fra en pipe og skrive til en ny pipe.
 \end{enumerate}
 
-Disse cases er håndteret i funktionen \texttt{set\_in\_out}, dog er der lavet nogle optimeringer som gør at hvert case ikke er direkte repræsenteret med if statements men at de bliver dækket af hinanden, fx. er case 4 og 5 dækket af samme branch fordi argumentet \texttt{pipe\_in} bliver sat til henholdsvis standard in eller den tidligere pipes in.
+Disse scenarier er håndteret i funktionen \texttt{set\_in\_out}, dog er der lavet nogle optimeringer som gør at hvert scenarie ikke er direkte repræsenteret med if statements, således at de bliver dækket af hinanden. Fx. er scenarie 4 og 5 dækket af samme branch fordi argumentet \texttt{pipe\_in} bliver sat til henholdsvis standard in eller den tidligere pipes in.\\
 
-Funktionen \texttt{set\_in\_out()} tager desuden imod en række argumenter, hvor de sidste to er resultaterne af metoden. Disse to argumenter er \textit{pointers} til hukommelses områder der indeholder integers. Når funktionen returnerer er begge disse hukommelsesområder sat til de tal der repræsenterer henholdsvis ind- og ud-fildeskriptorerne. Disse deskriptorer håndteres af operativsystemet, på en sådan måde, at man ikke kan se forskel på pipes og egentlige filer. På den måde har vi kunne spare en del kode i \texttt{start\_child()}, da der ikke programmæssigt på dette tidspunkt er forskel på de forskellige typer ind og ud-strømme.
+Funktionen \texttt{set\_in\_out} tager desuden imod en række argumenter, hvor de sidste to benyttes som resultater af funktionen. Disse to argumenter er \texttt{int}-pointers. Når funktionen returnerer er begge disse hukommelsesområder sat til de tal der repræsenterer henholdsvis ind- og ud-fildeskriptorerne. Da der ikke kan ses forskel på pipes og egentlige filer kan en del kode spares i \texttt{start\_child}, da der ikke programmæssigt af ind og ud-strømme.\\
 
-Når der i funktionen \texttt{set\_in\_out()} åbnes filer, er der forskel på om der skal læses eller skrives til filen. Åbningen af disse filer gøres ved hjælp af systemkaldet \texttt{open}, der ligesom \texttt{fopen}, åbner en fil. Forskellen på de to, er blandt andet at \texttt{open} returnere et heltal der refererer til en fildeskriptor, i stedet for FILE-typen. Man kan i \texttt{open}-funktionen også fortælle hvad man skal bruge filen til. Fx læse eller skrive. I tilfældet hvor vi åbner en fil for at skrive til den, er vi blevet nødt til at give den et ekstra flag \texttt{S\_IRWXU} som indikerer at den bruger der kører BOSH har adgang til at læse, skrive og udføre filen efterfølgende, da filen ellers blev låst, uden mulighed for brugeren at læse den. Vi beder selvfølgelig kun om de nødvendige tilladelser, så i tilfældet hvor en fil skal læses, beder vi kun om lov til at læse filen.
+Når der i funktionen \texttt{set\_in\_out} åbnes filer, er der forskel på om der skal læses eller skrives til filen. Åbningen af disse filer sker ved hjælp af systemkaldet \texttt{open}, der ligesom \texttt{fopen}, åbner en fil. Forskellen på de to, er blandt andet at \texttt{open} returnerer en \texttt{int} der refererer til en fildeskriptor, i stedet for \texttt{FILE}-typen. Man skal i \texttt{open}-funktionen også fortælle hvad man skal bruge filen til, fx læse eller skrive. I tilfældet hvor en fil åbnes for at skrive til den, er man nødt til at give den et ekstra flag \texttt{S\_IRWXU}, der indikerer, at den bruger der kører BOSH har adgang til at læse, skrive og udføre filen efterfølgende. Hvis dette ikke gøres bliver filen låst, uden mulighed for at brugeren kan læse den.\\
+
+\texttt{dup2} tager imod to \texttt{int}-parametre der angiver fildeskriptorer. \texttt{dup2} lukker fildeskriptoren givet i den anden parameter og kopierer den første fildeskriptor ind på dens plads.\\
+
+\texttt{pipe} tager imod et \texttt{int}-array af længden 2. Når funktionen kaldes oprettes to forbundne fildeskriptorer, der indsættes i arrayet. På plads 0 findes pipens læseende og på plads 1 pipens skriveende.\\
+
+\texttt{open} tager imod to eller tre argumenter: en filsti og en adgangstilladelse til enten at skrive eller læse og eventuelt en \texttt{mode\_t} som angiver filrettighederne af den oprettede fil. Bortset fra den sidste parameter fungerer funktionen ligesom \texttt{fopen}, pånær returtyppen som i dette tilfælde er en \texttt{int} der repræsenterer en fildeskriptor.
 
 \subsection{Afslutning}
-For at brugeren kan skrive \texttt{exit} i BOSH og dermed afslutte programmet, er en enkelt linie tilføjet til \texttt{bosh.c}'s \texttt{main}-funktion. 
+For at brugeren kan skrive "\texttt{exit}" i BOSH og dermed afslutte programmet, er en enkelt linie tilføjet til \texttt{bosh.c}'s \texttt{main}-funktion. Det tjekkes ved hjælp af \texttt{strcmp} hvorvidt den givne linie fra brugeren ikke er lig "\texttt{exit}". Hvis dette er tilfældet sættes \texttt{terminate} til \texttt{1}, hvilket indikerer at BOSH skal afslutte. Herefter printes \texttt{"Exiting BOSH."} og programmet afsluttes. \\
 
-Det tjekkes vha. \texttt{strcmp} hvorvidt den givne linie fra brugeren ikke er lig \texttt{"exit"}.
-
-Hvis dette er tilfældet sættes \texttt{terminate} til \texttt{1}, hvilket indikerer, at BOSH skal afslutte. Herefter printes \texttt{"Exiting BOSH."} og programmet afsluttes. 
+\texttt{strcmp} funktionen sammenligner to \texttt{char}-arrays og returnerer en \texttt{int} der er negativ hvis det første argument er mindre end det andet og positivt hvis det første argument er større. BOSH benytter sig af casen hvor de to argumenter er ens og funktionen returnerer 0.
 
 \subsection{Luk kommandoer, men ikke BOSH}
-For at gøre det muligt at CTRL+C'e sig ud af et givent kørende program anvendes \texttt{signal} systemkaldet. Ved at kalde \texttt{signal(SIGINT, SIG\_DFL)} når en børneproces startes i \texttt{start\_child}-funktionen, sættes SIGINT (der sender \texttt{interrupt} til processen) tilbage til standard-opførsel.
+For at gøre det muligt at benytte \texttt{CTRL-C} til at lukke et givent kørende program, anvendes \texttt{signal} systemkaldet. Ved at kalde \texttt{signal(SIGINT, SIG\_DFL)} når en barne-proces startes i \texttt{start\_child}-funktionen, sættes \texttt{SIGINT} (der sender \texttt{interrupt} til processen) tilbage til standard-opførsel.\\
 
 Dette er nødvendigt da der i \texttt{main}-funktionen (som vi har fået udleveret) er kaldt \texttt{signal(SIGINT, SIG\_IGN)}, der beder processen (dvs. forældreprocessen) ignorere \texttt{interrupt}, da det er ønsket kun at kunne afbryde brugerens kaldte processer. 
 
