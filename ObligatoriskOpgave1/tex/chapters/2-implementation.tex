@@ -16,25 +16,22 @@ Da \texttt{fscanf} ikke tager imod en maxlængde af \texttt{hostname} kan et \te
 \subsection{Enkeltstående kommandoer}
 BOSH skal ikke reimplementere programmer i operativsystemet, men derimod starte dem. Dette gøres ved at dele shellen process ud i to processor ved hjælp af systemkaldet \texttt{fork}. Barne-processen kan derefter ved hjælp af systemkaldet \texttt{execvp} starte programmer der ligger i PATH\footnote{\url{http://www.linfo.org/path_env_var.html}} i operativsystemet.\\
 
-\texttt{fork} systemkaldet returnerer typen \texttt{pid\_t} der indikerer hvorvidt processen er en barne- eller forældre-process. Hvis værdien er 0 er den aktuelle proces barnet. Dette muliggør at uddelegere logik kun til barne-processen eller forældreprocessen.
+\texttt{fork} systemkaldet returnerer typen \texttt{pid\_t} der indikerer hvorvidt processen er en barne- eller forældre-process. Hvis værdien er 0 er den aktuelle proces barnet. Dette muliggør at uddelegere logik kun til barne-processen eller forældreprocessen.\\
 
-\texttt{execvp} systemkaldet tager imod et processnavn og en array af processnavnet og eventuelle parametre. Den nuværende proces bliver herefter erstattet af den givne process.
+\texttt{execvp} systemkaldet tager imod et processnavn og en array af processnavnet og eventuelle parametre. Den nuværende proces bliver herefter erstattet af den givne process.\\
 
-Den udleverede \verb+parser.h+ opsplitter automatisk brugerens input i kommandoer og parametre. Derfor kan BOSH videreføre augumenter til \verb+execvp+ således at programmet udføres som forventet.
+Den udleverede \texttt{parser.h} opsplitter automatisk brugerens input i kommandoer og parametre. Derfor kan BOSH videreføre augumenter til \texttt{execvp} således at programmet udføres som forventet.
 \subsection{Baggrundsprocesser}
-En proces kan startes i baggrunden i BOSH. Dette indebærer at BOSH starter processen, og ikke venter på at processen bliver færdig med eksekvering. 
+BOSH skal understøtte at starte processer i baggrunden. Dette betyder at BOSH starter processen, og ikke venter på at processen bliver færdig med dennes eksekvering. Kontrollen gives tilbage til BOSH, og brugeren kan herefter evt. indtaste en ny kommando til eksekvering.\\
 
-Kontrollen gives tilbage til BOSH, og brugeren kan herefter evt. indtaste en ny kommando til eksekvering. 
+Dette er implementeret ved hjælp af systemkaldene \texttt{execvp} og \texttt{fork}. Brugerens kommando bliver trukket ud af \texttt{executeshellcmd}'s input parameter, og gives som parameter til \texttt{execvp} sammen med eventuelle tilhørende argumenter. \\
 
-Dette er helt konkret implementeret vha. systemkaldene \verb+execvp()+ og \verb+fork()+. Brugerens kommando bliver trukket ud af \verb+parser.c+'s resultat, og gives som parameter til \verb+execvp()+ sammen med eventuelle tilhørende argumenter. 
+Der oprettes en barne-proces når brugeren indtaster en kommando. Denne proces står for eksekvering af den ønskede kommando ved hjælp af \texttt{execvp}. Hvis brugeren har tastet \texttt{\&}, er den bolske værdi \texttt{background} i input parameteren sat til \texttt{1}. Det tjekkes i \texttt{bosh.c} hvorvidt værdien er \texttt{1}, og hvis dette er tilfældet, returnerer \texttt{executeshellcmd} uden at vente på barne-processens eksekvering. Hvis ikke, anvendes systemkaldet \texttt{waitpid} med barne-processens proces-id. Forældreprocessen venter dermed på barne-processens eksekvering.\\
 
-Der oprettes en børne-proces når brugeren indtaster en kommando. Denne kommando står for eksekvering af den ønskede kommande vha. \verb+execvp()+. 
+\texttt{waitpid} systemkaldet tager imod en \texttt{pid\_t}, en status i form en \texttt{int}-pointer og et options-flag i form an en \texttt{int}-værdi. Den returnerer \texttt{pid\_t} på den process den ventede på.
 
-Hvis brugeren har tastet \verb+&+, er den bolske værdi \verb+background+ i \verb+parser.c+'s resultat sat til true. 
-
-Det tjekkes i \verb+bosh.c+ hvorvidt værdien er \verb+true+, og hvis dette er tilfældet, returnerer \verb+executeshellcmd+. Hvis ikke anvendes systemkaldet \verb+waitpid()+, og forældreprocessen venter på børneprocessens eksekvering. Herefter returneres.
 \subsection{Pipes og redirection til og fra filer}
-En process in og out kan sættes ved hjælp af \verb+dup()+ eller \verb+dup2()+ systemkaldene. Disse tager et programs standard in og out og sætter dem til den en og out som sættes i parametrene. En pipe tillader to processer at kommunikere ved at sætte den ene process' out til pipens out og den anden process' in til pipens in.
+En process in og out kan sættes ved hjælp af \texttt{dup} eller \texttt{dup2} systemkaldene. Disse tager et programs standard in og out og sætter dem til den en og out som sættes i parametrene. En pipe tillader to processer at kommunikere ved at sætte den ene process' out til pipens out og den anden process' in til pipens in.
 
 I BOSH skal vi håndterer både redirects og og pipes. Tilsammen er der 9 forskellige cases.
 \begin{enumerate}
@@ -49,21 +46,22 @@ I BOSH skal vi håndterer både redirects og og pipes. Tilsammen er der 9 forske
 	\item Mellemstående kommando, skal læse fra pipe og skrive til en ny pipe.
 \end{enumerate}
 
-Disse cases er håndteret i funktionen \verb+set_in_out()+, dog er der lavet nogle optimeringer som gør at hvert case ikke er direkte repræsenteret med if statements men at de bliver dækket af hinanden, fx. er case 4 og 5 dækket af samme branch fordi argumentet \texttt{pipe\_in} bliver sat til henholdsvis standard in eller den tidligere pipes in.
+Disse cases er håndteret i funktionen \texttt{set\_in\_out}, dog er der lavet nogle optimeringer som gør at hvert case ikke er direkte repræsenteret med if statements men at de bliver dækket af hinanden, fx. er case 4 og 5 dækket af samme branch fordi argumentet \texttt{pipe\_in} bliver sat til henholdsvis standard in eller den tidligere pipes in.
 
 Funktionen \texttt{set\_in\_out()} tager desuden imod en række argumenter, hvor de sidste to er resultaterne af metoden. Disse to argumenter er \textit{pointers} til hukommelses områder der indeholder integers. Når funktionen returnerer er begge disse hukommelsesområder sat til de tal der repræsenterer henholdsvis ind- og ud-fildeskriptorerne. Disse deskriptorer håndteres af operativsystemet, på en sådan måde, at man ikke kan se forskel på pipes og egentlige filer. På den måde har vi kunne spare en del kode i \texttt{start\_child()}, da der ikke programmæssigt på dette tidspunkt er forskel på de forskellige typer ind og ud-strømme.
 
 Når der i funktionen \texttt{set\_in\_out()} åbnes filer, er der forskel på om der skal læses eller skrives til filen. Åbningen af disse filer gøres ved hjælp af systemkaldet \texttt{open}, der ligesom \texttt{fopen}, åbner en fil. Forskellen på de to, er blandt andet at \texttt{open} returnere et heltal der refererer til en fildeskriptor, i stedet for FILE-typen. Man kan i \texttt{open}-funktionen også fortælle hvad man skal bruge filen til. Fx læse eller skrive. I tilfældet hvor vi åbner en fil for at skrive til den, er vi blevet nødt til at give den et ekstra flag \texttt{S\_IRWXU} som indikerer at den bruger der kører BOSH har adgang til at læse, skrive og udføre filen efterfølgende, da filen ellers blev låst, uden mulighed for brugeren at læse den. Vi beder selvfølgelig kun om de nødvendige tilladelser, så i tilfældet hvor en fil skal læses, beder vi kun om lov til at læse filen.
 
 \subsection{Afslutning}
-For at brugeren kan skrive \verb+exit+ i BOSH og dermed afslutte programmet, er en enkelt linie tilføjet til \verb+bosh.c+'s \verb+main()+-funktion. 
+For at brugeren kan skrive \texttt{exit} i BOSH og dermed afslutte programmet, er en enkelt linie tilføjet til \texttt{bosh.c}'s \texttt{main}-funktion. 
 
-Det tjekkes vha. \verb+strcmp+ hvorvidt den givne linie fra brugeren ikke er lig \verb+"exit"+.
+Det tjekkes vha. \texttt{strcmp} hvorvidt den givne linie fra brugeren ikke er lig \texttt{"exit"}.
 
-Hvis dette er tilfældet sættes \verb+terminate+ til \verb+1+, hvilket indikerer, at BOSH skal afslutte. Herefter printes \verb+"Exiting BOSH."+ og programmet afsluttes. 
+Hvis dette er tilfældet sættes \texttt{terminate} til \texttt{1}, hvilket indikerer, at BOSH skal afslutte. Herefter printes \texttt{"Exiting BOSH."} og programmet afsluttes. 
+
 \subsection{Luk kommandoer, men ikke BOSH}
-For at gøre det muligt at CTRL+C'e sig ud af et givent kørende program anvendes \verb+signal()+ systemkaldet. Ved at kalde \verb+signal(SIGINT, SIG_DFL)+ når en børneproces startes i \verb+start_child()+-funktionen, sættes SIGINT (der sender \verb+interrupt+ til processen) tilbage til standard-opførsel.
+For at gøre det muligt at CTRL+C'e sig ud af et givent kørende program anvendes \texttt{signal} systemkaldet. Ved at kalde \texttt{signal(SIGINT, SIG\_DFL)} når en børneproces startes i \texttt{start\_child}-funktionen, sættes SIGINT (der sender \texttt{interrupt} til processen) tilbage til standard-opførsel.
 
-Dette er nødvendigt da der i \verb+main()+-funktionen (som vi har fået udleveret) er kaldt \verb+signal(SIGINT, SIG_IGN)+, der beder processen (dvs. forældreprocessen) ignorere \verb+interrupt+, da det er ønsket kun at kunne afbryde brugerens kaldte processer. 
+Dette er nødvendigt da der i \texttt{main}-funktionen (som vi har fået udleveret) er kaldt \texttt{signal(SIGINT, SIG\_IGN)}, der beder processen (dvs. forældreprocessen) ignorere \texttt{interrupt}, da det er ønsket kun at kunne afbryde brugerens kaldte processer. 
 
 BOSH selv skal ikke afbryde.
