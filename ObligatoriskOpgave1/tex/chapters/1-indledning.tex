@@ -27,8 +27,15 @@ Shellen skal understøtte følgende funktionalitet:
 
 
 \subsection{Start og udførsel af BOSH}
-BOSH implementation er skrevet i filen \verb+bosh.c+, i metoderne \verb+char *gethostname(char *hostname)+, \verb+Cmd* reverse(Cmd* root)+, \verb+void start_child(Cmd *command, int readPipe, int writePipe)+, \verb+void set_in_out(Shellcmd *shellcmd, Cmd *current_cmd, int pipe_ends[], int pipe_in, int first, int *in, int *out)+ og \verb+int executeshellcmd (Shellcmd *shellcmd)+. 
+BOSH implementation er skrevet i filen \verb+bosh.c+, i metoderne:
+\begin{itemize}
+	\item \texttt{char *gethostname(char *hostname)}
+	\item \texttt{Cmd *reverse(Cmd* root)}
+	\item \texttt{void start\_child(Cmd *command, int readPipe, int writePipe)}
+	\item \texttt{void set\_in\_out(Shellcmd *shellcmd, Cmd *current\_cmd, int pipe\_ends[], int pipe\_in, int first, int *in, int *out)}
+	\item \texttt{int executeshellcmd (Shellcmd *shellcmd)}
+\end{itemize}
 
-Projektet inkluderer også en Makefile som tillader brugeren at kompilerer og fjerne de kompilerede filer ved henholdsvis kaldene \verb+make+ og \verb+make clean+. Disse kald skal laves fra terminalen, eller BOSH, mens terminalens aktuelle filsti er den samme som make.h
+Projektet inkluderer også en Make fil som tillader brugeren at kompilere og fjerne de kompilerede filer ved henholdsvis kaldene \verb+make+ og \verb+make clean+. Disse kald skal laves fra terminalen, eller BOSH, mens terminalens aktuelle filsti er den samme som filen \verb+Makefile+.\\
 
-BOSH køres ved kommandoen \verb+./bosh+ efter programmet er kompileret, mens terminalens aktuelle filsti er den samme som \verb+bosh+
+BOSH køres ved kommandoen \verb+./bosh+ efter programmet er kompileret, mens terminalens aktuelle filsti er den samme som den eksekverbare fil \verb+bosh+.
