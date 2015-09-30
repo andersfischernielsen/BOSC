@@ -10,6 +10,11 @@ Dette er gjort med systemkaldene \texttt{fopen}, \texttt{fclose} og \texttt{fsca
 
 \texttt{fscanf} tager så imod denne FILE, og derudover et format der skal læses, og til sidst, den (eller de) variable eller felter der skal læses til. Vi læser hele filen med formatet \texttt{\%s}, og vi læser hele resultatet ind i hukommelsen, begyndende derfra hvor \texttt{hostname} peger.
 
+\texttt{fclose} lukker den \texttt{FILE} man giver den som argument.
+
+\subsubsection{Mulige problemer}
+Da \texttt{fscanf} ikke tager imod en maxlængde af \texttt{hostname} forestiller vi os at vores nuværende implementation af BOSH kan få problemer i tilfælde af at computeren der kører koden har et hostname der er længere end 100 karakterer, da det er den mængde hukommelse der tildeles feltet \texttt{hostname}.
+
 \subsection{Enkeltstående kommandoer}
 BOSH skal ikke reimplementere operativ programmer men derimod kalde starte dem. Dette gøres ved at forke shellen process ud i to processor ved hjælp af systemkaldet \verb+fork()+. Børne processen kan derefter ved hjælp af systemkaldet \verb+execvp()+ starte programmer der ligger i Path i operativsystemet. 
 
@@ -42,8 +47,14 @@ I BOSH skal vi håndterer både redirects og og pipes. Tilsammen er der 8 forske
 	\item Mellemstående kommando, skal læse fra pipe og skrive til en ny pipe.
 \end{itemize}
 \subsection{Afslutning}
+For at brugeren kan skrive \verb+exit+ i BOSH og dermed afslutte programmet, er en enkelt linie tilføjet til \verb+bosh.c+'s \verb+main()+-funktion. 
 
+Det tjekkes vha. \verb+strcmp+ hvorvidt den givne linie fra brugeren ikke er lig \verb+"exit"+.
+
+Hvis dette er tilfældet sættes \verb+terminate+ til \verb+1+, hvilket indikerer, at BOSH skal afslutte. Herefter printes \verb+"Exiting BOSH."+ og programmet afsluttes. 
 \subsection{Luk kommandoer, men ikke BOSH}
 For at gøre det muligt at CTRL+C'e sig ud af et givent kørende program anvendes \verb+signal()+ systemkaldet. Ved at kalde \verb+signal(SIGINT, SIG_DFL)+ når en børneproces startes i \verb+start_child()+-funktionen, sættes SIGINT (der sender \verb+interrupt+ til processen) tilbage til standard-opførsel.
 
-Dette er nødvendigt da der i \verb+main()+-funktionen (som vi har fået udleveret) er kaldt \verb+signal(SIGINT, SIG_IGN)+, der beder processen (dvs. forældreprocessen) ignorere \verb+interrupt+, da det er ønsket kun at kunne afbryde brugerens kaldte processer. BOSH selv skal ikke afbryde.  
+Dette er nødvendigt da der i \verb+main()+-funktionen (som vi har fået udleveret) er kaldt \verb+signal(SIGINT, SIG_IGN)+, der beder processen (dvs. forældreprocessen) ignorere \verb+interrupt+, da det er ønsket kun at kunne afbryde brugerens kaldte processer. 
+
+BOSH selv skal ikke afbryde.
