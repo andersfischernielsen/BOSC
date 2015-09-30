@@ -36,8 +36,8 @@ En process in og out kan sættes ved hjælp af \verb+dup()+ eller \verb+dup2()+ 
 
 I BOSH skal vi håndterer både redirects og og pipes. Tilsammen er der 9 forskellige cases.
 \begin{enumerate}
-	\item Enkeltstående kommando har redirect in og out
-	\item Enkeltstående kommando har redirect in
+	\item Enkeltstående kommando har redirect in og out.
+	\item Enkeltstående kommando har redirect in.
 	\item Første kommando, men ikke sidste, har redirect in, og skal skrive til en ny pipe.
 	\item Eneste kommando har redirect out.
 	\item Sidste, men ikke første, kommando har redirect out og skal læse fra pipen.
