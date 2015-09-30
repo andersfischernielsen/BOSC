@@ -1,18 +1,18 @@
 \section{Indledning}
-Denne rapport har til formål at beskrive implementationen af en shell til Linux skrevet i C. Implementationen skal give brugeren funktionalitet svarende til en begrænset version af Bash\footnote{https://www.gnu.org/software/bash/}. 
+Denne rapport har til formål at beskrive implementationen af en shell til Linux skrevet i C. Implementationen skal give brugeren funktionalitet svarende til en begrænset version af Bash\footnote{https://www.gnu.org/software/bash/}. \\
 
 Shellen skal understøtte følgende funktionalitet:
 \begin{itemize}
-	\item Implementationen skal fungere uafhængig og det må ikke kræve et system kald at starte shellen.
-	\item Shellen skal vise hostname.
-	\item Brugeren skal kunne køre enkeltstående operativ kommandoer som starter programmer der ligger på styresystemet.\todo{muligvis tilføj ls}
-	\item Hvis en kommando ikke eksisterer skal der printes meddelelsen "Command not found"
-	\item Brugeren skal kunne starte processer i baggrunden ved at postfixe sit input med '\&'.
+	\item Implementationen skal fungere uafhængigt og må ikke starte Bash som en del af implementationen.
+	\item Shellen skal vise hostname, hver gang der kan modtages kommandoer.
+	\item Brugeren skal kunne køre enkeltstående kommandoer der starter programmer som ligger på operativsystemet, inklusiv installerede programmer.
+	\item Hvis en kommando ikke eksisterer skal meddelelsen "Command not found" printes.
+	\item Brugeren skal kunne starte processer i baggrunden ved at efterfølge sit input med '\&'.
 	\item Brugeren skal kunne pipe kommandoer sammen ved hjælp af tegnet '|'.
-	\item Brugeren skal kunne redirecte input af den første kommando til en fil.
-	\item Brugeren skal kunne redirecte output af den sidste kommando til en fil.
+	\item Brugeren skal kunne redirecte input til den første kommando til at læse fra en fil.
+	\item Brugeren skal kunne redirecte output fra den sidste kommando til at skrive til en fil.
 	\item Kommandoen 'exit' skal afslutte shellen.
-	\item Ctrl-C skal afslutte programmet der kører i shellen men ikke shellen selv.
+	\item Ctrl-C skal afslutte programmet der kører i shellen, men ikke shellen selv.
 \end{itemize}
 
 \subsection{Ordbog}
