@@ -20,14 +20,23 @@ BOSC skal ikke reimplementere operativ programmer men derimod kalde starte dem. 
 
 Den udleverede \verb+parser.h+ opsplitter automatisk brugerens input i kommandoer og parametre. Derfor kan BOSC videreføre augumenter til \verb+execvp+ således at programmet udføres som forventet.
 \subsection{Baggrundsprocesser}
-En proces kan startes i baggrunden i BOSC. \\ 
-Dette indebærer at BOSC starter processen, og ikke venter på at processen bliver færdig med eksekvering. \\
-Kontrollen gives tilbage til BOSC, og brugeren kan herefter evt. indtaste en ny kommando til eksekvering. \\
-Dette er helt konkret implementeret vha. systemkaldene \verb+execvp()+ og \verb+fork()+. Brugerens kommando bliver trukket ud af \verb+parser.c+'s resultat, og gives som parameter til \verb+execvp()+ sammen med eventuelle tilhørende argumenter. \\
-Der oprettes en børne-proces når brugeren indtaster en kommando. Denne kommando står for eksekvering af den ønskede kommande vha. \verb+execvp()+. \\
-Hvis brugeren har tastet \verb+&+, er den bolske værdi \verb+background+ i \verb+parser.c+'s resultat sat til true. \\
+En proces kan startes i baggrunden i BOSC. Dette indebærer at BOSC starter processen, og ikke venter på at processen bliver færdig med eksekvering. 
+
+Kontrollen gives tilbage til BOSC, og brugeren kan herefter evt. indtaste en ny kommando til eksekvering. 
+
+Dette er helt konkret implementeret vha. systemkaldene \verb+execvp()+ og \verb+fork()+. Brugerens kommando bliver trukket ud af \verb+parser.c+'s resultat, og gives som parameter til \verb+execvp()+ sammen med eventuelle tilhørende argumenter. 
+
+Der oprettes en børne-proces når brugeren indtaster en kommando. Denne kommando står for eksekvering af den ønskede kommande vha. \verb+execvp()+. 
+
+Hvis brugeren har tastet \verb+&+, er den bolske værdi \verb+background+ i \verb+parser.c+'s resultat sat til true. 
+
 Det tjekkes i \verb+bosh.c+ hvorvidt værdien er \verb+true+, og hvis dette er tilfældet, returnerer \verb+executeshellcmd+. Hvis ikke anvendes systemkaldet \verb+waitpid()+, og forældreprocessen venter på børneprocessens eksekvering. Herefter returneres.
 \subsection{Redirection til og fra filer}
+En process in og out kan sættes ved hjælp af \verb+dup()+ eller \verb+dup2()+ systemkaldene. Disse tager et programs standard in og out og sætter dem til den en og out som sættes i parametrene. I metoden \verb+start_child()+ i \verb+bosc.c+
 \subsection{Pipes}
 \subsection{Afslutning}
+
 \subsection{Luk kommandoer, men ikke BOSH}
+For at gøre det muligt at CTRL+C'e sig ud af et givent kørende program anvendes \verb+signal()+ systemkaldet. Ved at kalde \verb+signal(SIGINT, SIG_DFL)+ når en børneproces startes i \verb+start_child()+-funktionen, sættes SIGINT (der sender \verb+interrupt+ til processen) tilbage til standard-opførsel.
+
+Dette er nødvendigt da der i \verb+main()+-funktionen (som vi har fået udleveret) er kaldt \verb+signal(SIGINT, SIG_IGN)+, der beder processen (dvs. forældreprocessen) ignorere \verb+interrupt+, da det er ønsket kun at kunne afbryde brugerens kaldte processer. BOSH selv skal ikke afbryde.  
