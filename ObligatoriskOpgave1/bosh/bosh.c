@@ -169,7 +169,7 @@ int main(int argc, char* argv[]) {
 	free(cmdline);
       } else terminate = 1;
     }
-    printf("Exiting bosh.\n");
+    printf("Exiting BOSH.\n");
   }    
     
   return EXIT_SUCCESS;
