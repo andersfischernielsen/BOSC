@@ -10,6 +10,11 @@ Dette er gjort med systemkaldene \texttt{fopen}, \texttt{fclose} og \texttt{fsca
 
 \texttt{fscanf} tager så imod denne FILE, og derudover et format der skal læses, og til sidst, den (eller de) variable eller felter der skal læses til. Vi læser hele filen med formatet \texttt{\%s}, og vi læser hele resultatet ind i hukommelsen, begyndende derfra hvor \texttt{hostname} peger.
 
+\texttt{fclose} lukker den \texttt{FILE} man giver den som argument.
+
+\subsubsection{Mulige problemer}
+Da \texttt{fscanf} ikke tager imod en maxlængde af \texttt{hostname} forestiller vi os at vores nuværende implementation af BOSH kan få problemer i tilfælde af at computeren der kører koden har et hostname der er længere end 100 karakterer, da det er den mængde hukommelse der tildeles feltet \texttt{hostname}.
+
 \subsection{Enkeltstående kommandoer}
 BOSC skal ikke reimplementere operativ programmer men derimod kalde starte dem. Dette gøres ved at forke shellen process ud i to processor ved hjælp af systemkaldet \verb+fork()+. Børne processen kan derefter ved hjælp af systemkaldet \verb+execvp()+ starte programmer der ligger i Path i operativsystemet. 
 
