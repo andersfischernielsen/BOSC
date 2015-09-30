@@ -27,7 +27,7 @@ Hvis brugeren har tastet \verb+&+, er den bolske værdi \verb+background+ i \ver
 
 Det tjekkes i \verb+bosh.c+ hvorvidt værdien er \verb+true+, og hvis dette er tilfældet, returnerer \verb+executeshellcmd+. Hvis ikke anvendes systemkaldet \verb+waitpid()+, og forældreprocessen venter på børneprocessens eksekvering. Herefter returneres.
 \subsection{Redirection til og fra filer}
-For at 
+En process in og out kan sættes ved hjælp af \verb+dup()+ eller \verb+dup2()+ systemkaldene. Disse tager et programs standard in og out og sætter dem til den en og out som sættes i parametrene. I metoden \verb+start_child()+ i \verb+bosc.c+
 \subsection{Pipes}
 \subsection{Afslutning}
 \subsection{Luk kommandoer, men ikke BOSH}
