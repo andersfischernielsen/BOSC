@@ -47,7 +47,12 @@ I BOSH skal vi håndterer både redirects og og pipes. Tilsammen er der 9 forske
 	\item Mellemstående kommando, skal læse fra pipe og skrive til en ny pipe.
 \end{enumerate}
 
-Disse cases er håndteret i metoden \verb+set_in_out()+, dog er der lavet nogle optimeringer som gør at hvert case ikke er direkte repræsenteret med if statements men at de bliver dækket af hinanden, fx. er case 4 og 5 dækket af samme branch fordi argumentet pipe-in bliver sat til henholdsvis standard in eller den tidligere pipes in.
+Disse cases er håndteret i funktionen \verb+set_in_out()+, dog er der lavet nogle optimeringer som gør at hvert case ikke er direkte repræsenteret med if statements men at de bliver dækket af hinanden, fx. er case 4 og 5 dækket af samme branch fordi argumentet \texttt{pipe\_in} bliver sat til henholdsvis standard in eller den tidligere pipes in.
+
+Funktionen \texttt{set\_in\_out()} tager desuden imod en række argumenter, hvor de sidste to er resultaterne af metoden. Disse to argumenter er \textit{pointers} til hukommelses områder der indeholder integers. Når funktionen returnerer er begge disse hukommelsesområder sat til de tal der repræsenterer henholdsvis ind- og ud-fildeskriptorerne. Disse deskriptorer håndteres af operativsystemet, på en sådan måde, at man ikke kan se forskel på pipes og egentlige filer. På den måde har vi kunne spare en del kode i \texttt{start\_child()}, da der ikke programmæssigt på dette tidspunkt er forskel på de forskellige typer ind og ud-strømme.
+
+Når der i funktionen \texttt{set\_in\_out()} åbnes filer, er der forskel på om der skal læses eller skrives til filen. Åbningen af disse filer gøres ved hjælp af systemkaldet \texttt{open}, der ligesom \texttt{fopen}, åbner en fil. Forskellen på de to, er blandt andet at \texttt{open} returnere et heltal der refererer til en fildeskriptor, i stedet for FILE-typen. Man kan i \texttt{open}-funktionen også fortælle hvad man skal bruge filen til. Fx læse eller skrive. I tilfældet hvor vi åbner en fil for at skrive til den, er vi blevet nødt til at give den et ekstra flag \texttt{S\_IRWXU} som indikerer at den bruger der kører BOSH har adgang til at læse, skrive og udføre filen efterfølgende, da filen ellers blev låst, uden mulighed for brugeren at læse den. Vi beder selvfølgelig kun om de nødvendige tilladelser, så i tilfældet hvor en fil skal læses, beder vi kun om lov til at læse filen.
+
 \subsection{Afslutning}
 For at brugeren kan skrive \verb+exit+ i BOSH og dermed afslutte programmet, er en enkelt linie tilføjet til \verb+bosh.c+'s \verb+main()+-funktion. 
 
