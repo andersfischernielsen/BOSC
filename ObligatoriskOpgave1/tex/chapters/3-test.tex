@@ -13,16 +13,16 @@ Nedenstående runs er blevet kørt på i vores BOSC.
 	\verb+ls &+
 	\item Én kommando med en parameter
 	
-	\verb+less file.txt+
+	\verb+less parser.h+
 	\item Én kommando med en parameter i baggrunden
 	
-	\verb+less file.txt &+
+	\verb+less parser.h &+
 	\item Én kommando med file redirect in
 	
-	\verb+tee < temp.txt+
+	\verb+tee < parser.h+
 	\item Én kommando med file redirect in i baggrunden
 	
-	\verb+tee < temp.txt &+
+	\verb+tee < parser.h &+
 	\item Én kommando med file redirect out
 	
 	\verb+ls > temp.txt+
@@ -31,10 +31,10 @@ Nedenstående runs er blevet kørt på i vores BOSC.
 	\verb+ls > temp.txt &+
 	\item Én kommando med file redirect in og out
 	
-	\verb+wc -w < in.txt > out.txt+
+	\verb+wc -l < parser.h > lines.txt+
 	\item Én kommando med en parameter med file redirect in og out i baggrunden
 	
-	\verb+wc -w < in.txt > out.txt &+
+	\verb+wc -l < parser.h > lines.txt &+
 	\item Pipe af to kommandoer
 	
 	\verb+ls | tee+
