@@ -6,64 +6,64 @@ Nedenstående runs er blevet kørt på i vores BOSC.
 \begin{enumerate}
 	\item Én kommando
 	
-	\verb+ls+
+	\texttt{ls}
 	\item Én kommando i baggrunden
 	
-	\verb+ls &+
+	\texttt{ls \&}
 	\item Én kommando med en parameter
 	
-	\verb+less parser.h+
+	\texttt{less parser.h}
 	\item Én kommando med en parameter i baggrunden
 	
-	\verb+less parser.h &+
+	\texttt{less parser.h \&}
 	\item Én kommando med file redirect in
 	
-	\verb+tee < parser.h+
+	\texttt{tee < parser.h}
 	\item Én kommando med file redirect in i baggrunden
 	
-	\verb+tee < parser.h &+
+	\texttt{tee < parser.h \&}
 	\item Én kommando med file redirect out
 	
-	\verb+ls > temp.txt+
+	\texttt{ls > temp.txt}
 	\item Én kommando med file redirect out i baggrunden
 	
-	\verb+ls > temp.txt &+
+	\texttt{ls > temp.txt \&}
 	\item Én kommando med file redirect in og out
 	
-	\verb+wc -l < parser.h > lines.txt+
+	\texttt{wc -l < parser.h > lines.txt}
 	\item Én kommando med en parameter med file redirect in og out i baggrunden
 	
-	\verb+wc -l < parser.h > lines.txt &+
+	\texttt{wc -l < parser.h > lines.txt \&}
 	\item Pipe af to kommandoer
 	
-	\verb+ls | tee+
+	\texttt{ls | tee}
 	\item Pipe af to kommandoer i baggrunden
 	
-	\verb+ls | tee &+
+	\texttt{ls | tee \&}
 	\item Pipe af tre kommandoer
 	
-	\verb+dmesg | grep wlan0 | less+
+	\texttt{dmesg | grep wlan0 | less}
 	\item Pipe af tre kommandoer i baggrunden
 	
-	\verb+dmesg | grep wlan0 | less &+
+	\texttt{dmesg | grep wlan0 | less \&}
 	\item  Pipe af tre kommandoer med en redirect in
 	
-	\verb+cat < parser.h | wc -l | tee+
+	\texttt{cat < parser.h | wc -l | tee}
 	\item  Pipe af tre kommandoer med en redirect out
 	
-	\verb+ls | wc -w | tee > elements.txt+
+	\texttt{ls | wc -w | tee > elements.txt}
 	\item  Pipe af tre kommandoer med en redirect in og out
 	
-	\verb+cat < parser.h | wc -l | tee > lines.txt+
+	\texttt{cat < parser.h | wc -l | tee > lines.txt}
 	\item  Pipe af tre kommandoer med en redirect in i baggrunden
 	
-	\verb+cat < parser.h | wc -l | tee &+
+	\texttt{cat < parser.h | wc -l | tee \&}
 	\item  Pipe af tre kommandoer med en redirect out i baggrunden
 	
-	\verb+ls | wc -w | tee > elements.txt &+
+	\texttt{ls | wc -w | tee > elements.txt \&}
 	\item  Pipe af tre kommandoer med en redirect in og out i baggrunden
 	
-	\verb+cat < parser.h | wc -l | tee > lines.txt &+
+	\texttt{cat < parser.h | wc -l | tee > lines.txt \&}
 \end{enumerate}
 
-Der er mange steder man kunne forbedre testingen af shellen, mest indlysende ville være at benytte sig af automatiserede tests. Dette kunne gøre ved at benytte sig af en automatiseret unit test suite til C såsom CMocka\footnote{https://cmocka.org/}.
+Der er mange steder man kunne forbedre testingen af shellen, mest indlysende ville være at benytte sig af automatiserede tests. Dette kunne gøre ved at benytte sig af en automatiseret unit test suite til C såsom CMocka\footnote{\url{https://cmocka.org/}}.
