@@ -74,6 +74,6 @@ For at brugeren kan skrive "\texttt{exit}" i BOSH og dermed afslutte programmet,
 \subsection{Luk kommandoer, men ikke BOSH}
 For at gøre det muligt at benytte \texttt{CTRL-C} til at lukke et givent kørende program, anvendes \texttt{signal} systemkaldet. Ved at kalde \texttt{signal(SIGINT, SIG\_DFL)} når en barne-proces startes i \texttt{start\_child}-funktionen, sættes \texttt{SIGINT} (der sender \texttt{interrupt} til processen) tilbage til standard-opførsel.\\
 
-Dette er nødvendigt da der i \texttt{main}-funktionen (som vi har fået udleveret) er kaldt \texttt{signal(SIGINT, SIG\_IGN)}, der beder processen (dvs. forældreprocessen) ignorere \texttt{interrupt}, da det er ønsket kun at kunne afbryde brugerens kaldte processer. 
+Det er nødvendigt at kalde \texttt{signal} i barne-processerne, da der i \texttt{main}-funktionen er kaldt \texttt{signal(SIGINT, SIG\_IGN)}, der beder processen, det vil sige forældreprocessen, ignorere \texttt{interrupt}, da det er ønsket kun at kunne afbryde brugerens kaldte processer. 
 
-BOSH selv skal ikke afbryde.
+\texttt{signal} tager imod en \texttt{int}-værdi der angiver signalet som skal fanges samt en \texttt{sighandler\_t} som enten angiver en funktion der skal udføres, eller én af to værdier der angiver standardopførslen og at signalet skal ignoreres.

@@ -1,5 +1,4 @@
 \section{Konklusion}
-\todo{Parseren understøtter ikke strings i " i BOSH}
-Implementationen af BOSH opfylder de stillede krav og fungerer som forventet. Kravene er implementeret ved hjælp af systemkaldene: \texttt{fork}, \texttt{dup2}, \texttt{waitpid}, \texttt{signal} og \texttt{execvp}.\\
+Implementationen af BOSH opfylder kravene og fungerer som forventet. Kravene er implementeret blandt andet ved hjælp af systemkaldene: \texttt{fork}, \texttt{dup2}, \texttt{waitpid}, \texttt{signal} og \texttt{execvp}.\\
 
-Shellen kunne forbedres på flere punkter fx ved at benytte automatiserede unit tests, eller ved at implementere muligheden for at benytte aliasser til kommandoer. Koden kunne også forbedres ved at forsimple de conditional statements der er anvendt.
+BOSH kan forbedres på flere punkter, fx ved at benytte automatiserede unit tests, eller ved at implementere mere af Bashs funktionalitet. Koden kunne også forbedres ved at forsimple de conditional statements der er anvendt. Ydermere understøtter den udleverede parser ikke argumenter med mellemrum selvom disse angives i citationstegn. Et eksempel på dette er \texttt{git commit -m "jeg bliver læst som flere argumenter"}.
