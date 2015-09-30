@@ -34,8 +34,8 @@ Det tjekkes i \verb+bosh.c+ hvorvidt værdien er \verb+true+, og hvis dette er t
 \subsection{Pipes og redirection til og fra filer}
 En process in og out kan sættes ved hjælp af \verb+dup()+ eller \verb+dup2()+ systemkaldene. Disse tager et programs standard in og out og sætter dem til den en og out som sættes i parametrene. En pipe tillader to processer at kommunikere ved at sætte den ene process' out til pipens out og den anden process' in til pipens in.
 
-I BOSH skal vi håndterer både redirects og og pipes. Tilsammen er der 8 forskellige cases.
-\begin{itemize}
+I BOSH skal vi håndterer både redirects og og pipes. Tilsammen er der 9 forskellige cases.
+\begin{enumerate}
 	\item Enkeltstående kommando har redirect in og out
 	\item Enkeltstående kommando har redirect in
 	\item Første kommando, men ikke sidste, har redirect in, og skal skrive til en ny pipe.
@@ -45,7 +45,9 @@ I BOSH skal vi håndterer både redirects og og pipes. Tilsammen er der 8 forske
 	\item Første, men ikke sidste, kommando skal skrive til en ny pipe.
 	\item Sidste kommando, men ikke første, uden redirect men skal læse fra pipe.
 	\item Mellemstående kommando, skal læse fra pipe og skrive til en ny pipe.
-\end{itemize}
+\end{enumerate}
+
+Disse cases er håndteret i metoden \verb+set_in_out()+, dog er der lavet nogle optimeringer som gør at hvert case ikke er direkte repræsenteret med if statements men at de bliver dækket af hinanden, fx. er case 4 og 5 dækket af samme branch fordi argumentet pipe-in bliver sat til henholdsvis standard in eller den tidligere pipes in.
 \subsection{Afslutning}
 For at brugeren kan skrive \verb+exit+ i BOSH og dermed afslutte programmet, er en enkelt linie tilføjet til \verb+bosh.c+'s \verb+main()+-funktion. 
 
