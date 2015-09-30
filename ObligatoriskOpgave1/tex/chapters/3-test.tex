@@ -6,31 +6,65 @@ Nedenstående runs er blevet kørt på i vores BOSC.
 \todo{Check dem her}
 \begin{enumerate}
 	\item Én kommando
+	
 	\verb+ls+
 	\item Én kommando i baggrunden
+	
 	\verb+ls &+
 	\item Én kommando med en parameter
+	
 	\verb+less file.txt+
 	\item Én kommando med en parameter i baggrunden
+	
 	\verb+less file.txt &+
 	\item Én kommando med file redirect in
+	
 	\verb+tee < temp.txt+
 	\item Én kommando med file redirect in i baggrunden
+	
 	\verb+tee < temp.txt &+
 	\item Én kommando med file redirect out
+	
 	\verb+ls > temp.txt+
 	\item Én kommando med file redirect out i baggrunden
+	
 	\verb+ls > temp.txt &+
 	\item Én kommando med file redirect in og out
+	
 	\verb+wc -w < in.txt > out.txt+
-	\item Én kommando med file redirect in og out i baggrunden
+	\item Én kommando med en parameter med file redirect in og out i baggrunden
+	
 	\verb+wc -w < in.txt > out.txt &+
-	\item Én kommando i bagrunden
-	\verb+ls \&+
-	\item Én kommando i bagrunden
-	\verb+ls \&+
-	\item  Én kommando i bagrunden
-	\verb+ls \&+
+	\item Pipe af to kommandoer
+	
+	\verb+ls | tee+
+	\item Pipe af to kommandoer i baggrunden
+	
+	\verb+ls | tee &+
+	\item Pipe af tre kommandoer
+	
+	\verb+dmesg | grep wlan0 | less+
+	\item Pipe af tre kommandoer i baggrunden
+	
+	\verb+dmesg | grep wlan0 | less &+
+	\item  Pipe af tre kommandoer med en redirect in
+	
+	\verb+cat < parser.h | wc -l | tee+
+	\item  Pipe af tre kommandoer med en redirect out
+	
+	\verb+ls | wc -w | tee > elements.txt+
+	\item  Pipe af tre kommandoer med en redirect in og out
+	
+	\verb+cat < parser.h | wc -l | tee > lines.txt+
+	\item  Pipe af tre kommandoer med en redirect in i baggrunden
+	
+	\verb+cat < parser.h | wc -l | tee &+
+	\item  Pipe af tre kommandoer med en redirect out i baggrunden
+	
+	\verb+ls | wc -w | tee > elements.txt &+
+	\item  Pipe af tre kommandoer med en redirect in og out i baggrunden
+	
+	\verb+cat < parser.h | wc -l | tee > lines.txt &+
 \end{enumerate}
 
-The testing of the shell could of course be improved a lot, most noticeable by automating them using a automated unit test suite system for C such as GNU Autounit. 
+Testingen af shellen kunne forbedres meget. Mest indlysende ville være at benytte sig af automatiserede tests, dette kunne gøre ved at benytte en automatiseret unit test suite for C såsom CMocka\footnote{https://cmocka.org/}.
