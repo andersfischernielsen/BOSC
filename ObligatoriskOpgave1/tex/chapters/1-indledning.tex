@@ -20,9 +20,10 @@ Shellen skal understøtte følgende funktionalitet:
 	\item Shellen vil i løbet af rapporten blive refereret til som BOSH.
 	\item En proces' normale input fra terminalen kaldes standard in.
 	\item En branch henviser til en gren af programmets kørsel.
-	\item \todo{pipe}
-	\item \todo{pointer}
-	\item \todo{fildeskriptor}
+	\item En pointer er en henvisning til starten af et hukommelsesområde. I C gives pointere en type, så det altid vides hvilken slags data der ligger i hukommelsesområdet.
+	\item En fildeskriptor er operativsystems måde at henvise til en strøm af data. Fildeskriptorer benyttes fx til skrivning og læsning af filer og pipes.
+	\item En pipe er et "rør" der kan bruges til interproceskommunikation. Pipes oprettes og opretholdes af operativsystemet. I brugerprogrammer er en pipe beskrevet som et par af fildeskriptorer, der henholdsvis referere til læse- og skriveenden af "røret".
+
 \end{itemize}
 
 
