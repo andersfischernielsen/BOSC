@@ -1,6 +1,6 @@
-/* 
+/*
 
-   bosh.c : BOSC shell 
+   bosh.c : BOSC shell
 
  */
 
@@ -32,10 +32,10 @@ char *gethostname(char *hostname)
   return hostname;
 }
 
-Cmd* reverse(Cmd* root) {
-  Cmd* new_root = 0;
+Cmd *reverse(Cmd *root) {
+  Cmd *new_root = 0;
   while (root) {
-    Cmd* next = root->next;
+    Cmd *next = root->next;
     root->next = new_root;
     new_root = root;
     root = next;
@@ -55,20 +55,20 @@ void start_child(Cmd *command, int readPipe, int writePipe) {
         close(writePipe);
     }
 
-    char** command_and_parameters = command->cmd;                   	//Extract the first command from the user input.
-    execvp(command_and_parameters[0], command_and_parameters);          //Execute.
+    char **command_and_parameters = command->cmd;			//Extract the first command from the user input.
+    execvp(command_and_parameters[0], command_and_parameters);		//Execute.
 
     printf("%s: Command not found.\n", command_and_parameters[0]);      //If these lines of code are run, it means command not found.
     exit(-1);                                                           //Exit with error state.
 }
 
 void set_in_out(Shellcmd *shellcmd, Cmd *current_cmd, int pipe_ends[], int pipe_in, int first, int *in, int *out) {
-    close(pipe_ends[STDIN_FILENUMBER]); 					// Always close the in of the new pipe, as you should not read your own output.
+    close(pipe_ends[STDIN_FILENUMBER]);					// Always close the in of the new pipe, as you should not read your own output.
 
     if (first && shellcmd->rd_stdin) {                                  // First with file redirect in.
         *in = open(shellcmd->rd_stdin, O_RDONLY);
-        
-        if (!(current_cmd->next)) {                                		// Only command.
+
+        if (!(current_cmd->next)) {						// Only command.
             close(pipe_ends[STDOUT_FILENUMBER]);
             if (shellcmd->rd_stdout) {                                  // Only command with file redirect both in and out.
                 *out = open(shellcmd->rd_stdout, O_WRONLY | O_CREAT, S_IRWXU);
@@ -82,7 +82,7 @@ void set_in_out(Shellcmd *shellcmd, Cmd *current_cmd, int pipe_ends[], int pipe_
         close(pipe_ends[STDOUT_FILENUMBER]);
         *in = pipe_in;
         *out = open(shellcmd->rd_stdout, O_WRONLY | O_CREAT, S_IRWXU);
-    } else {                                                           	// No file redirect.
+    } else {								// No file redirect.
         if (first && !(current_cmd->next)) {                            // Only command.
             close(pipe_ends[STDOUT_FILENUMBER]);
             *in = pipe_in;
@@ -103,20 +103,20 @@ void set_in_out(Shellcmd *shellcmd, Cmd *current_cmd, int pipe_ends[], int pipe_
 
 /* --- execute a shell command --- */
 int executeshellcmd (Shellcmd *shellcmd)
-{ 
+{
     int pipe_ends[2];
     int pipe_in = STDIN_FILENUMBER;                                    // Used for a future command, to read from a previous one.
     pid_t process_id;
     Cmd *current_cmd = reverse(shellcmd->the_cmds); //Commands are parsed back-to-front, so we reverse.
-    
+
     int first = 1;                              //We're at the first command at first run.
 
     while (current_cmd) {
         if (pipe(pipe_ends) == -1) return -1;	//Try to pipe.
 
-        process_id = fork();                   	//Instantiate new process.
-        
-        if (process_id == 0) {                 	//This is a child process.
+        process_id = fork();			//Instantiate new process.
+
+        if (process_id == 0) {			//This is a child process.
             int *in, *out;
             *in = -1; *out = -1;
             set_in_out(shellcmd, current_cmd, pipe_ends, pipe_in, first, in, out);
@@ -132,13 +132,13 @@ int executeshellcmd (Shellcmd *shellcmd)
             current_cmd = current_cmd->next;        //Assign the next command for execution.
         }
     }
-    
+
     close(pipe_ends[STDIN_FILENUMBER]);         //Close the pipe in parent
 
     if (shellcmd->background) {                 //If the user specified to execute in background, then don't wait.
         return 0;
     }
-    
+
     int exit_code;
     waitpid(process_id, &exit_code, 0);         //Assert that the process executed succesfully.
 
@@ -153,7 +153,7 @@ int main(int argc, char* argv[]) {
   char hostname[HOSTNAMEMAX];
   int terminate = 0;
   Shellcmd shellcmd;
-  
+
   if (gethostname(hostname)) {
 
     /* parse commands until exit or ctrl-c */
@@ -161,16 +161,16 @@ int main(int argc, char* argv[]) {
       printf("%s", hostname);
       if (strcmp(cmdline = readline(":# "), "exit") != 0) {
 	if(*cmdline) {
-	  add_history(cmdline);
-	  if (parsecommand(cmdline, &shellcmd)) {
-	    terminate = executeshellcmd(&shellcmd);
-	  }
+          add_history(cmdline);
+          if (parsecommand(cmdline, &shellcmd)) {
+            terminate = executeshellcmd(&shellcmd);
+          }
 	}
 	free(cmdline);
       } else terminate = 1;
     }
     printf("Exiting BOSH.\n");
-  }    
-    
+  }
+
   return EXIT_SUCCESS;
 }
