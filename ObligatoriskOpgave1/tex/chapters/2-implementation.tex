@@ -1,5 +1,15 @@
 \section{Implementation}
 \subsection{Hostnavn}
+Ved opstart af bosh bliver computerens hostname fundet. Hostname kan findes i en fil på \texttt{/proc} filsystemet som har fil-addressen \texttt{/proc/kernel/hostname}. Denne fil, som generes af operativsystemet, indeholder en linje som er computerens hostname.
+
+Derfor kan vi for at få fat i hostname, bare læse den første linje i denne fil, og derefter lukke den igen.
+
+Dette er gjort med systemkaldene \texttt{fopen}, \texttt{fclose} og \texttt{fscanf}. Alle disse systemkald findes i headerfilen \texttt{stdlib.h}.
+
+\texttt{fopen} tager imod to argumenter, en filsti og en adgangstilladelse til enten at skrive eller læse. Da vi i BOSH kun skal læse fra filen beder vi kun om læsetilladelsen ved at give karakteren \texttt{r} som adgangstilladelse. Det betyder at vi kun kan læse fra filen. Når funktionen returnerer får vi en værdi tilbage af typen \texttt{FILE}, som kan bruges til at referere til filen.
+
+\texttt{fscanf} tager så imod denne FILE, og derudover et format der skal læses, og til sidst, den (eller de) variable eller felter der skal læses til. Vi læser hele filen med formatet \texttt{\%s}, og vi læser hele resultatet ind i hukommelsen, begyndende derfra hvor \texttt{hostname} peger.
+
 \subsection{Enkeltstående kommandoer}
 \subsection{Baggrundsprocesser}
 \subsection{Redirection til og fra filer}
