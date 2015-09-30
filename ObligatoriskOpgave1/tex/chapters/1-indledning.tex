@@ -27,7 +27,7 @@ Shellen skal understøtte følgende funktionalitet:
 
 
 \subsection{Start og udførsel af BOSH}
-BOSH implementation er skrevet i filen \verb+bosh.c+, i metoderne:
+BOSH implementation er skrevet i filen \texttt{bosh.c}, i metoderne:
 \begin{itemize}
 	\item \texttt{char *gethostname(char *hostname)}
 	\item \texttt{Cmd *reverse(Cmd* root)}
@@ -36,6 +36,6 @@ BOSH implementation er skrevet i filen \verb+bosh.c+, i metoderne:
 	\item \texttt{int executeshellcmd (Shellcmd *shellcmd)}
 \end{itemize}
 
-Projektet inkluderer også en Make fil som tillader brugeren at kompilere og fjerne de kompilerede filer ved henholdsvis kaldene \verb+make+ og \verb+make clean+. Disse kald skal laves fra terminalen, eller BOSH, mens terminalens aktuelle filsti er den samme som filen \verb+Makefile+.\\
+Projektet inkluderer også en Make fil som tillader brugeren at kompilere og fjerne de kompilerede filer ved henholdsvis kaldene \texttt{make} og \texttt{make clean}. Disse kald skal laves fra terminalen, eller BOSH, mens terminalens aktuelle filsti er den samme som filen \texttt{Makefile}.\\
 
-BOSH køres ved kommandoen \verb+./bosh+ efter programmet er kompileret, mens terminalens aktuelle filsti er den samme som den eksekverbare fil \verb+bosh+.
+BOSH køres ved kommandoen \texttt{./bosh} efter programmet er kompileret, mens terminalens aktuelle filsti er den samme som den eksekverbare fil \texttt{bosh}.
