@@ -15,14 +15,19 @@ BOSC skal ikke reimplementere operativ programmer men derimod kalde starte dem. 
 
 Den udleverede \verb+parser.h+ opsplitter automatisk brugerens input i kommandoer og parametre. Derfor kan BOSC videreføre augumenter til \verb+execvp+ således at programmet udføres som forventet.
 \subsection{Baggrundsprocesser}
-En proces kan startes i baggrunden i BOSC. \\ 
-Dette indebærer at BOSC starter processen, og ikke venter på at processen bliver færdig med eksekvering. \\
-Kontrollen gives tilbage til BOSC, og brugeren kan herefter evt. indtaste en ny kommando til eksekvering. \\
-Dette er helt konkret implementeret vha. systemkaldene \verb+execvp()+ og \verb+fork()+. Brugerens kommando bliver trukket ud af \verb+parser.c+'s resultat, og gives som parameter til \verb+execvp()+ sammen med eventuelle tilhørende argumenter. \\
-Der oprettes en børne-proces når brugeren indtaster en kommando. Denne kommando står for eksekvering af den ønskede kommande vha. \verb+execvp()+. \\
-Hvis brugeren har tastet \verb+&+, er den bolske værdi \verb+background+ i \verb+parser.c+'s resultat sat til true. \\
+En proces kan startes i baggrunden i BOSC. Dette indebærer at BOSC starter processen, og ikke venter på at processen bliver færdig med eksekvering. 
+
+Kontrollen gives tilbage til BOSC, og brugeren kan herefter evt. indtaste en ny kommando til eksekvering. 
+
+Dette er helt konkret implementeret vha. systemkaldene \verb+execvp()+ og \verb+fork()+. Brugerens kommando bliver trukket ud af \verb+parser.c+'s resultat, og gives som parameter til \verb+execvp()+ sammen med eventuelle tilhørende argumenter. 
+
+Der oprettes en børne-proces når brugeren indtaster en kommando. Denne kommando står for eksekvering af den ønskede kommande vha. \verb+execvp()+. 
+
+Hvis brugeren har tastet \verb+&+, er den bolske værdi \verb+background+ i \verb+parser.c+'s resultat sat til true. 
+
 Det tjekkes i \verb+bosh.c+ hvorvidt værdien er \verb+true+, og hvis dette er tilfældet, returnerer \verb+executeshellcmd+. Hvis ikke anvendes systemkaldet \verb+waitpid()+, og forældreprocessen venter på børneprocessens eksekvering. Herefter returneres.
 \subsection{Redirection til og fra filer}
+For at 
 \subsection{Pipes}
 \subsection{Afslutning}
 \subsection{Luk kommandoer, men ikke BOSH}
