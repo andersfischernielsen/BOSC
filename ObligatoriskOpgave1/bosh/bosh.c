@@ -14,6 +14,7 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <sys/wait.h>
+#include <unistd.h>
 #include "parser.h"
 #include "print.h"
 
@@ -24,7 +25,7 @@
 #define STDOUT_FILENUMBER 1
 
 /* --- use the /proc filesystem to obtain the hostname --- */
-char *gethostname(char *hostname)
+char *gethostnamefromproc(char *hostname)
 {
   FILE *host = fopen("/proc/sys/kernel/hostname", "r");
   fscanf(host, "%s", hostname);
@@ -154,7 +155,7 @@ int main(int argc, char* argv[]) {
   int terminate = 0;
   Shellcmd shellcmd;
   
-  if (gethostname(hostname)) {
+  if (gethostnamefromproc(hostname)) {
 
     /* parse commands until exit or ctrl-c */
     while (!terminate) {
