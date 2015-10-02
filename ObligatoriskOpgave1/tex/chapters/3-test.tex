@@ -1,0 +1,69 @@
+\section{Test}
+Til at teste BOSH er manuelle white box branch-coverage tests udført.\\
+
+Nedenstående tests er blevet kørt i BOSH:
+
+\begin{enumerate}
+	\item Én kommando
+	
+	\texttt{ls}
+	\item Én kommando i baggrunden
+	
+	\texttt{ls \&}
+	\item Én kommando med en parameter
+	
+	\texttt{less parser.h}
+	\item Én kommando med en parameter i baggrunden
+	
+	\texttt{less parser.h \&}
+	\item Én kommando med file redirect in
+	
+	\texttt{tee < parser.h}
+	\item Én kommando med file redirect in i baggrunden
+	
+	\texttt{tee < parser.h \&}
+	\item Én kommando med file redirect out
+	
+	\texttt{ls > temp.txt}
+	\item Én kommando med file redirect out i baggrunden
+	
+	\texttt{ls > temp.txt \&}
+	\item Én kommando med file redirect in og out
+	
+	\texttt{wc -l < parser.h > lines.txt}
+	\item Én kommando med en parameter med file redirect in og out i baggrunden
+	
+	\texttt{wc -l < parser.h > lines.txt \&}
+	\item Pipe af to kommandoer
+	
+	\texttt{ls | tee}
+	\item Pipe af to kommandoer i baggrunden
+	
+	\texttt{ls | tee \&}
+	\item Pipe af tre kommandoer
+	
+	\texttt{dmesg | grep wlan0 | less}
+	\item Pipe af tre kommandoer i baggrunden
+	
+	\texttt{dmesg | grep wlan0 | less \&}
+	\item  Pipe af tre kommandoer med en redirect in
+	
+	\texttt{cat < parser.h | wc -l | tee}
+	\item  Pipe af tre kommandoer med en redirect out
+	
+	\texttt{ls | wc -w | tee > elements.txt}
+	\item  Pipe af tre kommandoer med en redirect in og out
+	
+	\texttt{cat < parser.h | wc -l | tee > lines.txt}
+	\item  Pipe af tre kommandoer med en redirect in i baggrunden
+	
+	\texttt{cat < parser.h | wc -l | tee \&}
+	\item  Pipe af tre kommandoer med en redirect out i baggrunden
+	
+	\texttt{ls | wc -w | tee > elements.txt \&}
+	\item  Pipe af tre kommandoer med en redirect in og out i baggrunden
+	
+	\texttt{cat < parser.h | wc -l | tee > lines.txt \&}
+\end{enumerate}
+
+Der er mange steder man kunne forbedre test af BOSH, mest indlysende ville være at benytte automatiserede tests. Dette kunne gøres ved at benytte en automatiseret test suite til C såsom CMocka\footnote{\url{https://cmocka.org/}}.

@@ -1,0 +1,81 @@
+\section{Implementation}
+\subsection{Hostnavn}
+Ved opstart af BOSH bliver computerens hostname fundet. Hostname kan findes i en fil i \texttt{/proc} filsystemet som har fil-addressen \texttt{/proc/kernel/hostname}. Denne fil, som generes af operativsystemet, indeholder en linje som er computerens hostname.\\
+
+Derfor er det muligt at få fat i hostname, ved at læse den første linje i denne fil, og derefter lukke den igen. Dette er gjort med systemkaldene \texttt{fopen}, \texttt{fclose} og \texttt{fscanf}. Alle disse systemkald findes i headerfilen \texttt{stdlib.h}.\\
+
+\texttt{fopen} tager imod to argumenter: en filsti og en adgangstilladelse til enten at skrive eller læse. Da BOSH kun skal læse fra filen bedes der kun om læsetilladelse ved at give karakteren \texttt{r} som adgangstilladelse. Det medfører at BOSH kun kan læse fra filen. Funktionen returnerer en værdi af typen \texttt{FILE}, som kan bruges til at referere til filen.\\
+
+\texttt{fscanf} tager imod en \texttt{FILE}, det format der skal læses og den, eller de, variabler eller felter, der skal læses til. BOSH læser hele filen med formatet \texttt{\%s} ind i hukommelsen, begyndende derfra hvor \texttt{hostname} peger.\\
+
+\texttt{fclose} lukker den \texttt{FILE} der gives som argument.
+
+\subsubsection{Mulige problemer}
+Da \texttt{fscanf} ikke tager imod en maxlængde af \texttt{hostname} kan et \texttt{hostname} længere end 100 karakterer give den nuværende implementation af BOSH problemer, grundet den mængde hukommelse der tildeles feltet \texttt{hostname}.
+
+\subsection{Enkeltstående kommandoer}
+BOSH skal ikke reimplementere programmer i operativsystemet, men derimod starte dem. Dette gøres ved at dele shellen process ud i to processor ved hjælp af systemkaldet \texttt{fork}. Barne-processen kan derefter ved hjælp af systemkaldet \texttt{execvp} starte programmer der ligger i PATH\footnote{\url{http://www.linfo.org/path_env_var.html}} i operativsystemet.\\
+
+\texttt{fork} systemkaldet returnerer typen \texttt{pid\_t} der indikerer hvorvidt processen er en barne- eller forældre-process. Hvis værdien er 0 er den aktuelle proces barnet. Dette muliggør at uddelegere logik kun til barne-processen eller forældreprocessen.\\
+
+\texttt{execvp} systemkaldet tager imod et processnavn og en array af processnavnet og eventuelle parametre. Den nuværende proces bliver herefter erstattet af den givne process.\\
+
+Den udleverede \texttt{parser.h} opsplitter automatisk brugerens input i kommandoer og parametre. Derfor kan BOSH videreføre augumenter til \texttt{execvp} således at programmet udføres som forventet.
+\subsection{Baggrundsprocesser}
+BOSH skal understøtte at starte processer i baggrunden. Dette betyder at BOSH starter processen, og ikke venter på at processen bliver færdig med dennes eksekvering. Kontrollen gives tilbage til BOSH, og brugeren kan herefter evt. indtaste en ny kommando til eksekvering.\\
+
+Dette er implementeret ved hjælp af systemkaldene \texttt{execvp} og \texttt{fork}. Brugerens kommando bliver trukket ud af \texttt{executeshellcmd}'s input parameter, og gives som parameter til \texttt{execvp} sammen med eventuelle tilhørende argumenter. \\
+
+Der oprettes en barne-proces når brugeren indtaster en kommando. Denne proces står for eksekvering af den ønskede kommando ved hjælp af \texttt{execvp}. Hvis brugeren har tastet \texttt{\&}, er den bolske værdi \texttt{background} i input parameteren sat til \texttt{1}. Det tjekkes i \texttt{bosh.c} hvorvidt værdien er \texttt{1}, og hvis dette er tilfældet, returnerer \texttt{executeshellcmd} uden at vente på barne-processens eksekvering. Hvis ikke, anvendes systemkaldet \texttt{waitpid} med barne-processens proces-id. Forældreprocessen venter dermed på barne-processens eksekvering.\\
+
+\texttt{waitpid} systemkaldet tager imod en \texttt{pid\_t}, en status i form en \texttt{int}-pointer og et options-flag i form an en \texttt{int}-værdi. Den returnerer \texttt{pid\_t} på den process den ventede på og sætter desuden status-flaget til værdien der blev returneret af barne-processen.
+
+\subsection{Pipes og redirection til og fra filer}
+Når processer skal kommunikere, kan dette gøres ved hjælp af pipes. Pipes fungerer ved at operativsystemet opretholder en række fildeskriptorer pr. proces. I brugerprogrammer repræsenteres fildeskriptorer som \texttt{int}-værdier. 
+
+Fildeskriptorer benyttes også til at henvise til filer. Dette betyder at en proces' input eller output kan henvises til en fil eller en pipe.
+
+Pipes oprettes af operativsystemet ved at forbinde to fildeskriptorer. Pipen har en læseende og en skriveende. Pipes oprettes af systemkaldet \texttt{pipe}.\\
+
+En proces' \texttt{standard in} og \texttt{standard out} kan sættes ved hjælp af \texttt{dup2} systemkaldet. Dette kald lukker en given fildeskriptor og kopierer en ny over på dens plads. 
+
+En pipe tillader to processer at kommunikere ved at sætte den ene proces' out til pipens out og den anden proces' in til pipens in ved hjælp af \texttt{dup2}.
+
+BOSH skal håndtere både redirects og pipes. Tilsammen er der 9 forskellige scenarier:
+\begin{enumerate}
+	\item Enkeltstående kommando har redirect in og out.
+	\item Enkeltstående kommando har redirect in.
+	\item Første kommando, men \textit{ikke} sidste, har redirect in, og skal skrive til en ny pipe.
+	\item Enkeltstående kommando har redirect out.
+	\item Sidste, men \textit{ikke} første, kommando har redirect out og skal læse fra pipen.
+	\item Enkeltstående kommando har ingen redirects.
+	\item Første, men \textit{ikke} sidste, kommando skal skrive til en ny pipe.
+	\item Sidste kommando, men \textit{ikke} første, skal læse fra pipe.
+	\item Mellemstående kommando, skal læse fra en pipe og skrive til en ny pipe.
+\end{enumerate}
+
+Disse scenarier er håndteret i funktionen \texttt{set\_in\_out}, dog er der lavet nogle optimeringer som gør at hvert scenarie ikke er direkte repræsenteret med if statements, således at de bliver dækket af hinanden. Fx. er scenarie 4 og 5 dækket af samme branch fordi argumentet \texttt{pipe\_in} bliver sat til henholdsvis standard in eller den tidligere pipes in.\\
+
+Funktionen \texttt{set\_in\_out} tager desuden imod en række argumenter, hvor de sidste to benyttes som resultater af funktionen. Disse to argumenter er \texttt{int}-pointers. Når funktionen returnerer er begge disse hukommelsesområder sat til de tal der repræsenterer henholdsvis ind- og ud-fildeskriptorerne. Da der ikke kan ses forskel på pipes og egentlige filer kan en del kode spares i \texttt{start\_child}, da der ikke programmæssigt af ind og ud-strømme.\\
+
+Når der i funktionen \texttt{set\_in\_out} åbnes filer, er der forskel på om der skal læses eller skrives til filen. Åbningen af disse filer sker ved hjælp af systemkaldet \texttt{open}, der ligesom \texttt{fopen}, åbner en fil. Forskellen på de to, er blandt andet at \texttt{open} returnerer en \texttt{int} der refererer til en fildeskriptor, i stedet for \texttt{FILE}-typen. Man skal i \texttt{open}-funktionen også fortælle hvad man skal bruge filen til, fx læse eller skrive. I tilfældet hvor en fil åbnes for at skrive til den, er man nødt til at give den et ekstra flag \texttt{S\_IRWXU}, der indikerer, at den bruger der kører BOSH har adgang til at læse, skrive og udføre filen efterfølgende. Hvis dette ikke gøres bliver filen låst, uden mulighed for at brugeren kan læse den.\\
+
+Brugen af pipes er implementeret i loopen i \texttt{executeshellcmd}. Mens loopen kører vil der først blive oprettet en ny pipe før der oprettes nye processer. Efter oprettelsen af barne-processen gemmer forælder-processen læseenden af den nuværende pipe i variablen \texttt{pipe\_in}. Dette gøres for at den næste iteration kan tilgå den "gamle" pipe, efter at den ny er oprettet. I tilfælde af at der tidligere har været en læseende registreret i \texttt{pipe\_in} lukkes denne pipe-ende i forældreprocessen, så der ikke er åbne ressoucer i systemet, når programmet afsluttes. Det er også forældreprocessens ansvar at sørge for at processerne oprettes in den rigtige rækkefølge. Derfor sættes \texttt{current\_cmd} til \texttt{current\_cmd->next} som er en pointer til den næste kommando der skal udføres. Listen af kommandoer bliver vendt om før loopen starter, da den udleverede parser opretter dem i omvendt rækkefølge.\\
+
+\texttt{dup2} tager imod to \texttt{int}-parametre der angiver fildeskriptorer. \texttt{dup2} lukker fildeskriptoren givet i den anden parameter og kopierer den første fildeskriptor ind på dens plads.\\
+
+\texttt{pipe} tager imod et \texttt{int}-array af længden 2. Når funktionen kaldes oprettes to forbundne fildeskriptorer, der indsættes i arrayet. På plads 0 findes pipens læseende og på plads 1 pipens skriveende.\\
+
+\texttt{open} tager imod to eller tre argumenter: en filsti og en adgangstilladelse til enten at skrive eller læse og eventuelt en \texttt{mode\_t} som angiver filrettighederne af den oprettede fil. Bortset fra den sidste parameter fungerer funktionen ligesom \texttt{fopen}, pånær returtyppen som i dette tilfælde er en \texttt{int} der repræsenterer en fildeskriptor.
+
+\subsection{Afslutning}
+For at brugeren kan skrive "\texttt{exit}" i BOSH og dermed afslutte programmet, er en enkelt linie tilføjet til \texttt{bosh.c}'s \texttt{main}-funktion. Det tjekkes ved hjælp af \texttt{strcmp} hvorvidt den givne linie fra brugeren ikke er lig "\texttt{exit}". Hvis dette er tilfældet sættes \texttt{terminate} til \texttt{1}, hvilket indikerer at BOSH skal afslutte. Herefter printes \texttt{"Exiting BOSH."} og programmet afsluttes. \\
+
+\texttt{strcmp} funktionen sammenligner to \texttt{char}-arrays og returnerer en \texttt{int} der er negativ hvis det første argument er mindre end det andet og positivt hvis det første argument er større. BOSH benytter sig af casen hvor de to argumenter er ens og funktionen returnerer 0.
+
+\subsection{Luk kommandoer, men ikke BOSH}
+For at gøre det muligt at benytte \texttt{CTRL-C} til at lukke et givent kørende program, anvendes \texttt{signal} systemkaldet. Ved at kalde \texttt{signal(SIGINT, SIG\_DFL)} når en barne-proces startes i \texttt{start\_child}-funktionen, sættes \texttt{SIGINT} (der sender \texttt{interrupt} til processen) tilbage til standard-opførsel.\\
+
+Det er nødvendigt at kalde \texttt{signal} i barne-processerne, da der i \texttt{main}-funktionen er kaldt \texttt{signal(SIGINT, SIG\_IGN)}, der beder processen, det vil sige forældreprocessen, ignorere \texttt{interrupt}, da det er ønsket kun at kunne afbryde brugerens kaldte processer. 
+
+\texttt{signal} tager imod en \texttt{int}-værdi der angiver signalet som skal fanges samt en \texttt{sighandler\_t} som enten angiver en funktion der skal udføres, eller én af to værdier der angiver standardopførslen og at signalet skal ignoreres.

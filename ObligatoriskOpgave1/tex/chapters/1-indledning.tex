@@ -1,0 +1,42 @@
+\section{Indledning}
+Denne rapport har til formål at beskrive implementationen af en shell til Linux skrevet i C. Implementationen skal give brugeren funktionalitet svarende til en begrænset version af Bash\footnote{\url{https://www.gnu.org/software/bash/}}. \\
+
+Shellen skal understøtte følgende funktionalitet:
+\begin{itemize}
+	\item Implementationen skal fungere uafhængigt og må ikke starte Bash som en del af implementationen.
+	\item Shellen skal vise hostname, hver gang der kan modtages kommandoer.
+	\item Brugeren skal kunne køre enkeltstående kommandoer der starter programmer som ligger på operativsystemet, inklusiv installerede programmer.
+	\item Hvis en kommando ikke eksisterer skal meddelelsen "Command not found" printes.
+	\item Brugeren skal kunne starte processer i baggrunden ved at efterfølge sit input med '\&'.
+	\item Brugeren skal kunne pipe kommandoer sammen ved hjælp af tegnet '|'.
+	\item Brugeren skal kunne redirecte input til den første kommando til at læse fra en fil.
+	\item Brugeren skal kunne redirecte output fra den sidste kommando til at skrive til en fil.
+	\item Kommandoen 'exit' skal afslutte shellen.
+	\item Ctrl-C skal afslutte programmet der kører i shellen, men ikke shellen selv.
+\end{itemize}
+
+\subsection{Ordbog}
+\begin{itemize}
+	\item Shellen vil i løbet af rapporten blive refereret til som BOSH.
+	\item En proces' normale input fra terminalen kaldes standard in.
+	\item En branch henviser til en gren af programmets kørsel.
+	\item En pointer er en henvisning til starten af et hukommelsesområde. I C gives pointere en type, så det altid vides hvilken slags data der ligger i hukommelsesområdet.
+	\item En fildeskriptor er operativsystems måde at henvise til en strøm af data. Fildeskriptorer benyttes fx til skrivning og læsning af filer og pipes.
+	\item En pipe er et "rør" der kan bruges til interproceskommunikation. Pipes oprettes og opretholdes af operativsystemet. I brugerprogrammer er en pipe beskrevet som et par af fildeskriptorer, der henholdsvis referere til læse- og skriveenden af "røret".
+
+\end{itemize}
+
+
+\subsection{Start og udførsel af BOSH}
+BOSH implementation er skrevet i filen \texttt{bosh.c}, i metoderne:
+\begin{itemize}
+	\item \texttt{char *gethostname(char *hostname)}
+	\item \texttt{Cmd *reverse(Cmd* root)}
+	\item \texttt{void start\_child(Cmd *command, int readPipe, int writePipe)}
+	\item \texttt{void set\_in\_out(Shellcmd *shellcmd, Cmd *current\_cmd, int pipe\_ends[], int pipe\_in, int first, int *in, int *out)}
+	\item \texttt{int executeshellcmd (Shellcmd *shellcmd)}
+\end{itemize}
+
+Projektet inkluderer også en Make fil som tillader brugeren at kompilere og fjerne de kompilerede filer ved henholdsvis kaldene \texttt{make} og \texttt{make clean}. Disse kald skal laves fra terminalen, eller BOSH, mens terminalens aktuelle filsti er den samme som filen \texttt{Makefile}.\\
+
+BOSH køres ved kommandoen \texttt{./bosh} efter programmet er kompileret, mens terminalens aktuelle filsti er den samme som den eksekverbare fil \texttt{bosh}.
