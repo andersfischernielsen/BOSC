@@ -3,22 +3,38 @@
 #include <math.h>
 #include <stdlib.h>
 
-float sum; /* this data is shared by the thread(s) */
-void *runner(void *param); /* threads call this function */
+double sums[8]; 			//Results of summarisation. TODO: Support more than 8 threads.
+void *runner(void *param); 	/* threads call this function */
+int sum_array(int a[], int num_elements);
 
 int main(int argc, char* argv[]) {
-	pthread_t tid; //Thread identifier.
-	pthread_attr_t attr; //Thread attributes.
+	int threads = atoi(argv[2]); 				//Thread id array.
+	int partition = atoi(argv[1])/threads; 		//Partition to work on for each thread. 
+												//Ex.: 10000/4 threads = 2500 for each thread. 
 
-	//Get the default attributes.
-	pthread_attr_init(&attr);
+	pthread_t workers[threads]; 	//Thread identifiers.
 
-	//Create the thread.
-	pthread_create(&tid, &attr, runner, argv[1]); //Wait for the thread to exit.
-	pthread_join(tid, NULL); 
+	pthread_attr_t attr; 			//Thread attributes.
+	pthread_attr_init(&attr); 		//Default thread attributes.
 
-	printf("sum = %f \n", sum);
+	int i;
+	int toSum[2] = { partition, 0 };	//How many times to run and on which index in sums[] to store result.
+	for (i = 0; i < threads; i++) {
+		//Create the threads.
+		pthread_create(&workers[i], &attr, runner, toSum); 
+		toSum[1] = i*partition; 		//Set the index for next iteration. 
+										//Ex.: 2500 for each thread, 
+										//first time i = 0, 
+										//second i = 2500, third i = 5000 etc.
+	}
 
+	for (int i = 0; i < NUM THREADS; i++) {
+		pthread_join(workers[i], NULL); //Wait for the threads to exit.
+	}
+
+	double sum = sum_array(sums, 8);
+
+	printf("sum = %G \n", sum);
 	return 0;
 }
 
@@ -26,12 +42,23 @@ int main(int argc, char* argv[]) {
 void *runner(void *param)
 {
  	int i;
- 	int upper = atoi(param);
+ 	int upper = atoi(param[0]);
+ 	int result_index = atoi(param[1]);
  	
- 	sum = 0;
  	for (i = 1; i <= upper; i++) {
-       sum += sqrt(i);
+       sums[result_index + i] += sqrt(i);
  	}
 
 	pthread_exit(0);
+}
+
+int sum_array(int a[], int num_elements)
+{
+   int i, sum = 0;
+   for (i = 0; i < num_elements; i++)
+   {
+	 sum = sum + a[i];
+   }
+   
+   return(sum);
 }
