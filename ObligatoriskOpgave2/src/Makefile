@@ -16,7 +16,7 @@ OBJS4 = ./banker/banker.o
 LIBS4 = 
 
 sum: ${OBJS1}
-	${CC} -o $@ ${OBJS1} ${LIBS1}
+	${CC} -o $@ ${OBJS1} ${LIBS1} -lm
 
 list: ${OBJS2}
 	${CC} -o $@ ${OBJS2} ${LIBS2}
