@@ -3,43 +3,49 @@
 #include <math.h>
 #include <stdlib.h>
 
-double sums[8]; 			//Results of summarisation. TODO: Support more than 8 threads.
-void *runner(void *param); 	/* threads call this function */
-double sum_array(double a[], int num_elements);
-
 typedef struct thread_data { 
 	int from;
 	int to;
 	double sum;
-} t_data
+} thread_data;
+
+void *runner(void *param); 	/* threads call this function */
+double sum_array(thread_data a[], int num_elements);
 
 int main(int argc, char* argv[]) {
+	if (!argv[1]) {
+		printf("First argument should be number of iterations. \n");
+	}
+	
+	if (!argv[2]) {
+		printf("Second argument should be number of threads to start. \n");
+	}
+
+	
 	int threads = atoi(argv[2]); 				//Thread id array.
-	int partition = atoi(argv[1])/threads; 		//Partition to work on for each thread. 
-												//Ex.: 10000/4 threads = 2500 for each thread. 
+	int partition_size = atoi(argv[1])/threads; //Partition for each thread (ex. 10000/4 = 2500 for each thread).
 
 	pthread_t workers[threads]; 				//Thread identifiers.
-	thread_data[threads] work;
+	thread_data* work = malloc(sizeof(thread_data)*threads);	//Struct containing work amount.
 
-	//Create structs for work.
+	//Init structs for work.
 	int i;
-	for (i = 0; i < threads; i++) {
-		thread_data[i] = t_data;
-		thread_data[i].from = partition * i;
-		thread_data[i].to = partition * (i + 1);
+	for (i = 0; i < threads; i++, work++) {
+		thread_data data = { partition_size * i, partition_size * (i +1), 0 };
+		*work = data;
 	}
 
-	int i;
 	for (i = 0; i < threads; i++) {
 		//Create the threads.
-		pthread_create(&workers[i], NULL, runner, work[i]); 
+		pthread_create(&workers[i], NULL, runner, &work); 
 	}
 
 	for (i = 0; i < threads; i++) {
-		pthread_join(workers[i], NULL); //Wait for the threads to exit.
+		//Wait for the threads to exit.
+		pthread_join(workers[i], NULL); 
 	}
 
-	double sum = sum_array(sums, 8);
+	double sum = sum_array(work, threads);
 
 	printf("sum = %G \n", sum);
 	return 0;
@@ -48,17 +54,18 @@ int main(int argc, char* argv[]) {
 //Function to give to thread to execute.
 void *runner(void *param)
 {
-	thread_data task = *((thread_data *) param);
- 	int upper = task->to;
+	thread_data data = *((thread_data *) param);
  	
  	int i;
- 	for (i = task->from + 1; i <= upper; i++) {
-       	task.sum += sqrt(i);
+ 	for (i = data.from + 1; i <= data.to; i++) {
+		 //Iterate and store sum in struct.
+       	data.sum += sqrt(i);
  	}
 
 	pthread_exit(0);
 }
 
+//Function to iterate over array and sum struct sums.
 double sum_array(thread_data a[], int num_elements)
 {
    	int i;
