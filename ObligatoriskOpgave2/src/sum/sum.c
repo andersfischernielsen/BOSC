@@ -5,7 +5,7 @@
 
 double sums[8]; 			//Results of summarisation. TODO: Support more than 8 threads.
 void *runner(void *param); 	/* threads call this function */
-int sum_array(int a[], int num_elements);
+double sum_array(double a[], int num_elements);
 
 int main(int argc, char* argv[]) {
 	int threads = atoi(argv[2]); 				//Thread id array.
@@ -17,7 +17,16 @@ int main(int argc, char* argv[]) {
 	pthread_attr_t attr; 			//Thread attributes.
 	pthread_attr_init(&attr); 		//Default thread attributes.
 
-	int i;
+
+	//*********************************************************************
+	//TODO: Following code doesn't work. It needs to be restructured.
+	//We need to implement a struct containing either results or where to store the results, 
+	//then pass the struct to the runner function. 
+
+	//It's a start, though.
+
+
+	int i;					//
 	int toSum[2] = { partition, 0 };	//How many times to run and on which index in sums[] to store result.
 	for (i = 0; i < threads; i++) {
 		//Create the threads.
@@ -28,7 +37,10 @@ int main(int argc, char* argv[]) {
 										//second i = 2500, third i = 5000 etc.
 	}
 
-	for (int i = 0; i < NUM THREADS; i++) {
+	//*********************************************************************
+	
+
+	for (i = 0; i < threads; i++) {
 		pthread_join(workers[i], NULL); //Wait for the threads to exit.
 	}
 
@@ -42,23 +54,24 @@ int main(int argc, char* argv[]) {
 void *runner(void *param)
 {
  	int i;
- 	int upper = atoi(param[0]);
- 	int result_index = atoi(param[1]);
+ 	int upper = param[0];
+ 	int result_index = param[1];
  	
  	for (i = 1; i <= upper; i++) {
-       sums[result_index + i] += sqrt(i);
+       	sums[result_index + i] += sqrt(i);
  	}
 
 	pthread_exit(0);
 }
 
-int sum_array(int a[], int num_elements)
+double sum_array(double a[], int num_elements)
 {
-   int i, sum = 0;
-   for (i = 0; i < num_elements; i++)
-   {
-	 sum = sum + a[i];
-   }
+   	int i;
+	double sum = 0;
+   	for (i = 0; i < num_elements; i++)
+   	{
+	 	sum = sum + a[i];
+   	}
    
-   return(sum);
+   	return(sum);
 }
