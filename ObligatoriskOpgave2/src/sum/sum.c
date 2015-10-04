@@ -14,9 +14,6 @@ int main(int argc, char* argv[]) {
 
 	pthread_t workers[threads]; 	//Thread identifiers.
 
-	pthread_attr_t attr; 			//Thread attributes.
-	pthread_attr_init(&attr); 		//Default thread attributes.
-
 
 	//*********************************************************************
 	//TODO: Following code doesn't work. It needs to be restructured.
@@ -30,7 +27,7 @@ int main(int argc, char* argv[]) {
 	int toSum[2] = { partition, 0 };	//How many times to run and on which index in sums[] to store result.
 	for (i = 0; i < threads; i++) {
 		//Create the threads.
-		pthread_create(&workers[i], &attr, runner, toSum); 
+		pthread_create(&workers[i], NULL, runner, toSum); 
 		toSum[1] = i*partition; 		//Set the index for next iteration. 
 										//Ex.: 2500 for each thread, 
 										//first time i = 0, 
