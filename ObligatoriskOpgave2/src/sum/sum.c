@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
 void *runner(void *param)
 {
 	thread_data *data = (thread_data *) param;
-	double localsum = 0; // Skriv noget om cpu caching.
+	double localsum = 0; // TODO: Skriv noget om cpu caching.
 	int i;
 	for (i = data->from + 1; i <= data->to; i++) {
 		//Iterate and store sum in struct.
