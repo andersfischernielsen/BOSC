@@ -1,31 +1,30 @@
-all: sum list producer-consumer banker
+all: sumComp listComp producer-consumerComp bankerComp
 
 CC = gcc
 WINDOWS = *.exe
 
-OBJS1 = ./sum/sum.o
-LIBS1 = 
+OBJS1 = ./sum/sum.c
 
-OBJS2 = ./list/list.o
+OBJS2 = ./list/list.c
 LIBS2 = 
 
-OBJS3 = ./producer-consumer/producer-consumer.o
+OBJS3 = ./producer-consumer/producer-consumer.c
 LIBS3 = 
 
-OBJS4 = ./banker/banker.o
+OBJS4 = ./banker/banker.c
 LIBS4 = 
 
-sum: ${OBJS1}
-	${CC} -o $@ ${OBJS1} ${LIBS1} -lm
+sumComp: ${OBJS1}
+	${CC} -pthread -g ${OBJS1} -o ./sum/$@ -lm
 
-list: ${OBJS2}
+listComp: ${OBJS2}
 	${CC} -o $@ ${OBJS2} ${LIBS2}
 
-producer-consumer: ${OBJS3}
+producer-consumerComp: ${OBJS3}
 	${CC} -o $@ ${OBJS3} ${LIBS3}
 
-banker: ${OBJS4}
+bankerComp: ${OBJS4}
 	${CC} -o $@ ${OBJS4} ${LIBS4}
 
 clean:
-	rm -r *o ${WINDOWS} sum list producer-consumer banker
+	rm -rf *o ${WINDOWS} ./sum/sumComp ./list/listComp ./producer-consumer/producer-consumerComp ./banker/bankerComp
