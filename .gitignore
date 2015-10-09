@@ -40,3 +40,6 @@ bosh
 *.pdf
 *.gz
 *.toc
+
+# OO2
+sum
