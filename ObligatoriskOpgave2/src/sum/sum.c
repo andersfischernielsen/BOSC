@@ -59,7 +59,7 @@ void *runner(void *param)
 	int i;
 	for (i = data->from + 1; i <= data->to; i++) {
 		//Iterate and store sum in struct.
-	localsum += sqrt(i);
+		localsum += sqrt(i);
 	}
 	data->sum = localsum;
 	pthread_exit(0);
