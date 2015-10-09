@@ -29,13 +29,15 @@ List *list_new(void)
 /* list_add: add node n to list l as the last element */
 void list_add(List *l, Node *n)
 {
+  l->last->next = n;
+  l->last = n;
 }
 
 /* list_remove: remove and return the first (non-root) element from list l */
 Node *list_remove(List *l)
 {
-  Node *n;
-
+  Node *n = l->first;
+  l->first = l->first->next;
   return n;
 }
 
