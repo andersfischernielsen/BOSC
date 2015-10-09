@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
 	}
 
 
-	int threads = (int) strtol(argv[2], NULL, 10); //atoi(argv[2]);				//Thread id array.
+	int threads = atoi(argv[2]);				//Thread id array.
 	int partition_size = atoi(argv[1])/threads; //Partition for each thread (ex. 10000/4 = 2500 for each thread).
 
 	pthread_t workers[threads];				//Thread identifiers.
