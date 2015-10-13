@@ -1,30 +1,23 @@
-all: sumComp listComp producer-consumerComp bankerComp
+all: list1 banker1 sum1 producer_consumer1
 
 CC = gcc
 WINDOWS = *.exe
 
-OBJS1 = ./sum/sum.c
+list1:
+	$(MAKE) -C list
 
-OBJS2 = ./list/list.c ./list/main.c
-LIBS2 = -lpthread
+banker1:
+	$(MAKE) -C banker
 
-OBJS3 = ./producer-consumer/producer-consumer.c
-LIBS3 = 
+sum1:
+	$(MAKE) -C sum
 
-OBJS4 = ./banker/banker.c
-LIBS4 = 
-
-sumComp: ${OBJS1}
-	${CC} -pthread -g ${OBJS1} -o ./sum/$@ -lm
-
-listComp: ${OBJS2}
-	${CC} -o ./list/$@ ${LIBS2} ${OBJS2}
-
-producer-consumerComp: ${OBJS3}
-	${CC} -o $@ ${OBJS3} ${LIBS3}
-
-bankerComp: ${OBJS4}
-	${CC} -o $@ ${OBJS4} ${LIBS4}
+producer_consumer1:
+	$(MAKE) -C producer_consumer
 
 clean:
-	rm -rf *o ${WINDOWS} ./sum/sumComp ./list/listComp ./producer-consumer/producer-consumerComp ./banker/bankerComp
+	rm -rf *o ${WINDOWS}
+	for d in sum list banker producer_consumer; \
+	do \
+	$(MAKE) --directory=$$d clean; \
+	done
