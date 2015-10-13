@@ -1,7 +1,7 @@
 all: fifo fifoTest
 
 OBJS = list.c main.c
-OBJSTEST = list.c main.c fifotest.c
+OBJSTEST = list.c fifotest.c
 LIBS= -lpthread
 
 fifo: ${OBJS}
