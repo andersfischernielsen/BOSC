@@ -1,10 +1,14 @@
-all: fifo
+all: fifo fifoTest
 
-OBJS = list.o main.o 
+OBJS = list.c main.c
+OBJSTEST = list.c main.c fifotest.c
 LIBS= -lpthread
 
-fifo: main.o ${OBJS}
+fifo: ${OBJS}
 	gcc -o $@  ${LIBS} ${OBJS}
+	
+fifoTest: ${OBJSTEST}
+	gcc -o $@  ${LIBS} ${OBJSTEST}
 
 clean:
-	rm -rf *o fifo
+	rm -rf *o fifo *.exe

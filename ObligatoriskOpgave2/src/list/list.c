@@ -11,6 +11,11 @@
 #include <pthread.h>
 #include "list.h"
 
+int lock = 0;
+
+pthread_mutex_t mutex = 0;
+
+
 /* list_new: return a new list structure */
 List *list_new(void)
 {
@@ -29,18 +34,51 @@ List *list_new(void)
 /* list_add: add node n to list l as the last element */
 void list_add(List *l, Node *n)
 {
+  // // lock 1
+  // while(test_and_set(&lock)){}
+  
+  // // lock 2
+  // int key = 0;
+  // key = 1;
+  // while(key == 1) {
+  //   swap(&lock, &key);
+  // }
+  
+  // mutex
+  pthread_mutex_lock(&mutex);
+  
   l->last->next = n;
   l->last = n;
   l->len++;
+  
+  pthread_mutex_unlock(&mutex);
+  //lock = 0;
 }
 
 /* list_remove: remove and return the first (non-root) element from list l */
 Node *list_remove(List *l)
 {
   if(l->len == 0) return NULL;
+  
+  // // lock 1
+  // while(test_and_set(&lock)){}
+  
+  // // lock 2
+  // int key = 0;
+  // key = 1;
+  // while(key == 1) {
+  //   swap(&lock, &key);
+  // }
+  
+  // mutex
+  pthread_mutex_lock(&mutex);
+  
   Node *n = l->first->next;
   l->first->next = l->first->next->next;
   l->len--;
+
+  pthread_mutex_unlock(&mutex);
+  //lock = 0;
   return n;
 }
 
@@ -63,4 +101,20 @@ Node *node_new_str(char *s)
   strcpy((char *) n->elm, s);
   n->next = NULL;
   return n;
+}
+
+// Lock implementation 1.
+int test_and_set(int *target)
+{
+  int old = *target;
+  *target = 1;
+  return old;
+}
+
+// Lock implementation 2.
+void swap(int *a, int *b)
+{
+  int temp = *a; 
+  *a = *b; 
+  *b = temp;
 }
