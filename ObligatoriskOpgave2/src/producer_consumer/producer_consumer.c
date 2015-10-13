@@ -8,9 +8,16 @@
 void *consumer(void *param);
 void *producer(void *param);
 
-List *buffer;
+List *buf;
 int item_number;
-sem_t mutex, empty, full, itemnos;
+sem_t empty, full;
+
+void fill_arr(int *arr, int size) {
+	int i;
+	for (i = 0; i < size; i++) {
+		arr[i] = i;
+	}
+}
 
 int main(int argc, char* argv[]) {
 	if (argc != 5) {
@@ -23,55 +30,52 @@ int main(int argc, char* argv[]) {
 	int buffer_size = atoi(argv[3]);
 	item_number = atoi(argv[4]);
 
-	if (item_number == 0) {
+	if (item_number == 0 || producer_number == 0 || consumer_number == 0 || item_number == 0) {
 		return 0;
 	}
 
-	buffer = list_new();
+	buf = list_new();
 	
-	sem_init(&mutex, 0, 1);
 	sem_init(&empty, 0, buffer_size);
 	sem_init(&full, 0, 0);
-	sem_init(&itemnos, 0, 1);
 
-	pthread_t *producers = malloc(producer_number * sizeof(pthread_t));
-	pthread_t *consumers = malloc(consumer_number * sizeof(pthread_t));
+	pthread_t producers[producer_number];
+	pthread_t consumers[consumer_number];
 
-	pthread_attr_t *attr = malloc(sizeof(pthread_attr_t));
-	pthread_attr_init(attr);
+	int p_arr[producer_number];
+	int c_arr[consumer_number];
+
+	fill_arr(p_arr, producer_number);
+	fill_arr(c_arr, consumer_number);
+
+	pthread_attr_t attr;
+	pthread_attr_init(&attr);
 
 	int i;
 	for (i = 0; i < producer_number; i++) {
-		int id = i;
-		pthread_create(producers + i, attr, &producer, &id);
+		pthread_create(producers + i, &attr, &producer, &p_arr[i]);
 	}
 
 	for (i = 0; i < consumer_number; i++) {
-		int id = i;
-		pthread_create(consumers + i, attr, &consumer, &id);
+		pthread_create(consumers + i, &attr, &consumer, &c_arr[i]);
 	}
 
 	// Wait for threads.
 	for (i = 0; i < producer_number; i++) {
-		pthread_join(*(producers + i), NULL);
+		pthread_join(producers[i], NULL);
 	}
 
 	printf("Producers done\n");
 
 	for (i = 0; i < consumer_number; i++) {
-		pthread_join(*(consumers + i), NULL);
+		pthread_join(consumers[i], NULL);
 	}
 
 	printf("Consumers done\n");
 
-	free(producers);
-	free(consumers);
-	free(attr);
-	free(buffer);
-	sem_destroy(&mutex);
+	// Free list buffer?
 	sem_destroy(&empty);
 	sem_destroy(&full);
-	sem_destroy(&itemnos);
 	
 	return 0;
 }
@@ -81,50 +85,52 @@ int item_no = 0;
 void *producer(void *param) {
 	int id = *((int*) param);
 	int item;
+	char itemstr[100];
 	while (item_number-- > 0) {
-		/* sleep for a random period of time */
-		Sleep(200);
-		
-		char itemstr[100];
-
-		sem_wait(&itemnos);
 		sprintf(itemstr, "node number: %d", item_no++);
-		sem_post(&itemnos);
-
-		Node *n = node_new_str(itemstr);
 
 		sem_wait(&empty);
-		sem_wait(&mutex);
+		Node *n = node_new_str(itemstr);
+		list_add(buf, n);
+		int len = buf->len;
 
-		list_add(buffer, n);
-
-		sem_post(&mutex);
 		sem_post(&full);
 
-		printf("Producer %d produced %s. Items in buffer: %d\n", id, (char *) n->elm, buffer->len);
+		printf("Producer %d produced %s. Items in buffer: %d\n", id, itemstr, len);
+
+		/* sleep for a random period of time */
+		Sleep(200);
 	}
-	return NULL;
+	printf("Producer %d stopped\n", id);
+	pthread_exit(NULL);
 }
 
 void *consumer(void *param) {
 	int id = *((int*) param);
 	int item;
-	do {
+	while (buf->len != 0 || item_number > 0) {
+		if (buf->len != 0) {
+			sem_wait(&full);
+			int fullcount;
+			sem_getvalue(&full, &fullcount);
+			printf("Fullcount: %d\n", fullcount);
+
+			Node *n = list_remove(buf);
+			if (n == NULL) {
+				printf("Null Node found!!!\n");
+				return NULL;
+			}
+			int len = buf->len;
+		
+			sem_post(&empty);
+
+			printf("\tConsumer %d consumed %s. Items in buffer: %d\n", id, (char *)n->elm, len);
+			free(n->elm);
+			free(n);
+		}
 		/* sleep for a random period of time */
 		Sleep(200);
-
-		sem_wait(&full);
-		sem_wait(&mutex);
-
-		Node *n = list_remove(buffer);
-		if (n == NULL) {
-			printf("Null Node found!!!\n");
-		}
-		
-		sem_post(&mutex);
-		sem_post(&empty);
-
-		printf("\tConsumer %d consumed %s. Items in buffer: %d\n", id, (char *) n->elm, buffer->len);
-	} while (item_number > 0 || buffer->len != 0);
-	return NULL;
+	}
+	printf("Consumer %d stopped\n", id);
+	pthread_exit(NULL);
 }
