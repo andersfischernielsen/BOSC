@@ -4,7 +4,6 @@ all: fifo fifotest
 
 OBJS = list.o main.o
 OBJSTEST = list.o fifotest.o
-LIBS= -lpthread
 
 fifo: ${OBJS}
 	$(CC) -pthread -o $@ ${OBJS}

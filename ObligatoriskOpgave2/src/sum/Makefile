@@ -1,8 +1,9 @@
 CC = cc -g
 LIBS = -lm
+OBJS = sum.o
 
-sum: sum.o
-	$(CC) -pthread -o sum sum.o $(LIBS)
+sum: $(OBJS)
+	$(CC) -pthread -o $@ $(OBJS) $(LIBS)
 
 sum.o: sum.c
 	$(CC) -c sum.c
