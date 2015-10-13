@@ -41,12 +41,12 @@ void *runner(void *param)
 	int i;
 	for(i = 0; i < iterations; i++)
 	{
-		list_add(threadFifo, node_new_str("s1"));
-		list_add(threadFifo, node_new_str("s2"));
+		list_add(fifo, node_new_str("s1"));
+		list_add(fifo, node_new_str("s2"));
 		
-		Node *n1 = list_remove(threadFifo);
+		Node *n1 = list_remove(fifo);
 		if (n1 == NULL) { printf("Error no elements in list\n"); exit(-1);}
-		Node *n2 = list_remove(threadFifo);
+		Node *n2 = list_remove(fifo);
 		if (n2 == NULL) { printf("Error no elements in list\n"); exit(-1);}
 		printf("%s\n%s\n", (char*) (n1->elm), (char*) (n2->elm));
 		pthread_exit(0);
