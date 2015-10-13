@@ -13,9 +13,11 @@ int main(int argc, char* argv[])
 {
 	if (!argv[1]) {
 		printf("First argument should be number of iterations. \n");
+		return -1;
 	}
 	if (!argv[2]) {
 		printf("Second argument should be number of threads to start. \n");
+		return -1;
 	}
 	iterations = atoi(argv[1]);
 	int threads = atoi(argv[2]);				//Thread id array.
@@ -23,12 +25,14 @@ int main(int argc, char* argv[])
 
 	fifo = list_new();
 
+	int i;
+
 	for (i = 0; i < threads; i++) {
 		//Create the threads.
 		workers[i] = i;
 		pthread_create(&workers[i], NULL, runner, fifo);
 	}
-  
+
 	for (i = 0; i < threads; i++) {
 		//Wait for the threads to exit.
 		pthread_join(workers[i], NULL);
@@ -43,7 +47,6 @@ void *runner(void *param)
 	{
 		list_add(fifo, node_new_str("s1"));
 		list_add(fifo, node_new_str("s2"));
-		
 		Node *n1 = list_remove(fifo);
 		if (n1 == NULL) { printf("Error no elements in list\n"); exit(-1);}
 		Node *n2 = list_remove(fifo);

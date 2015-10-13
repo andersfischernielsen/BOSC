@@ -1,14 +1,25 @@
-all: fifo fifoTest
+CC = cc -g
 
-OBJS = list.c main.c
-OBJSTEST = list.c fifotest.c
+all: fifo fifotest
+
+OBJS = list.o main.o
+OBJSTEST = list.o fifotest.o
 LIBS= -lpthread
 
 fifo: ${OBJS}
-	gcc -o $@  ${LIBS} ${OBJS}
+	$(CC) -pthread -o $@ ${OBJS}
 	
-fifoTest: ${OBJSTEST}
-	gcc -o $@  ${LIBS} ${OBJSTEST}
+fifotest: ${OBJSTEST}
+	$(CC) -pthread -o $@ ${OBJSTEST}
+
+fifotest.o: fifotest.c
+	$(CC) -c fifotest.c
+
+main.o: main.c
+	$(CC) -c main.c
+
+list.o: list.c
+	$(CC) -c list.c
 
 clean:
-	rm -rf *o fifo *.exe
+	rm -rf *o fifo fifotest *.exe
