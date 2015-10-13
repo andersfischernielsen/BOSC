@@ -111,9 +111,6 @@ void *consumer(void *param) {
 	while (buf->len != 0 || item_number > 0) {
 		if (buf->len != 0) {
 			sem_wait(&full);
-			int fullcount;
-			sem_getvalue(&full, &fullcount);
-			printf("Fullcount: %d\n", fullcount);
 
 			Node *n = list_remove(buf);
 			if (n == NULL) {
