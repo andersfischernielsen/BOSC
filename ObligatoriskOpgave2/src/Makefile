@@ -1,6 +1,5 @@
 all: list1 banker1 sum1 producer_consumer1
 
-CC = gcc
 WINDOWS = *.exe
 
 list1:
