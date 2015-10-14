@@ -1,17 +1,8 @@
-CC = cc -g
-OBJS = sleep.o producer_consumer.o list.o
+CC ?= cc
+CFLAGS = -g
+LDFLAGS = -pthread
 
-producer_consumer: $(OBJS)
-	$(CC) -pthread -o $@ $(OBJS)
-
-sleep.o: sleep.c
-	$(CC) -c sleep.c
-
-producer_consumer.o: producer_consumer.c sleep.h ../list/list.h
-	$(CC) -c producer_consumer.c
-
-list.o: ../list/list.c
-	$(CC) -c ../list/list.c
+producer_consumer: sleep.o producer_consumer.o ../list/list.o
 
 clean:
-	rm -f producer_consumer *.o
+	$(RM) producer_consumer *.o

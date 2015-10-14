@@ -1,24 +1,15 @@
-CC = cc -g
+CC ?= cc
+
+CFLAGS = -g
+LDFLAGS = -pthread
 
 all: fifo fifotest
 
-OBJS = list.o main.o
-OBJSTEST = list.o fifotest.o
-
-fifo: ${OBJS}
-	$(CC) -pthread -o $@ ${OBJS}
+fifo: main.o list.o
+	$(LINK.c) -o $@ $^
 	
-fifotest: ${OBJSTEST}
-	$(CC) -pthread -o $@ ${OBJSTEST}
-
-fifotest.o: fifotest.c
-	$(CC) -c fifotest.c
-
-main.o: main.c
-	$(CC) -c main.c
-
-list.o: list.c
-	$(CC) -c list.c
+fifotest: fifotest.o list.o
+	$(LINK.c) -o $@ $^
 
 clean:
-	rm -rf *o fifo fifotest *.exe
+	$(RM) *o fifo fifotest *.exe

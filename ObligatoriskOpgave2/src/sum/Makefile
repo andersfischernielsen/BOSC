@@ -1,12 +1,9 @@
-CC = cc -g
-LIBS = -lm
-OBJS = sum.o
+CC ?= cc
+CFLAGS = -g
+LDFLAGS = -pthread
+LDLIBS = -lm
 
-sum: $(OBJS)
-	$(CC) -pthread -o $@ $(OBJS) $(LIBS)
-
-sum.o: sum.c
-	$(CC) -c sum.c
+sum: sum.o
 
 clean:
-	rm -f *.o sum
+	$(RM) *.o sum

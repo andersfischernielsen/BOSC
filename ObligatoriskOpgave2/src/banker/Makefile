@@ -1,11 +1,8 @@
-CC = cc -g
-OBJS = banker.o
+CC ?= cc
+CFLAGS = -g
+LDFLAGS = -pthread
 
-banker: $(OBJS)
-	$(CC) -pthread -o $@ $(OBJS)
-
-banker.o: banker.c
-	$(CC) -c banker.c
+banker: banker.o
 
 clean:
-	rm -f *.o banker
+	$(RM) *.o banker
