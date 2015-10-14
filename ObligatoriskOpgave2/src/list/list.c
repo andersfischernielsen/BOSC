@@ -11,9 +11,9 @@
 #include <pthread.h>
 #include "list.h"
 
-int lock;
+int lock = 0;
 
-pthread_mutex_t mutex;
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 
 /* list_new: return a new list structure */
@@ -36,17 +36,7 @@ List *list_new(void)
 
 /* list_add: add node n to list l as the last element */
 void list_add(List *l, Node *n)
-{
-  // // lock 1
-  // while(test_and_set(&lock)){}
-  
-  // // lock 2
-  // int key = 0;
-  // key = 1;
-  // while(key == 1) {
-  //   swap(&lock, &key);
-  // }
-  
+{ 
   // mutex
   pthread_mutex_lock(&mutex);
   
@@ -65,20 +55,11 @@ Node *list_remove(List *l)
   pthread_mutex_lock(&mutex);
   if(l->len == 0) return NULL;
   
-  // // lock 1
-  // while(test_and_set(&lock)){}
-  
-  // // lock 2
-  // int key = 0;
-  // key = 1;
-  // while(key == 1) {
-  //   swap(&lock, &key);
-  // }
-  
   Node *n = l->first->next;
   l->first->next = l->first->next->next;
   l->len--;
 
+  if(l->len == 0) l->first = l->last = (Node *) malloc(sizeof(Node));
   pthread_mutex_unlock(&mutex);
   //lock = 0;
   return n;

@@ -19,18 +19,19 @@ int main(int argc, char* argv[])
 		printf("Second argument should be number of threads to start. \n");
 		return -1;
 	}
+	fifo = list_new();
 	iterations = atoi(argv[1]);
 	int threads = atoi(argv[2]);				//Thread id array.
 	pthread_t workers[threads];				//Thread identifiers.
 
-	fifo = list_new();
-
 	int i;
-
+	int err;
 	for (i = 0; i < threads; i++) {
 		//Create the threads.
 		workers[i] = i;
-		pthread_create(&workers[i], NULL, runner, fifo);
+		err = pthread_create(&workers[i], NULL, &runner, NULL);
+		if (err != 0)
+            printf("\ncan't create thread :[%s]", strerror(err));
 	}
 
 	for (i = 0; i < threads; i++) {
@@ -52,6 +53,6 @@ void *runner(void *param)
 		Node *n2 = list_remove(fifo);
 		if (n2 == NULL) { printf("Error no elements in list\n"); exit(-1);}
 		printf("%s\n%s\n", (char*) (n1->elm), (char*) (n2->elm));
-		pthread_exit(0);
 	}
+	return NULL;
 }
