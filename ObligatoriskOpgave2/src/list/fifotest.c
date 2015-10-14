@@ -49,9 +49,9 @@ void *runner(void *param)
 		list_add(fifo, node_new_str("s1"));
 		list_add(fifo, node_new_str("s2"));
 		Node *n1 = list_remove(fifo);
-		if (n1 == NULL) { printf("Error no elements in list\n"); exit(-1);}
+		if (n1 == NULL) { printf("Error no elements in list\n"); pthread_exit(NULL);}
 		Node *n2 = list_remove(fifo);
-		if (n2 == NULL) { printf("Error no elements in list\n"); exit(-1);}
+		if (n2 == NULL) { printf("Error no elements in list\n"); pthread_exit(NULL);}
 		printf("%s\n%s\n", (char*) (n1->elm), (char*) (n2->elm));
 	}
 	return NULL;

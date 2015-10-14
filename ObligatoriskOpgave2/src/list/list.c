@@ -13,7 +13,7 @@
 
 int lock = 0;
 
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t mutex;
 
 
 /* list_new: return a new list structure */
@@ -59,7 +59,7 @@ Node *list_remove(List *l)
   l->first->next = l->first->next->next;
   l->len--;
 
-  if(l->len == 0) l->first = l->last = (Node *) malloc(sizeof(Node));
+  if(l->len == 0) l->first = l->last;
   pthread_mutex_unlock(&mutex);
   //lock = 0;
   return n;
@@ -92,20 +92,4 @@ Node *node_new_str(char *s)
   n->next = NULL;
   pthread_mutex_unlock(&mutex);
   return n;
-}
-
-// Lock implementation 1.
-int test_and_set(int *target)
-{
-  int old = *target;
-  *target = 1;
-  return old;
-}
-
-// Lock implementation 2.
-void swap(int *a, int *b)
-{
-  int temp = *a; 
-  *a = *b; 
-  *b = temp;
 }
