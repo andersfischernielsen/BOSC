@@ -14,6 +14,7 @@
 int lock = 0;
 
 pthread_mutex_t mutex;
+pthread_mutex_t mutexes[512]; // 512 lists totally in one run.
 
 
 /* list_new: return a new list structure */
@@ -92,4 +93,16 @@ Node *node_new_str(char *s)
   n->next = NULL;
   pthread_mutex_unlock(&mutex);
   return n;
+}
+
+pthread_mutex_t get_or_add_mutex(List *list)
+{
+  int i = 0;
+  while(i < 512)
+  {
+    if (mutexes[i] != NULL && mutexes[i] == &list) return mutexes[i];
+    else if(mutexes[i]==NULL) mutexes[i] = &list;
+    
+    i++;
+  }
 }
