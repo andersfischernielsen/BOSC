@@ -132,22 +132,19 @@ int main(int argc, char* argv[])
     
     /* Allocate memory for state */
     s = (State *)malloc(sizeof(State));
+
+    if (s == NULL) { printf("\nYou need to allocate memory for the state!\n"); exit(0); };
+
     s->resource = (int *)calloc(n, sizeof(int));
     s->available = (int*)calloc(n, sizeof(int));
     s->max = (int **)malloc(m * sizeof(int*));
-    for(i = 0; i < m; i++) {
-        s->max[i] = (int*) calloc(n, sizeof(int));
-    }
     s->allocation = (int**)malloc(m * sizeof(int*));
-    for(i = 0; i < m; i++) {
-        s->allocation[i] = (int*)calloc(n, sizeof(int));
-    }
     s->need = (int**)malloc(m * sizeof(int*));
     for(i = 0; i < m; i++) {
+        s->max[i] = (int*) calloc(n, sizeof(int));
+        s->allocation[i] = (int*)calloc(n, sizeof(int));
         s->need[i] = (int*)calloc(n, sizeof(int));
     }
-
-    if (s == NULL) { printf("\nYou need to allocate memory for the state!\n"); exit(0); };
     
     /* Get current state as input */
     printf("Resource vector: ");
@@ -156,11 +153,11 @@ int main(int argc, char* argv[])
     printf("Enter max matrix: ");
     for(i = 0;i < m; i++)
         for(j = 0;j < n; j++)
-            scanf("%d", &s->max[i][j]);
+            scanf("%d", s->max[i] + j);
     printf("Enter allocation matrix: ");
     for(i = 0; i < m; i++)
         for(j = 0; j < n; j++) {
-            scanf("%d", &s->allocation[i][j]);
+            scanf("%d", s->allocation[i] + j);
         }
     printf("\n");
     
@@ -203,13 +200,24 @@ int main(int argc, char* argv[])
     srand(tv.tv_usec);
     
     /* Create m threads */
-    pthread_t *tid = malloc(m*sizeof(pthread_t));
+    pthread_t tid[m];
     for (i = 0; i < m; i++)
-        pthread_create(&tid[i], NULL, process_thread, (void *) (long) i);
+        pthread_create(tid + i, NULL, process_thread, (void *) (long) i);
     
     /* Wait for threads to finish */
     pthread_exit(0);
-    free(tid);
     
     /* Free state memory */
+    free(s->resource);
+    free(s->available);
+    for(i = 0; i < m; i++) {
+        free(s->max[i]);
+        free(s->allocation[i]);
+        free(s->need[i]);
+    }
+    free(s->max);
+    free(s->allocation);
+    free(s->need);
+    free(s);
 }
+
