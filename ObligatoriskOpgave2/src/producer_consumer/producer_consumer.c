@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
 		if (i == producer_number - 1) {
 			prod_work[i].to = item_number;
 		} else {
-			prod_work[i].to = (i+1) * (item_number / producer_number) - 1;
+			prod_work[i].to = (i+1) * (item_number / producer_number);
 		}
 		pthread_create(producers + i, &attr, &producer, prod_work + i);
 	}
@@ -101,7 +101,7 @@ void *producer(void *param) {
 	int i;
 	for (i = work.from; i < work.to; i++) {
 		sem_wait(&empty);
-		sprintf(itemstr, "item: %d", i);
+		sprintf(itemstr, "item %d", i);
 		Node *n = node_new_str(itemstr);
 		list_add(buf, n);
 		int len = buf->len;
@@ -124,7 +124,7 @@ void *consumer(void *param) {
 		Node *n = list_remove(buf);
 		int len = buf->len;
 
-		printf("\tConsumer %d consumed %s. Items in buffer: %d\n", work.id, (char *)n->elm, len);
+		printf("\tConsumer %d consumed %s. Items in buffer: %d (Max: %d)\n", work.id, (char *)n->elm, len, buffer_size);
 		free(n->elm);
 		free(n);
 
