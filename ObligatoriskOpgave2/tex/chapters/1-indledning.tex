@@ -1,1 +1,15 @@
 \section{Indledning}
+Obligatorisk Opgave 2 består af fire delopgaver:
+
+\begin{enumerate}
+	\item Multitrådet sum - Hvor en sumfunktion skal implementeres så flere tråde kan tage del i beregningen. Desuden skal der ikke bare summes, men derimod skal kvadratroden af hvert tal beregnes. Det er et krav til opgaven at der ikke bruges værktøjer til gensidig udelukning (mutexes).
+	\item Multitrådet FIFO buffer som kædet liste - Hvor en enkelt-kædet liste skal implementeres i C, således at den fungerer med flere tråde samtidigt. Opgaven skal løses ved brug af mutexes.
+	\item Producer-Consumer med bounded buffer - Hvor producer-consumer problemet skal implementeres med den førnævnte kædede liste sum buffer imellem trådene. Der skal i denne opgave bruges tællesemaforer.
+	\item Banker's algoritme til håndtering af deadlock - Hvor Banker's algoritme skal implementeres således at der aldrig tildeles ressourcer i et omfang der gør at maskinen løber tør for ressourcer, hvilket medvirker at alle beregninger går i stå fordi alle tråde venter på flere ressourcer (deadlock). \todo{skal der bruges særlige værktøjer i denne opgave?}
+\end{enumerate}
+
+\subsection{Ordbog}
+\begin{itemize}
+	\item Mutex: Et værktøj der bruges til at sikre kodeområder imod flere tilgange på samme tid. Helt konkret betyder det at tråde skal låse et objekt før de får adgang til at fortsætte deres udførsel. Kun én tråd kan låse en mutex ad gangen. Mutexes findes i PThread-biblioteket i C. (Headerfil: pthread.h)
+	\item Tællesemafor: Et værktøj der ligesom mutex bruges til at begrænse antallet af tråde der kan køre et stykke kode ad gangen. En tællesemafor har en startværdi der afgør hvor mange tråde der kan køre det beskyttede stykke kode, før der igen skal tælles op på semaforen. I implementationen af Producer-Consumer problemet, bruger vi tællesemaforer til at afgøre om en tråd må tilføje til en buffer, samt om en tråd må læse fra den samme buffer. På denne måde kan størrelsen af bufferen begrænses. Tællesemaforer findes i PThread-biblioteket i C. (Headerfil: semaphore.h)
+\end{itemize}
