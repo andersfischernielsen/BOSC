@@ -121,6 +121,26 @@ void *process_thread(void *param)
     free(request);
 }
 
+State* allocate_state() {
+    State* toReturn;
+    toReturn = malloc(sizeof(State));
+
+    toReturn->resource = (int *)calloc(n, sizeof(int));
+    toReturn->available = (int*)calloc(n, sizeof(int));
+    toReturn->max = (int **)malloc(m * sizeof(int*));
+    toReturn->allocation = (int**)malloc(m * sizeof(int*));
+    toReturn->need = (int**)malloc(m * sizeof(int*));
+    
+    int i;
+    for(i = 0; i < m; i++) {
+        toReturn->max[i] = (int*) calloc(n, sizeof(int));
+        toReturn->allocation[i] = (int*)calloc(n, sizeof(int));
+        toReturn->need[i] = (int*)calloc(n, sizeof(int));
+    }
+    
+    return toReturn;
+}
+
 int main(int argc, char* argv[])
 {
     /* Get size of current state as input */
@@ -131,20 +151,9 @@ int main(int argc, char* argv[])
     scanf("%d", &n);
     
     /* Allocate memory for state */
-    s = (State *)malloc(sizeof(State));
-
+    s = allocate_state();
+    
     if (s == NULL) { printf("\nYou need to allocate memory for the state!\n"); exit(0); };
-
-    s->resource = (int *)calloc(n, sizeof(int));
-    s->available = (int*)calloc(n, sizeof(int));
-    s->max = (int **)malloc(m * sizeof(int*));
-    s->allocation = (int**)malloc(m * sizeof(int*));
-    s->need = (int**)malloc(m * sizeof(int*));
-    for(i = 0; i < m; i++) {
-        s->max[i] = (int*) calloc(n, sizeof(int));
-        s->allocation[i] = (int*)calloc(n, sizeof(int));
-        s->need[i] = (int*)calloc(n, sizeof(int));
-    }
     
     /* Get current state as input */
     printf("Resource vector: ");
