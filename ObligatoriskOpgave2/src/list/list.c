@@ -11,10 +11,16 @@
 #include <pthread.h>
 #include "list.h"
 
-int lock = 0;
+#define LIST_AMOUNT 512 // the amount of list of this type that we support.
 
-pthread_mutex_t mutex;
-pthread_mutex_t mutexes[512]; // 512 lists totally in one run.
+typedef struct lock_info {
+	pthread_mutex_t lock;
+  List* list_address;
+  int taken;
+} lock_info;
+
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+lock_info* lock_infos = malloc(sizeof(lock_info)*LIST_AMOUNT);
 
 
 /* list_new: return a new list structure */
@@ -98,11 +104,19 @@ Node *node_new_str(char *s)
 pthread_mutex_t get_or_add_mutex(List *list)
 {
   int i = 0;
-  while(i < 512)
+  while(i < LIST_AMOUNT)
   {
-    if (mutexes[i] != NULL && mutexes[i] == &list) return mutexes[i];
-    else if(mutexes[i]==NULL) mutexes[i] = &list;
-    
+    lock_info* info = (lock_infos+i);
+    if (!info->taken && info->list_address == list) 
+    {
+      return info->lock; // the list is in the 
+    }
+    else if(info->taken) 
+    {
+      lock_info newInfo = { PTHREAD_MUTEX_INITIALIZER, list, 1 };
+      *info = newInfo;
+    }
     i++;
   }
+  exit(-1);
 }
