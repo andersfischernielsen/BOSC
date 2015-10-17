@@ -141,6 +141,21 @@ State* allocate_state() {
     return toReturn;
 }
 
+void free_state(State* s) {
+    free(s->resource);
+    free(s->available);
+    int i;
+    for(i = 0; i < m; i++) {
+        free(s->max[i]);
+        free(s->allocation[i]);
+        free(s->need[i]);
+    }
+    free(s->max);
+    free(s->allocation);
+    free(s->need);
+    free(s);
+}
+
 int main(int argc, char* argv[])
 {
     /* Get size of current state as input */
@@ -217,16 +232,6 @@ int main(int argc, char* argv[])
     pthread_exit(0);
     
     /* Free state memory */
-    free(s->resource);
-    free(s->available);
-    for(i = 0; i < m; i++) {
-        free(s->max[i]);
-        free(s->allocation[i]);
-        free(s->need[i]);
-    }
-    free(s->max);
-    free(s->allocation);
-    free(s->need);
-    free(s);
+    free_state(s);
 }
 
