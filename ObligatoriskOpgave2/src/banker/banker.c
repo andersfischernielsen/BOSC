@@ -32,31 +32,31 @@ int resource_request(int i, int *request)
 {
     //1. Can the request be granted? //
     int j;
-    for (j = 0; j < request.length; j++) {     //Iterate through the request.
-        if (available[j] - request[j] < 0) {   //If the request exceeds the available ressources, the request cannot be fulfilled.
-            return 0;                          //Return false state.
+    for (j = 0; j < n; j++) {                     //Iterate through the request.
+        if (s->available[j] - request[j] < 0) {   //If the request exceeds the available ressources, the request cannot be fulfilled.
+            return 0;                             //Return unsafe state.
         }
     }
 
     //2. Assume that the request is granted. //
-    for (j = 0; j < request.length; j++) {
-        allocation[i][j] += request[j];	            //Allocate ressources.
-        available[j] -= request[j];                 //Update available ressources counter.
+    for (j = 0; j < n; j++) {
+        s->allocation[i][j] += request[j];	           //Allocate ressources.
+        s->available[j] -= request[j];                 //Update available ressources counter.
 
-        if (allocation[i][j] > max[i][j]) {         //Check that the allocation does not exceed max ressources. 
-            return 0;                               //If so, return false state.
+        if (s->allocation[i][j] > s->max[i][j]) {      //Check that the allocation does not exceed max ressources. 
+            return 0;                                  //If so, return unsafe state.
         }
     }
 
     int k;
     //3. Is the new state safe? //
-    for (j = 0; j < max.length; j++) {
-       for(k = 0; k < max[0].length; k++) {
-            need[j][k] = max[j][k] - allocation[i][j];  //Calculate need matrix. 
-            if (need[j][k] > available[j]) {            //Check that the needed ressources for each process
-                return 0;                               //doesn't exceed the available ressources. If it does, false state.
+    for (j = 0; j < n; j++) {
+       for(k = 0; k < m; k++) {
+            s->need[j][k] = s->max[j][k] - s->allocation[i][j];  //Calculate need matrix. 
+            if (s->need[j][k] > s->available[j]) {               //Check that the needed ressources for each process
+                return 0;                                        //doesn't exceed the available ressources. If it does, unsafe state.
             }
-            return 1;                                   //Else correct state.
+            return 1;                                            //Else return safe state.
         }
     }
 }
@@ -64,9 +64,10 @@ int resource_request(int i, int *request)
 /* Release the resources in request for process i */
 void resource_release(int i, int *request)
 {
-    for (j = 0; j < request.length; j++) {
-       allocation[i][j] -= request[j];              //Update allocated ressources.
-       available[j] += request[j];                  //Update available ressources counter.
+    int j;
+    for (j = 0; j < n; j++) {
+       s->allocation[i][j] -= request[j];              //Update allocated ressources.
+       s->available[j] += request[j];                  //Update available ressources counter.
     }
 }
 
