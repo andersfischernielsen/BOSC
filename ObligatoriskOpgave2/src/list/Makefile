@@ -1,10 +1,15 @@
-all: fifo
+CC ?= cc
 
-OBJS = list.o main.o 
-LIBS= -lpthread
+CFLAGS = -g
+LDFLAGS = -pthread
 
-fifo: main.o ${OBJS}
-	gcc -o $@  ${LIBS} ${OBJS}
+all: fifo fifotest
+
+fifo: main.o list.o
+	$(LINK.c) -o $@ $^
+	
+fifotest: fifotest.o list.o
+	$(LINK.c) -o $@ $^
 
 clean:
-	rm -rf *o fifo
+	$(RM) *o fifo fifotest *.exe

@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
   if (n1 == NULL) { printf("Error no elements in list\n"); exit(-1);}
   Node *n2 = list_remove(fifo);
   if (n2 == NULL) { printf("Error no elements in list\n"); exit(-1);}
-  printf("%s\n%s\n", n1->elm, n2->elm);
+  printf("%s\n%s\n", (char*) (n1->elm), (char*) (n2->elm));
 
   return 0;
 }

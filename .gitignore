@@ -43,3 +43,14 @@ bosh
 
 # OO2
 sum
+!*sum/
+producer_consumer
+!*producer_consumer/
+banker
+!*banker/
+list
+!*list/
+fifo
+!*fifo/
+fifotest
+!*fifotest/
