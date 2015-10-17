@@ -30,7 +30,35 @@ void Sleep(float wait_time_ms)
    results in a safe state and return 1, else return 0 */
 int resource_request(int i, int *request)
 {
-  return 0;
+	//1. Can the request be granted? 
+	int j;
+	for (j = 0; j < request.length; j++) { 			//Iterate through the request.
+		if (available[j] - request[j] < 0) {		//If the request exceeds the available ressources, the request cannot be fulfilled.
+			return 0;								//Return false state.
+		}
+	}
+
+	//2. Assume that the request is granted.
+	for (j = 0; j < request.length; j++) {
+		allocation[i][j] += request[j];				//Allocate ressources.
+		available[j] -= request[j];					//Update available ressources counter.
+
+		if (allocation[i][j] > max[i][j]) {			//Check that the allocation does not exceed max ressources. 
+			return 0;								//If so, return false state.
+		}
+	}
+
+	int k;
+	//3. Is the new state safe? 
+	for (j = 0; j < max.length; j++) {
+		for(k = 0; k < max[0].length; k++) {
+			need[j][k] = max[j][k] - allocation[i][j];	//Calculate need matrix. 
+			if (need[j][k] > available[j]) {			//Check that the needed ressources for each process
+				return 0;								//doesn't exceed the available ressources. If it does, false state.
+			}
+			return 1;									//Else correct state.
+		}
+	}
 }
 
 /* Release the resources in request for process i */
