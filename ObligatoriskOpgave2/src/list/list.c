@@ -59,7 +59,7 @@ Node *list_remove(List *l)
   l->first->next = l->first->next->next;
   l->len--;
 
-  if(l->len == 0) l->first = l->last;
+  if(l->len == 0) l->last = l->first;
   pthread_mutex_unlock(&mutex);
   //lock = 0;
   return n;
