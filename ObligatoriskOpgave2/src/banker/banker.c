@@ -134,6 +134,41 @@ void *process_thread(void *param)
     free(request);
 }
 
+State* allocate_state() {
+    State* toReturn;
+    toReturn = malloc(sizeof(State));
+
+    toReturn->resource = (int *)calloc(n, sizeof(int));
+    toReturn->available = (int*)calloc(n, sizeof(int));
+    toReturn->max = (int **)malloc(m * sizeof(int*));
+    toReturn->allocation = (int**)malloc(m * sizeof(int*));
+    toReturn->need = (int**)malloc(m * sizeof(int*));
+    
+    int i;
+    for(i = 0; i < m; i++) {
+        toReturn->max[i] = (int*) calloc(n, sizeof(int));
+        toReturn->allocation[i] = (int*)calloc(n, sizeof(int));
+        toReturn->need[i] = (int*)calloc(n, sizeof(int));
+    }
+    
+    return toReturn;
+}
+
+void free_state(State* s) {
+    free(s->resource);
+    free(s->available);
+    int i;
+    for(i = 0; i < m; i++) {
+        free(s->max[i]);
+        free(s->allocation[i]);
+        free(s->need[i]);
+    }
+    free(s->max);
+    free(s->allocation);
+    free(s->need);
+    free(s);
+}
+
 int main(int argc, char* argv[])
 {
     /* Get size of current state as input */
@@ -144,20 +179,22 @@ int main(int argc, char* argv[])
     scanf("%d", &n);
     
     /* Allocate memory for state */
+    s = allocate_state();
+    
     if (s == NULL) { printf("\nYou need to allocate memory for the state!\n"); exit(0); };
     
     /* Get current state as input */
     printf("Resource vector: ");
     for(i = 0; i < n; i++)
-        scanf("%d", &s->resource[i]);
+        scanf("%d", s->resource + i);
     printf("Enter max matrix: ");
     for(i = 0;i < m; i++)
         for(j = 0;j < n; j++)
-            scanf("%d", &s->max[i][j]);
+            scanf("%d", s->max[i] + j);
     printf("Enter allocation matrix: ");
     for(i = 0; i < m; i++)
         for(j = 0; j < n; j++) {
-            scanf("%d", &s->allocation[i][j]);
+            scanf("%d", s->allocation[i] + j);
         }
     printf("\n");
     
@@ -200,13 +237,14 @@ int main(int argc, char* argv[])
     srand(tv.tv_usec);
     
     /* Create m threads */
-    pthread_t *tid = malloc(m*sizeof(pthread_t));
+    pthread_t tid[m];
     for (i = 0; i < m; i++)
-        pthread_create(&tid[i], NULL, process_thread, (void *) (long) i);
+        pthread_create(tid + i, NULL, process_thread, (void *) (long) i);
     
     /* Wait for threads to finish */
     pthread_exit(0);
-    free(tid);
     
     /* Free state memory */
+    free_state(s);
 }
+

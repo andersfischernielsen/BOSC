@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
 		workers[i] = i;
 		err = pthread_create(&workers[i], NULL, &runner, NULL);
 		if (err != 0)
-            printf("\ncan't create thread :[%s]", strerror(err));
+            printf("\ncan't create thread :[%d]", strerror(err));
 	}
 
 	for (i = 0; i < threads; i++) {
