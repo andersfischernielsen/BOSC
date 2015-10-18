@@ -22,6 +22,7 @@ typedef struct lock_info {
 pthread_mutex_t node_mutex = PTHREAD_MUTEX_INITIALIZER;
 lock_info* lock_infos;// = malloc(sizeof(lock_info)*LIST_AMOUNT);
 
+int current_id;
 
 /* list_new: return a new list structure */
 List *list_new(void)
@@ -35,6 +36,7 @@ List *list_new(void)
   l->first = l->last = (Node *) malloc(sizeof(Node));
   l->first->elm = NULL;
   l->first->next = NULL;
+  l->id = current_id++;
   return l;
 }
 
@@ -104,21 +106,17 @@ int isInitialised;
 pthread_mutex_t get_or_add_mutex(List *list)
 {
   if (!isInitialised) lock_infos = malloc(sizeof(lock_info)*LIST_AMOUNT);
-  int i = 0;
-  while(i < LIST_AMOUNT)
+
+  lock_info* info = (lock_infos+list->id);
+  if (info->taken && info->list_address == list) 
   {
-    lock_info* info = (lock_infos+i);
-    if (info->taken && info->list_address == list) 
-    {
-      return info->lock; // the list is in the 
-    }
-    else if(!info->taken) 
-    {
-      lock_info newInfo = { PTHREAD_MUTEX_INITIALIZER, list, 1 };
-      *info = newInfo;
-      return info->lock;
-    }
-    i++;
+    return info->lock; // the list is in the 
+  }
+  else if(!info->taken) 
+  {
+    lock_info newInfo = { PTHREAD_MUTEX_INITIALIZER, list, 1 };
+    *info = newInfo;
+    return info->lock;
   }
   exit(-1);
 }

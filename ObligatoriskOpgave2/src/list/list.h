@@ -16,6 +16,7 @@ typedef struct node {
 
 typedef struct list {
   int len;
+  int id;
   Node *first;
   Node *last;
 } List;
