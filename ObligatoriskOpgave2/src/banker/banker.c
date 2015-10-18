@@ -32,19 +32,26 @@ int resource_request(int i, int *request)
 {
     //1. Can the request be granted? //
     int j;
-    for (j = 0; j < m; j++) {                     //Iterate through the request.
-        if (s->available[j] - request[j] < 0) {   //If the request exceeds the available ressources, the request cannot be fulfilled.
-            return 0;                             //Return unsafe state.
+    //Iterate through the request.
+    for (j = 0; j < m; j++) {                     
+        //If the request exceeds the available ressources, the request cannot be fulfilled.
+        if (s->available[j] - request[j] < 0) {
+            //Return unsafe state.
+            return 0;                             
         }
     }
 
     //2. Assume that the request is granted. //
     for (j = 0; j < m; j++) {
-        s->allocation[i][j] += request[j];	           //Allocate ressources.
-        s->available[j] -= request[j];                 //Update available ressources counter.
+        //Allocate ressources.
+        s->allocation[i][j] += request[j];	 
+        //Update available ressources counter.
+        s->available[j] -= request[j];                 
 
-        if (s->allocation[i][j] > s->max[i][j]) {      //Check that the allocation does not exceed max ressources. 
-            return 0;                                  //If so, return unsafe state.
+        //Check that the allocation does not exceed max ressources.
+        //If so, return unsafe state.
+        if (s->allocation[i][j] > s->max[i][j]) {       
+            return 0;                                  
         }
     }
 
@@ -52,11 +59,15 @@ int resource_request(int i, int *request)
     //3. Is the new state safe? //
     for (j = 0; j < m; j++) {
        for(k = 0; k < n; k++) {
-            s->need[j][k] = s->max[j][k] - s->allocation[i][j];  //Calculate need matrix. 
-            if (s->need[j][k] > s->available[j]) {               //Check that the needed ressources for each process
-                return 0;                                        //doesn't exceed the available ressources. If it does, unsafe state.
+            //Calculate need matrix. 
+            s->need[j][k] = s->max[j][k] - s->allocation[i][j];  
+            //Check that the needed ressources for each process
+            //doesn't exceed the available ressources. If it does, unsafe state.
+            if (s->need[j][k] > s->available[j]) {               
+                return 0;                                        
             }
-            return 1;                                            //Else return safe state.
+            //Else return safe state.
+            return 1;
         }
     }
 }
@@ -66,8 +77,10 @@ void resource_release(int i, int *request)
 {
     int j;
     for (j = 0; j < m; j++) {
-       s->allocation[i][j] -= request[j];              //Update allocated ressources.
-       s->available[j] += request[j];                  //Update available ressources counter.
+        //Update allocated ressources.
+       	s->allocation[i][j] -= request[j];
+        //Update available ressources counter.
+        s->available[j] += request[j];
     }
 }
 
