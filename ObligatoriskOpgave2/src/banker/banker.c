@@ -34,8 +34,9 @@ void Sleep(float wait_time_ms) {
 
 void print_array(int *toPrint, int length) {
 	int i;
+	printf("{ ");
 	for (i = 0; i < length; i++) {
-		printf("{ %i, ", toPrint[i]);
+		printf("%i ", toPrint[i]);
 	}
 	printf("} \n");
 }
@@ -43,6 +44,7 @@ void print_array(int *toPrint, int length) {
 /* Allocate resources in request for process i, only if it 
    results in a safe state and return 1, else return 0 */
 int resource_request(int i, int *request) {
+	printf("%s", "Request array: \n");
 	print_array(request, n);
 	printf("%s", "STEP 1: Can the request be granted?\n");
 	//1. Can the request be granted? //
@@ -50,7 +52,6 @@ int resource_request(int i, int *request) {
 	// Iterate through the request.
 	for (j = 0; j < n; j++) {
 		int available = s->available[j] - request[j];
-		printf("Available after: %i \n", available);
 		//If the request exceeds the available resources, the request cannot be fulfilled.
 		if (available < 0) {
 			//Return unsafe state.
