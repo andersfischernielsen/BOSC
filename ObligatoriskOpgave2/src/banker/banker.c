@@ -49,6 +49,7 @@ void print_array(int *toPrint, int length) {
 int resource_request(int i, int *request) {
 	pthread_mutex_lock(&state_mutex);
 	printf("%s", "Request array: \n");
+	print_array(s->available, n);
 	print_array(request, n);
 	printf("%s", "STEP 1: Can the request be granted?\n");
 	//1. Can the request be granted? //
@@ -117,6 +118,7 @@ int resource_request(int i, int *request) {
 
 /* Release the resources in request for process i */
 void resource_release(int i, int *request) {
+	pthread_mutex_lock(&state_mutex);
 	int j;
 	for (j = 0; j < m; j++) {
 		//Update allocated resources.
@@ -124,10 +126,12 @@ void resource_release(int i, int *request) {
 		//Update available resources counter.
 		s->available[j] += request[j];
 	}
+	pthread_mutex_unlock(&state_mutex);
 }
 
 /* Generate a request vector */
 void generate_request(int i, int *request) {
+	pthread_mutex_lock(&state_mutex);
 	int j, sum = 0;
 	while (!sum) {
 		for (j = 0; j < n; j++) {
@@ -136,10 +140,12 @@ void generate_request(int i, int *request) {
 		}
 	}
 	printf("Process %d: Requesting resources.\n", i);
+	pthread_mutex_unlock(&state_mutex);
 }
 
 /* Generate a release vector */
 void generate_release(int i, int *request) {
+	pthread_mutex_lock(&state_mutex);
 	int j, sum = 0;
 	while (!sum) {
 		for (j = 0; j < n; j++) {
@@ -148,6 +154,7 @@ void generate_release(int i, int *request) {
 		}
 	}
 	printf("Process %d: Releasing resources.\n", i);
+	pthread_mutex_unlock(&state_mutex);
 }
 
 /* Threads starts here */
