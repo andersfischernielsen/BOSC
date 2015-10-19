@@ -3,6 +3,7 @@
 #include <sys/time.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <string.h>
 
 typedef struct state {
     int *resource;
@@ -16,6 +17,10 @@ typedef struct state {
 int m, n;
 State *s = NULL;
 
+//Function signatures
+void free_state(State* s);
+
+
 // Mutex for access to state.
 pthread_mutex_t state_mutex;
 
@@ -27,50 +32,80 @@ void Sleep(float wait_time_ms)
     usleep((int) (wait_time_ms * 1e3f)); // convert from ms to us
 }
 
+void print_array(int *toPrint, int length) {
+    int i;
+    for (i=0; i < length; i++) {
+        printf("%i\n",toPrint[i]);
+    }
+}
+
 /* Allocate resources in request for process i, only if it 
    results in a safe state and return 1, else return 0 */
 int resource_request(int i, int *request)
 {
+    printf("Request: %i \n", *request);
+    printf("%s", "STEP 1: Can the request be granted?\n");
     //1. Can the request be granted? //
     int j;
     //Iterate through the request.
-    for (j = 0; j < m; j++) {                     
+    for (j = 0; j < n; j++) {
+        int available = s->available[j] - request[j];
+        printf("Available: %i \n", available);
         //If the request exceeds the available resources, the request cannot be fulfilled.
-        if (s->available[j] - request[j] < 0) {
+        if (available < 0) {
             //Return unsafe state.
             return 0;                             
         }
     }
 
+    //Clone the current state to check whether it's possible
+    State *cloned = malloc(sizeof(s));
+    memcpy(s, &cloned, sizeof(s));
+
+    printf("%s", "STEP 2: Assume that the request is granted.\n");
     //2. Assume that the request is granted. //
-    for (j = 0; j < m; j++) {
+    for (j = 0; j < n; j++) {
+        printf("cloned->allocation before alloc: \n");
+        print_array(cloned->allocation[i][j], m);
         //Allocate resources.
-        s->allocation[i][j] += request[j];	 
+        cloned->allocation[i][j] += request[j];
+        printf("cloned->allocation after alloc: %i \n");
+        print_array(cloned->allocation[i][j], m);
+
+        printf("cloned->available before update: %i\n");
+        print_array(cloned->available[j], m);
         //Update available resources counter.
-        s->available[j] -= request[j];                 
+        cloned->available[j] -= request[j];
+        printf("cloned->available after update: %i \n");
+        print_array(cloned->available[j], m);
 
         //Check that the allocation does not exceed max resources.
         //If so, return unsafe state.
-        if (s->allocation[i][j] > s->max[i][j]) {       
+        if (cloned->allocation[i][j] > cloned->max[i][j]) {
             return 0;                                  
         }
     }
 
+    printf("%s", "STEP 3: Is the new state safe?\n");
     int k;
     //3. Is the new state safe? //
-    for (j = 0; j < m; j++) {
-       for(k = 0; k < n; k++) {
-            //Calculate need matrix. 
-            s->need[j][k] = s->max[j][k] - s->allocation[i][j];  
-            //Check that the needed resources for each process
-            //doesn't exceed the available resources. If it does, unsafe state.
-            if (s->need[j][k] > s->available[j]) {               
-                return 0;                                        
-            }
-            //Else return safe state.
-            return 1;
+    for (j = 0; j < n; j++) {
+       for(k = 0; k < m; k++) {
+           //Calculate need matrix.
+           cloned->need[j][k] = cloned->max[j][k] - cloned->allocation[i][j];
+           //Check that the needed resources for each process
+           //doesn't exceed the available resources. If it does, unsafe state.
+           if (cloned->need[j][k] > cloned->available[j]) {
+               return 0;
+           }
+
         }
     }
+
+    //Else return safe state.
+    free_state(s);
+    s = cloned;
+    return 1;
 }
 
 /* Release the resources in request for process i */
