@@ -2,6 +2,7 @@
 #include<stdlib.h>
 #include <sys/time.h>
 #include <pthread.h>
+#include <unistd.h>
 
 typedef struct state {
 	int *resource;
@@ -34,7 +35,7 @@ int resource_request(int i, int *request)
 	int j;
 	//Iterate through the request.
 	for (j = 0; j < m; j++) {
-	//If the request exceeds the available ressources, the request cannot be fulfilled.
+	//If the request exceeds the available resources, the request cannot be fulfilled.
 		if (s->available[j] - request[j] < 0) {
 			//Return unsafe state.
 			return 0;
@@ -77,9 +78,9 @@ void resource_release(int i, int *request)
 {
 	int j;
 	for (j = 0; j < m; j++) {
-		//Update allocated ressources.
+		//Update allocated resources.
 		s->allocation[i][j] -= request[j];
-		//Update available ressources counter.
+		//Update available resources counter.
 		s->available[j] += request[j];
 	}
 }
