@@ -28,12 +28,12 @@ int main(int argc, char* argv[])
 	int *threadId = malloc(sizeof(int)*threads);
 	int result_size = threads*iterations*2;
 	
-	results = malloc(sizeof(char)*result_size);
+	results = malloc(sizeof(char*)*result_size);
 	//prepare result array
 	int i;
 	for(i = 0; i<result_size; i++)
 	{
-		results[i] = malloc(sizeof(char*)*18);
+		results[i] = malloc(sizeof(char)*18);
 	}
 	int err;
 	for (i = 0; i < threads; i++) {
@@ -76,19 +76,15 @@ void *runner(void *param)
 		// element 1 remove
 		Node *n1 = list_remove(fifo);
 		if (n1 == NULL) { printf("Error no elements in list\n"); pthread_exit(NULL);}
-		char *result1 = malloc(sizeof(char)*18);
-		sprintf(result1, "%s", (char*) (n1->elm));
-		printf("%s removes: %s\n", thread_text, result1);
-		results[start_index+offset] = result1;
+		results[start_index+offset] = (char*) (n1->elm);
+		printf("%s removes: %s\n", thread_text, results[start_index+offset]);
 		offset++;
 		
 		// element 2 remove
 		Node *n2 = list_remove(fifo);
 		if (n2 == NULL) { printf("Error no elements in list\n"); pthread_exit(NULL);}
-		char *result2 = malloc(sizeof(char)*18);
-		sprintf(result2, "%s", (char*) (n2->elm));
-		printf("%s removes: %s\n", thread_text, result2);
-		results[start_index+offset] = result2;
+		results[start_index+offset] = (char*) (n2->elm);
+		printf("%s removes: %s\n", thread_text, results[start_index+offset]);
 		offset++;
 	}
 	return NULL;
@@ -96,6 +92,7 @@ void *runner(void *param)
 
 void *check_result(int array_length)
 {
+	printf("\nStart checking the results for errors\n=====================\n");
 	int i;
 	for(i = 0; i < array_length ; i++)
 	{
@@ -112,6 +109,11 @@ void *check_result(int array_length)
 				exit(-1);
 			}
 		}
+	}
+	if(fifo->len)
+	{ 
+		printf("\nERROR: The list is not empty - a concurrency error must have happened\n");
+		exit(-1);
 	}
 	printf("\nEverything went fine\n");
 }
