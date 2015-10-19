@@ -23,13 +23,15 @@ int main(int argc, char* argv[])
 	iterations = atoi(argv[1]);
 	int threads = atoi(argv[2]);				//Thread id array.
 	pthread_t workers[threads];				//Thread identifiers.
+	int *threadId = malloc(sizeof(int)*threads);
 
 	int i;
 	int err;
 	for (i = 0; i < threads; i++) {
 		//Create the threads.
 		workers[i] = i;
-		err = pthread_create(&workers[i], NULL, &runner, NULL);
+		threadId[i] = i;
+		err = pthread_create(&workers[i], NULL, &runner, &threadId[i]);
 		if (err != 0)
             printf("\ncan't create thread :[%d]", strerror(err));
 	}
@@ -43,11 +45,16 @@ int main(int argc, char* argv[])
 
 void *runner(void *param)
 {
+	int thread = *((int *)(param));
+	char thread_text1[40];
+	char thread_text2[40];
 	int i;
 	for(i = 0; i < iterations; i++)
 	{
-		list_add(fifo, node_new_str("s1"));
-		list_add(fifo, node_new_str("s2"));
+		sprintf(thread_text1, "s1, thread: %d iteration: %d\n", thread, i);
+		sprintf(thread_text2, "s2, thread: %d iteration: %d\n", thread, i);
+		list_add(fifo, node_new_str(thread_text1));
+		list_add(fifo, node_new_str(thread_text2));
 		Node *n1 = list_remove(fifo);
 		if (n1 == NULL) { printf("Error no elements in list\n"); pthread_exit(NULL);}
 		Node *n2 = list_remove(fifo);
