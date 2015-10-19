@@ -32,6 +32,17 @@ void Sleep(float wait_time_ms) {
 	usleep((int) (wait_time_ms * 1e3f)); // convert from ms to us
 }
 
+void cpy_state(State *dest, State *src) {
+	memcpy(dest->available, src->available, n * sizeof(int));
+	memcpy(dest->resource, src->resource, n * sizeof(int));
+	int i;
+	for (i = 0; i < m; i++) {
+		memcpy(dest->allocation[i], src->allocation[i], n * sizeof(int));
+		memcpy(dest->max[i], src->max[i], n * sizeof(int));
+		memcpy(dest->need[i], src->need[i], n * sizeof(int));
+	}
+}
+
 void print_array(int *toPrint, int length) {
 	int i;
 	for (i = 0; i < length; i++) {
@@ -60,7 +71,7 @@ int resource_request(int i, int *request) {
 
 	//Clone the current state to check whether it's possible
 	State *cloned = allocate_state();
-	memcpy(&cloned, s, sizeof(s));
+	cpy_state(cloned, s);
 
 	printf("%s", "STEP 2: Assume that the request is granted.\n");
 	//2. Assume that the request is granted. //
