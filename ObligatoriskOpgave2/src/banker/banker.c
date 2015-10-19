@@ -4,6 +4,7 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <string.h>
+#include "../producer_consumer/sleep.h"
 
 typedef struct state {
 	int *resource;
@@ -24,13 +25,6 @@ State *allocate_state();
 
 // Mutex for access to state.
 pthread_mutex_t state_mutex;
-
-/* Random sleep function */
-void Sleep(float wait_time_ms) {
-	// add randomness
-	wait_time_ms = ((float) rand()) * wait_time_ms / (float) RAND_MAX;
-	usleep((int) (wait_time_ms * 1e3f)); // convert from ms to us
-}
 
 void cpy_state(State *dest, State *src) {
 	memcpy(dest->available, src->available, n * sizeof(int));
@@ -55,6 +49,7 @@ void print_array(int *toPrint, int length) {
 /* Allocate resources in request for process i, only if it 
    results in a safe state and return 1, else return 0 */
 int resource_request(int i, int *request) {
+	pthread_mutex_lock(&state_mutex);
 	printf("%s", "Request array: \n");
 	print_array(request, n);
 	printf("%s", "STEP 1: Can the request be granted?\n");
@@ -66,6 +61,7 @@ int resource_request(int i, int *request) {
 		//If the request exceeds the available resources, the request cannot be fulfilled.
 		if (available < 0) {
 			//Return unsafe state.
+			pthread_mutex_unlock(&state_mutex);
 			return 0;
 		}
 	}
@@ -94,6 +90,8 @@ int resource_request(int i, int *request) {
 		//Check that the allocation does not exceed max resources.
 		//If so, return unsafe state.
 		if (cloned->allocation[i][j] > cloned->max[i][j]) {
+			pthread_mutex_unlock(&state_mutex);
+			free_state(cloned);
 			return 0;
 		}
 	}
@@ -108,6 +106,8 @@ int resource_request(int i, int *request) {
 			//Check that the needed resources for each process
 			//doesn't exceed the available resources. If it does, unsafe state.
 			if (cloned->need[j][k] > cloned->available[j]) {
+				pthread_mutex_unlock(&state_mutex);
+				free_state(cloned);
 				return 0;
 			}
 		}
@@ -116,6 +116,7 @@ int resource_request(int i, int *request) {
 	//Else return safe state. Make s point to the correct "test state".
 	free_state(s);
 	s = cloned;
+	pthread_mutex_unlock(&state_mutex);
 	return 1;
 }
 
@@ -165,9 +166,7 @@ void *process_thread(void *param) {
 	while (iterations < 1000) {
 		/* Generate request */
 		generate_request(i, request);
-		int request_result = resource_request(i, request);
-		printf("request_result: %i", request_result);
-		while (request_result) {
+		while (!resource_request(i, request)) {
 			/* Wait */
 			Sleep(100);
 		}
@@ -250,12 +249,12 @@ int main(int argc, char *argv[]) {
 	}
 	printf("\n");
 
-	/* Calcuate the need matrix */
+	/* Calculate the need matrix */
 	for (i = 0; i < m; i++)
 		for (j = 0; j < n; j++)
 			s->need[i][j] = s->max[i][j] - s->allocation[i][j];
 
-	/* Calcuate the availability vector */
+	/* Calculate the availability vector */
 	for (j = 0; j < n; j++) {
 		int sum = 0;
 		for (i = 0; i < m; i++)
@@ -283,10 +282,6 @@ int main(int argc, char *argv[]) {
 
 	/* If initial state is unsafe then terminate with error */
 
-	/* Seed the random number generator */
-	struct timeval tv;
-	gettimeofday(&tv, NULL);
-	srand(tv.tv_usec);
 
 	/* Create m threads */
 	pthread_t tid[m];
