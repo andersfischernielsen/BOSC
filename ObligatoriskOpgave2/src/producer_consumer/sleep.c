@@ -8,6 +8,10 @@ int first = 0;
 void Sleep(float wait_time_ms)
 {
 	if(first == 0) {
+	// First time setup - make the seed depend on
+	// the current time, in order not to use the
+	// same sequence of "random" numbers every
+	// time the program is used.
 		first = 1;
 		struct timeval tv;
 		gettimeofday(&tv, NULL);
