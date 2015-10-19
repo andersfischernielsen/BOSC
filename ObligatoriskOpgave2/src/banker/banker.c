@@ -1,8 +1,6 @@
 #include<stdio.h>
 #include<stdlib.h>
-#include <sys/time.h>
 #include <pthread.h>
-#include <unistd.h>
 #include <string.h>
 #include "../producer_consumer/sleep.h"
 
@@ -76,14 +74,14 @@ int resource_request(int i, int *request) {
 		printf("cloned->allocation before alloc: \n");
 		print_array(cloned->allocation[i], n);
 		//Allocate resources.
-		cloned->allocation[i][j] += request[j];
+		cloned->allocation[i][j] = cloned->allocation[i][j] + request[j];
 		printf("cloned->allocation after alloc: \n");
 		print_array(cloned->allocation[i], n);
 
 		printf("cloned->available before update:\n");
 		print_array(cloned->available, n);
 		//Update available resources counter.
-		cloned->available[j] -= request[j];
+		cloned->available[j] = cloned->available[j] - request[j];
 		printf("cloned->available after update: \n");
 		print_array(cloned->available, n);
 
@@ -97,19 +95,16 @@ int resource_request(int i, int *request) {
 	}
 
 	printf("%s", "STEP 3: Is the new state safe?\n");
-	int k;
 	//3. Is the new state safe? //
 	for (j = 0; j < n; j++) {
-		for (k = 0; k < m; k++) {
-			//Calculate need matrix.
-			cloned->need[j][k] = cloned->max[j][k] - cloned->allocation[i][j];
-			//Check that the needed resources for each process
-			//doesn't exceed the available resources. If it does, unsafe state.
-			if (cloned->need[j][k] > cloned->available[j]) {
-				pthread_mutex_unlock(&state_mutex);
-				free_state(cloned);
-				return 0;
-			}
+		//Calculate need matrix.
+		cloned->need[i][j] = cloned->max[i][j] - cloned->allocation[i][j];
+		//Check that the needed resources for each process
+		//doesn't exceed the available resources. If it does, unsafe state.
+		if (cloned->need[i][j] > cloned->available[j]) {
+			pthread_mutex_unlock(&state_mutex);
+			free_state(cloned);
+			return 0;
 		}
 	}
 
