@@ -54,6 +54,7 @@ int main(int argc, char* argv[]) {
 
 	int i;
 	for (i = 0; i < producer_number; i++) {
+		/* Create the work for a producer */
 		prod_work[i].id = i;
 		prod_work[i].from = i * (item_number / producer_number);
 		if (i == producer_number - 1) {
@@ -61,16 +62,21 @@ int main(int argc, char* argv[]) {
 		} else {
 			prod_work[i].to = (i+1) * (item_number / producer_number);
 		}
+
+		/* Run the producer */
 		pthread_create(producers + i, &attr, &producer, prod_work + i);
 	}
 
 	for (i = 0; i < consumer_number; i++) {
+		/* Create the work for a consumer */
 		cons_work[i].id = i;
 		if (i == consumer_number - 1) {
 			cons_work[i].amount = item_number / consumer_number + item_number % consumer_number;
 		} else {
 			cons_work[i].amount = item_number / consumer_number;
 		}
+
+		/* Run the consumer */
 		pthread_create(consumers + i, &attr, &consumer, cons_work + i);
 	}
 
@@ -79,16 +85,13 @@ int main(int argc, char* argv[]) {
 		pthread_join(producers[i], NULL);
 	}
 
-	printf("Producers done\n");
-
 	for (i = 0; i < consumer_number; i++) {
 		pthread_join(consumers[i], NULL);
 	}
 
-	printf("Consumers done\n");
-
-	// Free list buffer?
+	// Might mean that some memory inside the buffer is never freed.
 	free(buf);
+
 	sem_destroy(&empty);
 	sem_destroy(&full);
 
