@@ -2,6 +2,7 @@
 #include<stdlib.h>
 #include <sys/time.h>
 #include <pthread.h>
+#include <unistd.h>
 
 typedef struct state {
     int *resource;
@@ -34,7 +35,7 @@ int resource_request(int i, int *request)
     int j;
     //Iterate through the request.
     for (j = 0; j < m; j++) {                     
-        //If the request exceeds the available ressources, the request cannot be fulfilled.
+        //If the request exceeds the available resources, the request cannot be fulfilled.
         if (s->available[j] - request[j] < 0) {
             //Return unsafe state.
             return 0;                             
@@ -43,12 +44,12 @@ int resource_request(int i, int *request)
 
     //2. Assume that the request is granted. //
     for (j = 0; j < m; j++) {
-        //Allocate ressources.
+        //Allocate resources.
         s->allocation[i][j] += request[j];	 
-        //Update available ressources counter.
+        //Update available resources counter.
         s->available[j] -= request[j];                 
 
-        //Check that the allocation does not exceed max ressources.
+        //Check that the allocation does not exceed max resources.
         //If so, return unsafe state.
         if (s->allocation[i][j] > s->max[i][j]) {       
             return 0;                                  
@@ -61,8 +62,8 @@ int resource_request(int i, int *request)
        for(k = 0; k < n; k++) {
             //Calculate need matrix. 
             s->need[j][k] = s->max[j][k] - s->allocation[i][j];  
-            //Check that the needed ressources for each process
-            //doesn't exceed the available ressources. If it does, unsafe state.
+            //Check that the needed resources for each process
+            //doesn't exceed the available resources. If it does, unsafe state.
             if (s->need[j][k] > s->available[j]) {               
                 return 0;                                        
             }
@@ -77,9 +78,9 @@ void resource_release(int i, int *request)
 {
     int j;
     for (j = 0; j < m; j++) {
-        //Update allocated ressources.
+        //Update allocated resources.
        	s->allocation[i][j] -= request[j];
-        //Update available ressources counter.
+        //Update available resources counter.
         s->available[j] += request[j];
     }
 }
