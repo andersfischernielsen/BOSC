@@ -19,6 +19,7 @@ State *s = NULL;
 
 //Function signatures
 void free_state(State *s);
+
 State *allocate_state();
 
 // Mutex for access to state.
@@ -35,7 +36,7 @@ void print_array(int *toPrint, int length) {
 
 int less_eq_int_arr(int *a, int *b, int length) {
 	int i;
-	for(i = 0; i < length; i++) {
+	for (i = 0; i < length; i++) {
 		if (a[i] > b[i]) {
 			return 0;
 		}
@@ -147,24 +148,24 @@ void resource_release(int i, int *request) {
 void generate_request(int i, int *request) {
 	int j, sum = 0;
 	while (!sum) {
-		for (j = 0;j < n; j++) {
-			request[j] = (int) ceil(s->need[i][j] * ((double)rand())/ (double)RAND_MAX);
+		for (j = 0; j < n; j++) {
+			request[j] = (int) ceil(s->need[i][j] * ((double) rand()) / (double) RAND_MAX);
 			sum += request[j];
 		}
 	}
-	printf("Process %d: Requesting resources.\n",i);
+	printf("Process %d: Requesting resources.\n", i);
 }
 
 /* Generate a release vector */
 void generate_release(int i, int *request) {
 	int j, sum = 0;
 	while (!sum) {
-		for (j = 0;j < n; j++) {
-			request[j] = (int) ceil(s->allocation[i][j] * ((double)rand())/ (double)RAND_MAX);
+		for (j = 0; j < n; j++) {
+			request[j] = (int) ceil(s->allocation[i][j] * ((double) rand()) / (double) RAND_MAX);
 			sum += request[j];
 		}
 	}
-	printf("Process %d: Releasing resources.\n",i);
+	printf("Process %d: Releasing resources.\n", i);
 }
 
 int is_need_empty(int i) {
@@ -204,8 +205,7 @@ void *process_thread(void *param) {
 	return NULL;
 }
 
-int **allocate_int_matrix(int m, int n)
-{
+int **allocate_int_matrix(int m, int n) {
 	/* Allocate memory for the elements */
 	int *mem = malloc(m * n * sizeof(int));
 
@@ -331,7 +331,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	/* Create m threads */
-	pthread_t *tid = malloc(m*sizeof(pthread_t));
+	pthread_t *tid = malloc(m * sizeof(pthread_t));
 	for (i = 0; i < m; i++)
 		pthread_create(tid + i, NULL, process_thread, (void *) (long) i);
 
