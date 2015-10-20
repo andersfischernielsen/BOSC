@@ -21,20 +21,8 @@ State *s = NULL;
 void free_state(State *s);
 State *allocate_state();
 
-
 // Mutex for access to state.
 pthread_mutex_t state_mutex;
-
-void cpy_state(State *dest, State *src) {
-	memcpy(dest->available, src->available, n * sizeof(int));
-	memcpy(dest->resource, src->resource, n * sizeof(int));
-	int i;
-	for (i = 0; i < m; i++) {
-		memcpy(dest->allocation[i], src->allocation[i], n * sizeof(int));
-		memcpy(dest->max[i], src->max[i], n * sizeof(int));
-		memcpy(dest->need[i], src->need[i], n * sizeof(int));
-	}
-}
 
 void print_array(int *toPrint, int length) {
 	int i;
@@ -216,22 +204,47 @@ void *process_thread(void *param) {
 	return NULL;
 }
 
+int **allocate_int_matrix(int m, int n)
+{
+	/* Allocate memory for the elements */
+	int *mem = malloc(m * n * sizeof(int));
+
+	if (!mem) {
+		printf("Out of memory!\n");
+		exit(-1);
+	}
+
+	/* Allocate memory for the matrix array */
+	int **mat = malloc(m * sizeof(int *));
+
+	if (!mat) {
+		free(mem);
+		printf("Out of memory!\n");
+		exit(-1);
+	}
+
+	/* Setup array */
+	int i;
+	for (i = 0; i < m; ++i) {
+		mat[i] = &mem[i * n];
+	}
+	return mat;
+}
+
 State *allocate_state() {
 	State *toReturn;
 	toReturn = malloc(sizeof(State));
 
-	toReturn->resource = (int *) calloc(n, sizeof(int));
-	toReturn->available = (int *) calloc(n, sizeof(int));
-	toReturn->max = (int **) malloc(m * sizeof(int *));
-	toReturn->allocation = (int **) malloc(m * sizeof(int *));
-	toReturn->need = (int **) malloc(m * sizeof(int *));
-
-	int i;
-	for (i = 0; i < m; i++) {
-		toReturn->max[i] = (int *) calloc(n, sizeof(int));
-		toReturn->allocation[i] = (int *) calloc(n, sizeof(int));
-		toReturn->need[i] = (int *) calloc(n, sizeof(int));
+	if (!toReturn) {
+		printf("Out of memory!\n");
+		exit(-1);
 	}
+
+	toReturn->resource = calloc((size_t) n, sizeof(int));
+	toReturn->available = calloc((size_t) n, sizeof(int));
+	toReturn->max = allocate_int_matrix(m, n);
+	toReturn->allocation = allocate_int_matrix(m, n);
+	toReturn->need = allocate_int_matrix(m, n);
 
 	return toReturn;
 }
@@ -239,12 +252,9 @@ State *allocate_state() {
 void free_state(State *s) {
 	free(s->resource);
 	free(s->available);
-	int i;
-	for (i = 0; i < m; i++) {
-		free(s->max[i]);
-		free(s->allocation[i]);
-		free(s->need[i]);
-	}
+	free(*s->max);
+	free(*s->allocation);
+	free(*s->need);
 	free(s->max);
 	free(s->allocation);
 	free(s->need);
