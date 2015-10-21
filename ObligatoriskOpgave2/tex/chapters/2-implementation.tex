@@ -42,5 +42,15 @@ Producer/Consumer implementationen er baseret på en buffer implementeret som en
 \todo{Tænk over om det kan gøres snedigere og uden disse structs}Producere og consumere får tildelt deres arbejde ved hjælp af to typer structs. Producerens struct indeholder information omkring trådens id, hvor den skal starte med at producere fra, samt hvortil. Consumerens struct indeholder også et id, men derudover kun information omkring hvor mange elementer den skal konsumere før den skal stoppe.
 
 \subsection{Banker's algorithm til håndtering af deadlock}
+Banker's algorithm er implementeret vha. funktionerne \texttt{less\_eq\_int\_arr}, \texttt{is\_state\_safe}, \texttt{is\_need\_empty} samt \texttt{resource\_request} og \texttt{resource\_release}. 
 
+\texttt{is\_need\_empty} tjekker blot, om den aktuelle state's \texttt{need} er tomt. Dette anvendes under udførelsen af processernes requests. Hvis der ikke er noget need når en tråd eksekverer i \texttt{process_thread}, så er alle processer færdige.   
 
+\texttt{less\_eq\_int\_arr} sammenligner to arrays, og returnerer hvorvidt elementerne i den først givne array er større end elementerne i den anden givne array. Dette anvendes til algoritmens andet trin. Hvis en tråd beder om flere ressourcer end der er tilgængelie, vil en proces' \texttt{need} være større end den aktuelle \texttt{state}'s \texttt{available}.
+
+\texttt{is\_state\_safe} tager en given state og kalder den førnævnte \texttt{less\_eq\_int\_arr}-funktion for at verificere, at der ikke spørges efter flere resoourcer end der er tilgængelige. Herefter sættes den givne proces' \texttt{work} array til at være den aktuelle mængde tildelte ressourcer der er efterspurgt. 
+
+\texttt{resource\_request} sørger for at tildele ressourcer, hvis den givne state er sikker. Den givne state bliver låst vha. en \texttt{mutex}, så state ikke ændres af flere tråde samtidig.  
+Først tjekkes der om begyndelses-state er sikker ved hjælp af \texttt{is\_state\_safe}. Herefter tjekkes hvorvidt ressourcer nok er tilgængelige. Hvis dette er tilfældet tildeles ressourcer, der tjekkes igen om den givne state er sikker, og hvis dette er tilfældet returneres 1, der indikerer at state er sikker. Hvis dette ikke er tilfældet frigives de tildelte ressourcer, \texttt{mutex} fjernes, og der returneres 0.
+
+Ydermere er \texttt{allocate_state} og \texttt{free_state} implementeret for henholdsvis at allokere og deallokere hukommelse til state-structen. Allokering sker ved at allokere hukommelse for alle matricer og arrays efter at allokere hukommelse til structen selv. Arrays fyldes under allokering med værdien 0. ved hjælp af kaldet \texttt{calloc}, matricer fyldes med matricens dimensioner ganget med hinanden.
