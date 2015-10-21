@@ -23,8 +23,8 @@ List *list_new(void)
   l->first = l->last = (Node *) malloc(sizeof(Node));
   l->first->elm = NULL;
   l->first->next = NULL;
-  pthread_mutex_init(&l->lock, NULL);
-  // l->lock = PTHREAD_MUTEX_INITIALIZER;
+  pthread_mutex_init(&(l->lock), NULL);
+
   return l;
 }
 
@@ -32,13 +32,13 @@ List *list_new(void)
 void list_add(List *l, Node *n)
 { 
   // mutex
-  pthread_mutex_lock(&l->lock);
+  pthread_mutex_lock(&(l->lock));
   
   l->last->next = n;
   l->last = n;
   l->len++;
   
-  pthread_mutex_unlock(&l->lock);
+  pthread_mutex_unlock(&(l->lock));
   //lock = 0;
 }
 
@@ -46,7 +46,7 @@ void list_add(List *l, Node *n)
 Node *list_remove(List *l)
 {
   // mutex
-  pthread_mutex_lock(&l->lock);
+  pthread_mutex_lock(&(l->lock));
   if(l->len == 0) return NULL;
   
   Node *n = l->first->next;
@@ -54,8 +54,8 @@ Node *list_remove(List *l)
   l->len--;
 
   if(l->len == 0) l->last = l->first;
-  pthread_mutex_unlock(&l->lock);
-  //lock = 0;
+  pthread_mutex_unlock(&(l->lock));
+
   return n;
 }
 

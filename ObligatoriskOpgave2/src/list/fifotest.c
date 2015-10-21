@@ -62,8 +62,8 @@ void *runner(void *param)
 	int start_index = thread*iterations*2;
 	char thread_text[12];
 	sprintf(thread_text, "thread: %d", thread);
-	char thread_text1[40];
-	char thread_text2[40];
+	char thread_text1[25];
+	char thread_text2[25];
 	int i;
 	int offset = 0;
 	for(i = 0; i < iterations; i++)
