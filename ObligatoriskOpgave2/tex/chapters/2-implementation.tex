@@ -14,9 +14,11 @@ Summeringen gemmes lokalt i funktionen og skrives herefter ind i den modtagne st
 
 Til slut itereres der over de nu færdigsummerede \texttt{thread\_data}-structs, og summen fra hver struct lægges sammen. Resultatet returneres og printes herefter. \\ 
 
-\texttt{pthread\_create} tager imod en \texttt{SOMETHING}, en \texttt{SOMETHING}, en funktions-pointer, og et eventuelt parameter. \\
+\texttt{pthread\_create} opretter en tråd, der udfører en funktion med eventuelle givne parametre. 
+Funktionen tager imod en \texttt{pthread\_t}-pointer, der er en pointer til den oprettede tråd, en \texttt{pthread\_attr\_t}-pointer, der i implementationen er sat til \texttt{NULL}, hvilket sætter tråd-parametrene til standard-værdierne, en funktions-pointer til den funktion der skal eksekveres af tråden, og en pointer til det argument funktionen skal tage imod. \\
 
-\texttt{pthread\_join} tager imod et \texttt{pthread\_t} tråd-ID, samt en \texttt{SOMETHING} og gør noget.\\
+\texttt{pthread\_join} afventer at en given tråd bliver færdig med eksekvering. 
+Funktionen tager imod en \texttt{pthread\_t} pointer, hvilket er en pointer til den tråd der skal afventes, samt en \texttt{void}-pointer, hvis indhold sættes til den eksekverede funktions \texttt{exit()}-parameter.\\
 
 \subsection{Multitrådet FIFO buffer som kædet liste}
 \label{list.c}
