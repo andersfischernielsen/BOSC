@@ -5,7 +5,10 @@ Implementationen er testet ved først at køre \texttt{sum} på en enkelt tråd,
 Herefter kørtes implementationen på flere kerner, for at se, at resultatet var det samme. 
 Programmet blev kørt på flere computere, for at teste hastighedsforskellen med flere eller færre kerner. 
 
-\subsection{Multitrådet FIFO buffer som kædet liste}
+\subsection{Multitrådet FIFO kædet liste}
+For at teste at list.c ikke introducere race conditions er \texttt{fifotest.c} implementeret. Programmet tager to argumenter, antal iterationer programmet skal køre og antal tråde programmet skal sætte til at køre iterationerne. Hver tråd danner to unikke elementer og tilføjer dem til den globale liste, hvorefter tråden fjerner dem igen. Den fjernede nodes \texttt{elm} member gemmes herefter i et globalt to-dimensionelt char array kaldet \texttt{results}. Dette gøres ligeså mange gange som værdien af programmets første parameter. \\
+
+Efter alle trådene er kørt tjekkes det at der ikke eksisterer to a samme char array i \texttt{result}. Derefter tjekkes det også at den globale listes \texttt{len} member er 0. Denne test tjekker altså om et eller flere elementer er blevet fjernet fra listen to eller flere gange og derved om to eller flere tråde har fået adgang til den samme ressource på samme tidspunkt - en race condition.
 
 \subsection{Producer-Consumer med bounded buffer}
 

@@ -106,14 +106,12 @@ void *check_result(int array_length)
 				printf("\nERROR - a race condition happened\n");
 				printf("On index: %d and %d\n", i, j);
 				printf("%s%s\n", result1, result2);
-				exit(-1);
 			}
 		}
 	}
 	if(fifo->len)
 	{ 
 		printf("\nERROR: The list is not empty - a concurrency error must have happened\n");
-		exit(-1);
 	}
 	printf("\nEverything went fine\n");
 }
