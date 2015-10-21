@@ -20,6 +20,13 @@ Til slut itereres der over de nu færdigsummerede \texttt{thread\_data}-structs,
 
 \subsection{Multitrådet FIFO buffer som kædet liste}
 \label{list.c}
+To finish the functionality of the of the FIFO list, two methods needed to be implemented: \texttt{Add(List *l, Node *n)} and \texttt{Remove(List *l, Node *n)};
+\subsubsection{Add Function}
+This function adds Node *n to the list *l.
+\texttt{}
+\subsubsection{Remove Function}
+
+\subsubsection{Multithread Support}
 
 \subsection{Producer-Consumer med bounded buffer}
 Producer/Consumer implementationen er baseret på en buffer implementeret som en kædet liste (se sektion \ref{list.c}: \nameref{list.c}). Idéen er at en række tråde skal kunne oprette/producere elementer, mens en anden række tråde samtidigt skal kunne læse/konsumere disse elementer. Dog må der på et hvilket som helst i programmets kørsel ikke være produceret flere elementer end angivet med et kommandolinjeargument. For at løse dette problem, er der brugt 2 pthread-semaforer, som tæller op og ned, alt efter hvor mange elementer der er i bufferen, eller hvor mange der kan tilføjes til bufferen før den er fuld. Disse to semaforer \texttt{full} og \texttt{empty} er i hovedtrådens main-metode sat op til henholdsvis at have startværdierne 0 og bufferens størrelse. \texttt{full} bruges til at angive antallet af nuværende elementer i bufferen. Hvis denne er 0 og en consumer forsøger at tilgå bufferen, vil denne consumer blive nødt til at vente indtil en producer har tilføjet et element til bufferen. Hvis \texttt{empty} er 0 er bufferen fuld, og producere vil blive nødt til at vente indtil en consumer har fjernet et element.\\
