@@ -50,7 +50,7 @@ Node *list_remove(List *l)
   if(l->len == 0) return NULL;
   
   Node *n = l->first->next;
-  l->first->next = l->first->next->next;
+  l->first->next = n->next;
   l->len--;
 
   if(l->len == 0) l->last = l->first;

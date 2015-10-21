@@ -24,9 +24,11 @@ Funktionen tager imod en \texttt{pthread\_t} pointer, hvilket er en pointer til 
 \label{list.c}
 To finish the functionality of the of the FIFO list, two methods needed to be implemented: \texttt{Add(List *l, Node *n)} and \texttt{Remove(List *l, Node *n)};
 \subsubsection{Add Function}
-This function adds Node *n to the list *l.
-\texttt{}
+This function adds Node *n to the list *l. When the new node gets added, the \texttt{next} member of the current last node gets set to the node. Afterwards the \texttt{last} member of the list gets set to the new element and the length of the list is incremented. 
 \subsubsection{Remove Function}
+This function removes Node *n from the list *l. When the function is called, the pointer to first node of the list is saved to a local variable. Note that the \texttt{first} member of the list is actually not the first node but a root element and therefore \texttt{first->next} is the first node. Now we set the \texttt{next} member removed node to be the first element. The \texttt{len} member of the list is decremented and if the list is empty we set the \texttt{last} member to point to the \texttt{first} member.\\
+
+By using this structure we ensure that we have a FIFO linked list that allows us to add as many nodes as we want as long as there is enough memory available on the OS.
 
 \subsubsection{Multithread Support}
 
