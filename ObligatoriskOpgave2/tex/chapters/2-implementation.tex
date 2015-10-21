@@ -1,18 +1,22 @@
 \section{Implementation}
 
 \subsection{Multitrådet sum}
-Implementationen af multitrådet summering tager imod et antal af iterationer der skal beregnes over, samt et antal tråde der skal udføre summeringen af kvadratroden af tallene \texttt{0..n} i antallet af iterationer. \\
+Implementationen af multitrådet summering tager imod et antal af iterationer der skal beregnes over, samt et antal tråde der skal udføre summeringen af kvadratroden af tallene \texttt{1..n} i antallet af iterationer. \\
 
-Arbejdet hver tråd skal udføre er delt ud i \"bidder\" af arbejde i form af en \texttt{thread_data} struct. Denne struct indeholder tre tal, hhv. \texttt{from}, der indikerer ved hvilken iteration summeringen skal starte, \texttt{to}, der indikerer ved hvilken iteration summeringen skal slutte, og \texttt{sum}, der er resultatet af summeringen af intervallet i structen. Der genereres en struct for hver tråd, og disse gemmes herefter i et array.\\
+Arbejdet hver tråd skal udføre er delt ud i 'bidder' af arbejde i form af en \texttt{thread\_data} struct. Denne struct indeholder tre tal: \texttt{from}, der indikerer ved hvilken iteration summeringen skal starte, \texttt{to}, der indikerer ved hvilken iteration summeringen skal slutte og \texttt{sum}, der er resultatet af summeringen af intervallet i structen. Der genereres en struct for hver tråd, og disse gemmes herefter i et array.\\
 
-Trådenes arbejde bliver udført vha. \texttt{pthread}-biblioteket. En array af \texttt{pthread_t}-tråd-ID oprettes, hvor adressen til hver plads i arrayet gives til \texttt{pthread_create}-funktionen. Herved sættes ID'et for tråden til det aktuelle ID, og der kan herefter afventes at trådene færdiggør deres arbejde ved at anvende \texttt{pthread_join}-funktionen for hvert element i tråd-ID-arrayet.
-\texttt{pthread_create} gives derudover en pointer til funktionen \texttt{runner}, samt adressen for det næste element i \texttt{thread_data}-arrayet. 
+Trådenes arbejde bliver udført vha. \texttt{pthread}-biblioteket. En array af \texttt{pthread\_t}-tråd-ID oprettes, hvor adressen til hver plads i arrayet gives til \texttt{pthread\_create}-funktionen. Herved sættes ID'et for tråden til det aktuelle ID, og der kan herefter afventes at trådene færdiggør deres arbejde ved at anvende \texttt{pthread\_join}-funktionen for hvert element i tråd-ID-arrayet.
+\texttt{pthread\_create} gives derudover en pointer til funktionen \texttt{runner}, samt adressen for det næste element i \texttt{thread\_data}-arrayet. 
 
-Summeringen sker ved at funktionen \texttt{runner} modtager en \texttt{void}-pointer, der herefter castes til en \texttt{thread_data}-pointer.
-Herefter summeres tallene fra den modtagne \texttt{thread_data}-struct's \texttt{from}-værdi til modtagne \texttt{thread_data}-struct's \texttt{to}-værdi. Der summeres fra \texttt{from+1}, for at undgå at to tråde summerer den samme værdi to gange. For eksempel vil to forskellige tråde derfor summere fra 1-500 og 501-1000.
+Summeringen sker ved at funktionen \texttt{runner} modtager en \texttt{void}-pointer, der herefter castes til en \texttt{thread\_data}-pointer.
+Herefter summeres tallene fra den modtagne \texttt{thread\_data}-struct's \texttt{from}-værdi til modtagne \texttt{thread\_data}-struct's \texttt{to}-værdi. Der summeres fra \texttt{from+1}, for at undgå at to tråde summerer den samme værdi to gange. For eksempel vil to forskellige tråde derfor summere fra \texttt{1-500} og \texttt{501-1000}.
 Summeringen gemmes lokalt i funktionen og skrives herefter ind i den modtagne struct. Dette er gjort af performance-grunde, da det viste sig at skrive direkte ind i en struct medførte at CPU-caches kopieres unødvendigt, hvilket tager unødvendig tid. \\
 
-Til slut itereres der over de nu færdigsummerede \texttt{thread_data}-structs, og summen fra hver struct lægges sammen. Resultatet returneres og printes herefter. \\ 
+Til slut itereres der over de nu færdigsummerede \texttt{thread\_data}-structs, og summen fra hver struct lægges sammen. Resultatet returneres og printes herefter. \\ 
+
+\texttt{pthread\_create} tager imod en \texttt{SOMETHING}, en \texttt{SOMETHING}, en funktions-pointer, og et eventuelt parameter. \\
+
+\texttt{pthread\_join} tager imod et \texttt{pthread\_t} tråd-ID, samt en \texttt{SOMETHING} og gør noget.\\
 
 \subsection{Multitrådet FIFO buffer som kædet liste}
 \label{list.c}
