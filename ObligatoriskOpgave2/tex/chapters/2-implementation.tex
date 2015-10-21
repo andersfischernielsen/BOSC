@@ -3,7 +3,7 @@
 \subsection{Multitrådet sum}
 Implementationen af multitrådet summering tager imod et antal af iterationer der skal beregnes over, samt et antal tråde der skal udføre summeringen af kvadratroden af tallene \texttt{1..n} i antallet af iterationer. \\
 
-Arbejdet hver tråd skal udføre er delt ud i 'bidder' af arbejde i form af en \texttt{thread\_data} struct. Denne struct indeholder tre tal: \texttt{from}, der indikerer ved hvilken iteration summeringen skal starte, \texttt{to}, der indikerer ved hvilken iteration summeringen skal slutte og \texttt{sum}, der er resultatet af summeringen af intervallet i structen. Der genereres en struct for hver tråd, og disse gemmes herefter i et array.\\
+Arbejdet hver tråd skal udføre er delt ud i 'bidder' af arbejde i form af en \texttt{thread\_data} struct. Denne struct har tre members: \texttt{from}, der indikerer ved hvilken iteration summeringen skal starte, \texttt{to}, der indikerer ved hvilken iteration summeringen skal slutte og \texttt{sum}, der er resultatet af summeringen af intervallet i structen. Der genereres en struct for hver tråd, og disse gemmes herefter i et array.\\
 
 Trådenes arbejde bliver udført vha. \texttt{pthread}-biblioteket. En array af \texttt{pthread\_t}-tråd-ID oprettes, hvor adressen til hver plads i arrayet gives til \texttt{pthread\_create}-funktionen. Herved sættes ID'et for tråden til det aktuelle ID, og der kan herefter afventes at trådene færdiggør deres arbejde ved at anvende \texttt{pthread\_join}-funktionen for hvert element i tråd-ID-arrayet.
 \texttt{pthread\_create} gives derudover en pointer til funktionen \texttt{runner}, samt adressen for det næste element i \texttt{thread\_data}-arrayet. 
