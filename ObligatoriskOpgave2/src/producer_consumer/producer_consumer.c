@@ -100,13 +100,12 @@ void *producer(void *param) {
 	char itemstr[100];
 	int i;
 	for (i = work.from; i < work.to; i++) {
-		sem_wait(&empty);
 		sprintf(itemstr, "item %d", i);
 		Node *n = node_new_str(itemstr);
+		sem_wait(&empty);
 		list_add(buf, n);
-		int len = buf->len;
 
-		printf("Producer %d produced %s. Items in buffer: %d (Max: %d)\n", work.id, itemstr, len, buffer_size);
+		printf("Producer %d produced %s. Items in buffer: %d (Max: %d)\n", work.id, itemstr, buf->len, buffer_size);
 
 		sem_post(&full);
 		/* sleep for a random period of time */
@@ -122,9 +121,8 @@ void *consumer(void *param) {
 		sem_wait(&full);
 
 		Node *n = list_remove(buf);
-		int len = buf->len;
 
-		printf("\tConsumer %d consumed %s. Items in buffer: %d (Max: %d)\n", work.id, (char *)n->elm, len, buffer_size);
+		printf("\tConsumer %d consumed %s. Items in buffer: %d (Max: %d)\n", work.id, (char *)n->elm, buf->len, buffer_size);
 		free(n->elm);
 		free(n);
 
