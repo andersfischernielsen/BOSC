@@ -3,9 +3,16 @@ Implementationen af de fire delopgaver opfylder kravene og fungerer som forvente
 
 
 \subsection{Forbedringer}
+Vi har desværret ikke haft tid nok til både at implementere funktionalitet samt teste denne grundigt nok. Derfor har vi fokuseret på at funktionaliteten var korrekt, frem for at teste de halve implementationer.
 
 \subsubsection{Multitrådet sum}
 Testing kunne være automatiseret og de udførte tests have været mere dybdegående. Implementeringen håndterer ikke at et ulige antal af tråde, og giver ingen fejlmeddelelser hvis et ulige antal er givet, eller et højere antal tråde end iterationer gives som input.
 
 \subsubsection{Multitrådet FIFO kædet liste}
-Der kunne udføres flere tests der tjekkede om rækkefølgen af de indsatte og fjernede noder passede, således at man også sikrede sig at FIFO funktionaliteten fungerede. Derudover kunne der bruges der bruges read og write mutexes på hver liste, således at endnu mere parallelitet kunne opnås.
+Der kunne udføres flere tests der tjekkede om rækkefølgen af de indsatte og fjernede knuder passede, således at man også sikrede sig at FIFO funktionaliteten fungerede. Derudover kunne der bruges der bruges read og write mutexes på hver liste, således at endnu mere parallelitet kunne opnås.
+
+\subsubsection{Producer-Consumer med bounded buffer}
+Producer-Consumer er slet ikke testet automatisk, hvilket selvfølgelig begrænser troen på at den fungerer efter hensigten. De enkelte tråd-funktioner kunne desuden testes uafhængigt, da det ville gøre det nemmere at forvente egentlige resultater.
+
+\subsubsection{Banker's algorithm til håndtering af deadlock}
+Banker's algoritme implementationen er testet overordnet. Som ovenfor kunne delfunktionerne testes uafhængigt af den hele sammenhæng.
