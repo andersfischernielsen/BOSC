@@ -6,7 +6,19 @@
 \usepackage[T1]{fontenc}
 \usepackage[colorinlistoftodos]{todonotes}
 \usepackage{fancyhdr}
-
+\usepackage{xcolor}
+\lstset { %
+	language=C,
+	backgroundcolor=\color{white}, % set backgroundcolor
+	commentstyle=\color{green},
+	keywordstyle=\color{blue},
+	stringstyle=\color{orange},
+	numbers=left,
+	numbersep=5pt,
+	numberstyle=\color{gray},
+	basicstyle=\footnotesize,% basic font setting
+	breaklines=true,
+}
 \pagestyle{fancy}
 \fancyhf{}
 \rhead{Obligatorisk Opgave 2}
@@ -15,7 +27,7 @@
 
 \title{Obligatorisk Opgave 2}
 \author{\textbf{Gruppe A}\\\\Anders Fischer-Nielsen, Anders Wind Steffensen\\\& Mikael Lindemann Jepsen}
-\date{xxxdag d. xx. xxxxxxx 2015}
+\date{Torsdag d. 22. oktober 2015} 
 
 \begin{document}
 \maketitle
@@ -29,4 +41,6 @@
 \input{chapters/3-test.tex}
 \newpage
 \input{chapters/4-konklusion.tex}
+\newpage
+\input{chapters/5-sourcecode.tex}
 \end{document}
