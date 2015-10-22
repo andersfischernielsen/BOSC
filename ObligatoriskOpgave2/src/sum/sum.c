@@ -61,7 +61,7 @@ thread_data *generate_work_structs() {
 		//Second struct: { from = 2500*1 = 2500, to = 2500 * 2 = 5000 } etc.
 		thread_data data = { partition_size * i, partition_size * (i + 1), 0 };
 		//Store in array of work.
-		*(work+i) = data;
+		work[i+1] = data;
 	}
 
 	return work;

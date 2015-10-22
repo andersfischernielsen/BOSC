@@ -14,14 +14,20 @@ Summeringen gemmes lokalt i funktionen og skrives herefter ind i den modtagne st
 
 Til slut itereres der over de nu færdigsummerede \texttt{thread\_data}-structs, og summen fra hver struct lægges sammen. Resultatet returneres og printes herefter. \\ 
 
+\texttt{malloc} allokerer et givent \texttt{size\_t} antal bytes af hukkommelse, og returnerer en pointer til det allokerede hukkommelse. \texttt{malloc} anvendes i \texttt{sum} til at allokere en \texttt{thread\_data}-array, hvilket kræver, at antallet af bytes der skal allokeres regnes ud ved at tage størrelsen af en enkelt struct og gange denne med antallet af structs.
+
+\texttt{free} fungerer som en 'omvendt \texttt{malloc}'. Funktionen tager imod en pointer til allokeret hukommelse, og frigør denne. \texttt{free} anvendes til sidst i \texttt{sum} til at frigøre den tidligere allokerede struct-array. 
+
 \texttt{pthread\_create} opretter en tråd, der udfører en funktion med eventuelle givne parametre. 
 Funktionen tager imod en \texttt{pthread\_t}-pointer, der er en pointer til den oprettede tråd, en \texttt{pthread\_attr\_t}-pointer, der i implementationen er sat til \texttt{NULL}, hvilket sætter tråd-parametrene til standard-værdierne, en funktions-pointer til den funktion der skal eksekveres af tråden, og en pointer til det argument funktionen skal tage imod. \\
 
 \texttt{pthread\_join} afventer at en given tråd bliver færdig med eksekvering. 
 Funktionen tager imod en \texttt{pthread\_t} pointer, hvilket er en pointer til den tråd der skal afventes, samt en \texttt{void}-pointer, hvis indhold sættes til den eksekverede funktions \texttt{exit()}-parameter.\\
 
+\texttt{pthread\_exit} terminerer den tråd der eksekverer kaldet. Funktionen tager en integer der gøres tilgængeligt i \texttt{pthread\_join}-kaldet.
+
 \subsection{Multitrådet FIFO buffer som kædet liste}
-\label{list.c}
+\label{list}
 For at færdiggøre funktionaliteten af FIFO listen, er metoderne \texttt{Add(List *l, Node *n)} og \texttt{Remove(List *l, Node *n)} implementeret;
 
 \subsubsection{Add Function}
@@ -36,7 +42,8 @@ Ved at bruge disse funktioner sikres det at listen er en FIFO kædet liste og at
 For at tillade flere tråde at tilføje og fjerne noder fra lister benyttes \texttt{mutexes}. Et nyt member er blevet tilføjet til structen \texttt{List}, deklareret i \texttt{list.h}. Denne nye member kaldet \texttt{lock} er af typen \texttt{pthread\_mutex\_t}. Når en liste initieres i metoden \texttt{new\_list}, initieres \texttt{lock} ved brug af \texttt{pthread} kaldet \texttt{pthread\_mutex\_init(\&(l->lock), NULL);}. \texttt{NULL} bruges til at sættes options til at være standard værdien, og \texttt{\&(l->lock)} er placeringen af den mutex der skal initieres. Da mutexen nu er klar, bruges \texttt{pthread} kaldene: \texttt{pthread\_mutex\_lock} og \texttt{pthread\_mutex\_unlock}. Disse kaldes i starten og slutningen af både \texttt{add} og \texttt{remove} funktionerne i \texttt{list.c}. På den måde sikres det at tilføjelse og fjerning af noder foregår på en trådsikret måde, og at \texttt{list.c} kan bruges af flere forskellige tråde samtidig, så længe at funktionerne kaldes med forskellige lister som parametre.
 
 \subsection{Producer-Consumer med bounded buffer}
-Producer/Consumer implementationen er baseret på en buffer implementeret som en kædet liste (se sektion \ref{list.c}: \nameref{list.c}). Idéen er at en række tråde skal kunne oprette/producere elementer, mens en anden række tråde samtidigt skal kunne læse/konsumere disse elementer. Dog må der på et hvilket som helst i programmets kørsel ikke være produceret flere elementer end angivet med et kommandolinjeargument (heraf "bounded" buffer). Den sidste information programmet skal bruge er det totale antal elementer der skal produceres af producer-trådene.
+Producer/Consumer implementationen er baseret på en buffer implementeret som en kædet liste (se sektion \ref{list.c}: \nameref{list.c}). Idéen er at en række tråde skal kunne oprette/producere elementer, mens en anden række tråde samtidigt skal kunne læse/konsumere disse elementer. Dog må der på et hvilket som helst i programmets kørsel ikke være produceret flere elementer end angivet med et kommandolinjeargument. For at løse dette problem, er der brugt 2 pthread-semaforer, som tæller op og ned, alt efter hvor mange elementer der er i bufferen, eller hvor mange der kan tilføjes til bufferen før den er fuld. Disse to semaforer \texttt{full} og \texttt{empty} er i hovedtrådens main-metode sat op til henholdsvis at have startværdierne 0 og bufferens størrelse. \texttt{full} bruges til at angive antallet af nuværende elementer i bufferen. Hvis denne er 0 og en consumer forsøger at tilgå bufferen, vil denne consumer blive nødt til at vente indtil en producer har tilføjet et element til bufferen. Hvis \texttt{empty} er 0 er bufferen fuld, og producere vil blive nødt til at vente indtil en consumer har fjernet et element.\\
+>>>>>>> origin/master
 
 \todo{Tænk over om det kan gøres snedigere og uden disse structs}Producere og consumere får tildelt deres arbejde ved hjælp af to slags structs. Producerens struct indeholder information omkring trådens id, hvor den skal starte med at producere fra, samt hvortil. Consumerens struct indeholder også et id, men derudover kun information omkring hvor mange elementer den skal konsumere før den skal stoppe.\\
 
@@ -73,3 +80,5 @@ Banker's algorithm er implementeret vha. funktionerne \texttt{less\_eq\_int\_arr
 Først tjekkes der om begyndelses-state er sikker ved hjælp af \texttt{is\_state\_safe}. Herefter tjekkes hvorvidt ressourcer nok er tilgængelige. Hvis dette er tilfældet tildeles ressourcer, der tjekkes igen om den givne state er sikker, og hvis dette er tilfældet returneres 1, der indikerer at state er sikker. Hvis dette ikke er tilfældet frigives de tildelte ressourcer, \texttt{mutex} fjernes, og der returneres 0.
 
 Ydermere er \texttt{allocate\_state} og \texttt{free\_state} implementeret for henholdsvis at allokere og deallokere hukommelse til state-structen. Allokering sker ved at allokere hukommelse for alle matricer og arrays efter at allokere hukommelse til structen selv. Arrays fyldes under allokering med værdien 0. ved hjælp af kaldet \texttt{calloc}, matricer fyldes med matricens dimensioner ganget med hinanden.
+
+\texttt{generate\_request} og \texttt{generate\_release} er modificeret til altid at runde op, når der genereres tilfældige tal. Dette er gjort, da metoden ellers ville køre for evigt indtil den ramte tallet 1.
