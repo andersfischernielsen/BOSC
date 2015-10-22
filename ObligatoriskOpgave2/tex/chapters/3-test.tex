@@ -4,6 +4,12 @@
 Implementationen er testet ved først at køre \texttt{sum} på en enkelt tråd, med et antal iterationer, der kan beregnes i hånden.
 Herefter kørtes implementationen på flere kerner, for at se, at resultatet var det samme. 
 Programmet blev kørt på flere computere, for at teste hastighedsforskellen med flere eller færre kerner. 
+Nedenstående graf viser resultaterne ved kørsel på en 4-kernet maskine. Det er værd at lægge mærke til, at der ikke er nogen hastighedsforøgelse efter at alle maskinens kerner er i brug. 
+
+\begin{figure}[h!]
+\center
+\includegraphics[width=\linewidth]{../figures/graph.png}
+\end{figure}
 
 \subsection{Multitrådet FIFO kædet liste}
 For at teste at list.c ikke introducere race conditions er \texttt{fifotest.c} implementeret. Programmet tager to argumenter, antal iterationer programmet skal køre og antal tråde programmet skal sætte til at køre iterationerne. Hver tråd danner to unikke elementer og tilføjer dem til den globale liste, hvorefter tråden fjerner dem igen. Den fjernede nodes \texttt{elm} member gemmes herefter i et globalt to-dimensionelt char array kaldet \texttt{results}. Dette gøres ligeså mange gange som værdien af programmets første parameter. \\
