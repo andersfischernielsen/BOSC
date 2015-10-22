@@ -49,9 +49,6 @@ int main(int argc, char* argv[]) {
 	prod_t prod_work[producer_number];
 	cons_t cons_work[consumer_number];
 
-	pthread_attr_t attr;
-	pthread_attr_init(&attr);
-
 	int i;
 	for (i = 0; i < producer_number; i++) {
 		/* Create the work for a producer */
@@ -64,7 +61,7 @@ int main(int argc, char* argv[]) {
 		}
 
 		/* Run the producer */
-		pthread_create(producers + i, &attr, &producer, prod_work + i);
+		pthread_create(producers + i, NULL, &producer, prod_work + i);
 	}
 
 	for (i = 0; i < consumer_number; i++) {
@@ -77,7 +74,7 @@ int main(int argc, char* argv[]) {
 		}
 
 		/* Run the consumer */
-		pthread_create(consumers + i, &attr, &consumer, cons_work + i);
+		pthread_create(consumers + i, NULL, &consumer, cons_work + i);
 	}
 
 	// Wait for threads.
