@@ -14,11 +14,17 @@ Summeringen gemmes lokalt i funktionen og skrives herefter ind i den modtagne st
 
 Til slut itereres der over de nu færdigsummerede \texttt{thread\_data}-structs, og summen fra hver struct lægges sammen. Resultatet returneres og printes herefter. \\ 
 
+\texttt{malloc} allokerer et givent \texttt{size_t} antal bytes af hukkommelse, og returnerer en pointer til det allokerede hukkommelse. \texttt{malloc} anvendes i \texttt{sum} til at allokere en \texttt{thread\_data}-array, hvilket kræver, at antallet af bytes der skal allokeres regnes ud ved at tage størrelsen af en enkelt struct og gange denne med antallet af structs.
+
+\texttt{free} fungerer som en 'omvendt \textt{malloc}'. Funktionen tager imod en pointer til allokeret hukommelse, og frigør denne. \texttt{free} anvendes til sidst i \texttt{sum} til at frigøre den tidligere allokerede struct-array. 
+
 \texttt{pthread\_create} opretter en tråd, der udfører en funktion med eventuelle givne parametre. 
 Funktionen tager imod en \texttt{pthread\_t}-pointer, der er en pointer til den oprettede tråd, en \texttt{pthread\_attr\_t}-pointer, der i implementationen er sat til \texttt{NULL}, hvilket sætter tråd-parametrene til standard-værdierne, en funktions-pointer til den funktion der skal eksekveres af tråden, og en pointer til det argument funktionen skal tage imod. \\
 
 \texttt{pthread\_join} afventer at en given tråd bliver færdig med eksekvering. 
 Funktionen tager imod en \texttt{pthread\_t} pointer, hvilket er en pointer til den tråd der skal afventes, samt en \texttt{void}-pointer, hvis indhold sættes til den eksekverede funktions \texttt{exit()}-parameter.\\
+
+\texttt{pthread\_exit} terminerer den tråd der eksekverer kaldet. Funktionen tager en integer der gøres tilgængeligt i \texttt{pthread\_join}-kaldet.
 
 \subsection{Multitrådet FIFO buffer som kædet liste}
 \label{list.c}
