@@ -59,3 +59,5 @@ Banker's algorithm er implementeret vha. funktionerne \texttt{less\_eq\_int\_arr
 Først tjekkes der om begyndelses-state er sikker ved hjælp af \texttt{is\_state\_safe}. Herefter tjekkes hvorvidt ressourcer nok er tilgængelige. Hvis dette er tilfældet tildeles ressourcer, der tjekkes igen om den givne state er sikker, og hvis dette er tilfældet returneres 1, der indikerer at state er sikker. Hvis dette ikke er tilfældet frigives de tildelte ressourcer, \texttt{mutex} fjernes, og der returneres 0.
 
 Ydermere er \texttt{allocate\_state} og \texttt{free\_state} implementeret for henholdsvis at allokere og deallokere hukommelse til state-structen. Allokering sker ved at allokere hukommelse for alle matricer og arrays efter at allokere hukommelse til structen selv. Arrays fyldes under allokering med værdien 0. ved hjælp af kaldet \texttt{calloc}, matricer fyldes med matricens dimensioner ganget med hinanden.
+
+\texttt{generate_request} og \texttt{generate_release} er modificeret til altid at runde op, når der genereres tilfældige tal. Dette er gjort, da metoden ellers ville køre for evigt indtil den ramte tallet 1.
