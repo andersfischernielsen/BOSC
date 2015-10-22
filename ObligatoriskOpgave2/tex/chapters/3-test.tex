@@ -19,5 +19,10 @@ Efter alle trådene er kørt tjekkes det at der ikke eksisterer to a samme char 
 \texttt{fifotest.c} er kørt med argumenterne 10000 og 16. Hvis linjerne 26, 35, 41, 49 og 57 er udkommenteret i \texttt{list.c} er det lykkedes at fremprovokere en race condition. Uden at have udkommeteret de nævnte linjer har det ikke været muligt at få en racecondition.
 
 \subsection{Producer-Consumer med bounded buffer}
+\texttt{producer\_consumer} er kun testet manuelt. Dog er der testet i 3 kategorier: En række test hvor antallet af producer- og conumertråde er lige store, en række test hvor antallet af producere er større end antallet af consumere samt en række test hvor antallet af consumere er større end antallet af producers.
+
+Under udviklingen var der en fejl i \texttt{list}-implementation, der gjorde at listens \texttt{first} element blev sat til \texttt{last} når listen var tom, mens det der skulle ske i virkeligheden var det modsatte. Dette medvirkede at kørsler hvor bufferen blev tømt i kørslen, resulterede i segmentation fejl, fordi det blev forsøgt at læse data ud af en NULL-pointer. Da denne fejl blev fundet og rettet, kørte \texttt{producer\_consumer} også uden problemer.\\
+
+De eneste ting vi har kunnet holde øje med, som varierede, i forhold til test af \texttt{producer\_consumer}, er antallet af elementer i bufferen undervejs. Ved test hvor antallet af producere er lig med antallet af consumere, varierer antallet af elementer meget, mens bufferen er tom meget af tiden, når antallet af consumere er større end producere. På samme måde er bufferen fuld det meste af tiden når antallet af producere er større end consumere.
 
 \subsection{Banker's algorithm til håndtering af deadlock}
