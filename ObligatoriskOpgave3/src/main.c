@@ -20,21 +20,49 @@ how to use the page table and disk interfaces.
 #define CUSTOM 2
 
 struct disk *disk;
-
 int handler_type;
+int available_frames;
 
 void page_fault_handler( struct page_table *pt, int page )
 {
-	switch (handler_type) {
-		case RAND:
-			break;
-		case FIFO:
-			break;
-		case CUSTOM:
-			break;
-	}
 	printf("page fault on page #%d\n",page);
-	exit(1);
+
+	//If physical memory location has read, add write.
+	if (page_bits[page] == PROT_READ) {
+		page_bits[page] == PROT_READ|PROT_WRITE;
+		return;
+	}
+
+	if (available_frames) {
+		//What to  store in physical memory.
+		char what_to_write;
+		//Read from disk.
+		disk_read(disk, page, &what_to_write);
+		int store_location = pt->nframes - available_frames;
+		//Store value in physical memory.
+		pt->physmem[store_location] = what_to_write;
+		available_frames--;
+	}
+
+	else {
+		//No space in physical memory, replace frame with requested page.
+		switch (handler_type) {
+			case RAND:
+				//generate random number up to nframes (exclusive) (size of phys. mem.)
+				//set chosen_page to random number.
+				break;
+			case FIFO:
+
+				break;
+			case CUSTOM:
+
+				break;
+		}
+
+		//Shared write-to-disk logic for allalgorithms.
+		//write_to_disk(chosen_page);
+		//Write "old" frame to disk, pull new page.
+	}
 }
 
 int main( int argc, char *argv[] )
