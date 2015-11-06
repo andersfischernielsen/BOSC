@@ -32,14 +32,13 @@ void page_fault_handler( struct page_table *pt, int page )
 	int bits;
 	page_table_get_entry(pt, page, &frame, &bits);
 
-	//If physical memory location has read, add write.
+	//If physical memory location has read, add write rights.
 	if (bits == PROT_READ) {
 		page_table_set_entry(pt, page, frame, (PROT_READ|PROT_WRITE));
 	}
 
 	else if (available_frames) {
-		//What to  store in physical memory.
-
+		// get the store location.
 		int store_location = page_table_get_nframes(pt) - available_frames;
 		//Store value in physical memory.
 		disk_read(disk, page, &page_table_get_physmem(pt)[store_location]);
@@ -63,22 +62,24 @@ void page_fault_handler( struct page_table *pt, int page )
 			case CUSTOM:
 				break;
 		}
-		//Override old page.
+		//find page index to overwrite rights for.
 		int index_of_overriden_page = frame_to_page[frame_to_overwrite];
+		//get the page entry.
 		page_table_get_entry(pt, index_of_overriden_page, &frame, &bits);
 
 		if (bits == (PROT_READ|PROT_WRITE)) {
-			//Write old data to disk.
+			//Write the physical memory to the disk, since it is being swapped.
 			disk_write(disk, index_of_overriden_page, &page_table_get_physmem(pt)[frame_to_overwrite]);
 		}
 		//Set bit to 0 to indicate the value has been overriden.
 		bits = 0;
 
-		//Extract data from disk.
+		//Extract data from disk of the frame of the page.
 		disk_read(disk, page, &page_table_get_physmem(pt)[frame_to_overwrite]);
-		//Write disk data to physical memory.
+
 		//Update page table to reflect physical memory changes.
 		page_table_set_entry(pt, page, frame_to_overwrite, PROT_READ);
+		// map from frame back to the new page.
 		frame_to_page[frame_to_overwrite] = page;
 	}
 }
