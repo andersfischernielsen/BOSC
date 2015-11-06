@@ -22,14 +22,19 @@ how to use the page table and disk interfaces.
 struct disk *disk;
 int handler_type;
 int available_frames;
+int *frame_to_page;
 
 void page_fault_handler( struct page_table *pt, int page )
 {
 	printf("page fault on page #%d\n",page);
 
+	int* frame;
+	int* bits;
+	page_table_get_entry(pt, page, frame, bits);
+
 	//If physical memory location has read, add write.
-	if (page_bits[page] == PROT_READ) {
-		page_bits[page] == PROT_READ|PROT_WRITE;
+	if (*bits == PROT_READ) {
+		page_table_set_entry(pt, page, frame, PROT_READ|PROT_WRITE);
 		return;
 	}
 
@@ -38,18 +43,23 @@ void page_fault_handler( struct page_table *pt, int page )
 		char what_to_write;
 		//Read from disk.
 		disk_read(disk, page, &what_to_write);
-		int store_location = pt->nframes - available_frames;
+		int store_location = page_table_get_nframes(pt) - available_frames;
 		//Store value in physical memory.
-		pt->physmem[store_location] = what_to_write;
+		page_table_get_physmem(pt)[store_location] = what_to_write;
+		//Set mapping back to page from frame (for performance later).
+		frame_to_page[store_location] = page;
 		available_frames--;
+
+		page_table_set_entry(pt, page, store_location, PROT_READ);
 	}
 
 	else {
+		int frame_to_overwrite;
 		//No space in physical memory, replace frame with requested page.
 		switch (handler_type) {
 			case RAND:
-				//generate random number up to nframes (exclusive) (size of phys. mem.)
-				//set chosen_page to random number.
+				//Generate random number up to nframes (exclusive).
+				frame_to_overwrite = rand() % page_table_get_nframes(pt);
 				break;
 			case FIFO:
 
@@ -59,9 +69,25 @@ void page_fault_handler( struct page_table *pt, int page )
 				break;
 		}
 
-		//Shared write-to-disk logic for allalgorithms.
-		//write_to_disk(chosen_page);
-		//Write "old" frame to disk, pull new page.
+		//Override old page.
+		int index_of_overriden_page = frame_to_page[frame_to_overwrite];
+		page_table_get_entry(pt, index_of_overriden_page, frame, bits);
+
+		if (*bits == PROT_READ|PROT_WRITE) {
+			//Write old data to disk.
+			disk_write(disk, index_of_overriden_page,
+				page_table_get_physmem(pt)[frame_to_overwrite]);
+		}
+		//Set bit to 0 to indicate the value has been overriden.
+		*bits = 0;
+
+		//Extract data from disk.
+		char* data;
+		disk_read(disk, page, data);
+		//Write disk data to physical memory.
+		page_table_get_physmem(pt)[frame_to_overwrite] = data;
+		//Update page table to reflect physical memory changes.
+		page_table_set_entry(pt, page, frame_to_overwrite, PROT_READ);
 	}
 }
 
@@ -101,6 +127,8 @@ int main( int argc, char *argv[] )
 		return 1;
 	}
 
+	frame_to_page = calloc(nframes, sizeof(int));
+
 	char *virtmem = page_table_get_virtmem(pt);
 
 	char *physmem = page_table_get_physmem(pt);
@@ -121,6 +149,7 @@ int main( int argc, char *argv[] )
 
 	page_table_delete(pt);
 	disk_close(disk);
+	free(frame_to_page);
 
 	return 0;
 }
