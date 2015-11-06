@@ -37,7 +37,7 @@ void page_fault_handler( struct page_table *pt, int page )
 		printf("First if:\n");
 		printf("%i\n", page);
 		printf("%i\n", frame);
-		page_table_set_entry(pt, page, frame, PROT_READ|PROT_WRITE);
+		page_table_set_entry(pt, page, frame, (PROT_READ|PROT_WRITE));
 	}
 
 	else if (available_frames) {
@@ -73,7 +73,7 @@ void page_fault_handler( struct page_table *pt, int page )
 		printf("%s\n", "tjek 10");
 		//Override old page.
 		int index_of_overriden_page = frame_to_page[frame_to_overwrite];
-		page_table_get_entry(pt, index_of_overriden_page, frame, bits);
+		page_table_get_entry(pt, index_of_overriden_page, &frame, &bits);
 		printf("%s\n", "tjek 11");
 
 		if (bits == (PROT_READ|PROT_WRITE)) {
@@ -95,9 +95,6 @@ void page_fault_handler( struct page_table *pt, int page )
 		page_table_set_entry(pt, page, frame_to_overwrite, PROT_READ);
 		frame_to_page[frame_to_overwrite] = page;
 	}
-
-	free(bits);
-	free(frame);
 }
 
 int main( int argc, char *argv[] )
@@ -141,7 +138,7 @@ int main( int argc, char *argv[] )
 
 	char *virtmem = page_table_get_virtmem(pt);
 
-	char *physmem = page_table_get_physmem(pt);
+	//char *physmem = page_table_get_physmem(pt);
 
 	if(!strcmp(program,"sort")) {
 		sort_program(virtmem,npages*PAGE_SIZE);
