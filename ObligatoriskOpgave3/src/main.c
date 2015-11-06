@@ -28,17 +28,20 @@ void page_fault_handler( struct page_table *pt, int page )
 {
 	printf("page fault on page #%d\n",page);
 
-	int* frame;
-	int* bits;
-	page_table_get_entry(pt, page, frame, bits);
+	int frame;
+	int bits;
+	page_table_get_entry(pt, page, &frame, &bits);
 
 	//If physical memory location has read, add write.
-	if (*bits == PROT_READ) {
-		page_table_set_entry(pt, page, *frame, PROT_READ|PROT_WRITE);
-		return;
+	if (bits == PROT_READ) {
+		printf("First if:\n");
+		printf("%i\n", page);
+		printf("%i\n", frame);
+		page_table_set_entry(pt, page, frame, PROT_READ|PROT_WRITE);
 	}
 
-	if (available_frames) {
+	else if (available_frames) {
+		printf("Second if.\n");
 		//What to  store in physical memory.
 		char what_to_write;
 		//Read from disk.
@@ -73,23 +76,26 @@ void page_fault_handler( struct page_table *pt, int page )
 		int index_of_overriden_page = frame_to_page[frame_to_overwrite];
 		page_table_get_entry(pt, index_of_overriden_page, frame, bits);
 
-		if (*bits == (PROT_READ|PROT_WRITE)) {
+		if (bits == (PROT_READ|PROT_WRITE)) {
 			//Write old data to disk.
 			char old_data;
 			old_data = page_table_get_physmem(pt)[frame_to_overwrite];
 			disk_write(disk, index_of_overriden_page, &old_data);
 		}
 		//Set bit to 0 to indicate the value has been overriden.
-		*bits = 0;
+		bits = 0;
 
 		//Extract data from disk.
-		char* data;
-		disk_read(disk, page, data);
+		char data;
+		disk_read(disk, page, &data);
 		//Write disk data to physical memory.
-		page_table_get_physmem(pt)[frame_to_overwrite] = *data;
+		page_table_get_physmem(pt)[frame_to_overwrite] = data;
 		//Update page table to reflect physical memory changes.
 		page_table_set_entry(pt, page, frame_to_overwrite, PROT_READ);
 	}
+
+	free(bits);
+	free(frame);
 }
 
 int main( int argc, char *argv[] )

@@ -1,6 +1,6 @@
 
 virtmem: main.o page_table.o disk.o program.o
-	gcc main.o page_table.o disk.o program.o -o virtmem
+	gcc -g main.o page_table.o disk.o program.o -o virtmem
 
 main.o: main.c
 	gcc -Wall -g -c main.c -o main.o
