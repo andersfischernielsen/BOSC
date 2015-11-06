@@ -41,12 +41,10 @@ void page_fault_handler( struct page_table *pt, int page )
 	else if (available_frames) {
 		printf("Second if.\n");
 		//What to  store in physical memory.
-		char what_to_write;
-		//Read from disk.
-		disk_read(disk, page, &what_to_write);
+
 		int store_location = page_table_get_nframes(pt) - available_frames;
 		//Store value in physical memory.
-		page_table_get_physmem(pt)[store_location] = what_to_write;
+		disk_read(disk, page, &page_table_get_physmem(pt)[store_location]);
 		//Set mapping back to page from frame (for performance later).
 		frame_to_page[store_location] = page;
 		available_frames--;
@@ -76,19 +74,15 @@ void page_fault_handler( struct page_table *pt, int page )
 
 		if (bits == (PROT_READ|PROT_WRITE)) {
 			//Write old data to disk.
-			char old_data;
-			old_data = page_table_get_physmem(pt)[frame_to_overwrite];
-			disk_write(disk, index_of_overriden_page, &old_data);
+			disk_write(disk, index_of_overriden_page, &page_table_get_physmem(pt)[frame_to_overwrite]);
 		}
 		printf("%s\n", "tjek 12");
 		//Set bit to 0 to indicate the value has been overriden.
 		bits = 0;
 
 		//Extract data from disk.
-		char data;
-		disk_read(disk, page, &data);
+		disk_read(disk, page, &page_table_get_physmem(pt)[frame_to_overwrite]);
 		//Write disk data to physical memory.
-		page_table_get_physmem(pt)[frame_to_overwrite] = data;
 		//Update page table to reflect physical memory changes.
 		page_table_set_entry(pt, page, frame_to_overwrite, PROT_READ);
 		frame_to_page[frame_to_overwrite] = page;
