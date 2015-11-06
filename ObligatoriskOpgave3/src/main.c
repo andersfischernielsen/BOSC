@@ -34,12 +34,10 @@ void page_fault_handler( struct page_table *pt, int page )
 
 	//If physical memory location has read, add write.
 	if (bits == PROT_READ) {
-		printf("First if:\n");
 		page_table_set_entry(pt, page, frame, (PROT_READ|PROT_WRITE));
 	}
 
 	else if (available_frames) {
-		printf("Second if.\n");
 		//What to  store in physical memory.
 
 		int store_location = page_table_get_nframes(pt) - available_frames;
@@ -54,7 +52,6 @@ void page_fault_handler( struct page_table *pt, int page )
 
 	else {
 		int frame_to_overwrite;
-		printf("%s\n", "tjek 9");
 		//No space in physical memory, replace frame with requested page.
 		switch (handler_type) {
 			case RAND:
@@ -66,17 +63,14 @@ void page_fault_handler( struct page_table *pt, int page )
 			case CUSTOM:
 				break;
 		}
-		printf("%s\n", "tjek 10");
 		//Override old page.
 		int index_of_overriden_page = frame_to_page[frame_to_overwrite];
 		page_table_get_entry(pt, index_of_overriden_page, &frame, &bits);
-		printf("%s\n", "tjek 11");
 
 		if (bits == (PROT_READ|PROT_WRITE)) {
 			//Write old data to disk.
 			disk_write(disk, index_of_overriden_page, &page_table_get_physmem(pt)[frame_to_overwrite]);
 		}
-		printf("%s\n", "tjek 12");
 		//Set bit to 0 to indicate the value has been overriden.
 		bits = 0;
 
