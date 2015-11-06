@@ -34,7 +34,7 @@ void page_fault_handler( struct page_table *pt, int page )
 
 	//If physical memory location has read, add write.
 	if (*bits == PROT_READ) {
-		page_table_set_entry(pt, page, frame, PROT_READ|PROT_WRITE);
+		page_table_set_entry(pt, page, *frame, PROT_READ|PROT_WRITE);
 		return;
 	}
 
@@ -73,10 +73,11 @@ void page_fault_handler( struct page_table *pt, int page )
 		int index_of_overriden_page = frame_to_page[frame_to_overwrite];
 		page_table_get_entry(pt, index_of_overriden_page, frame, bits);
 
-		if (*bits == PROT_READ|PROT_WRITE) {
+		if (*bits == (PROT_READ|PROT_WRITE)) {
 			//Write old data to disk.
-			disk_write(disk, index_of_overriden_page,
-				page_table_get_physmem(pt)[frame_to_overwrite]);
+			char old_data;
+			old_data = page_table_get_physmem(pt)[frame_to_overwrite];
+			disk_write(disk, index_of_overriden_page, &old_data);
 		}
 		//Set bit to 0 to indicate the value has been overriden.
 		*bits = 0;
@@ -85,7 +86,7 @@ void page_fault_handler( struct page_table *pt, int page )
 		char* data;
 		disk_read(disk, page, data);
 		//Write disk data to physical memory.
-		page_table_get_physmem(pt)[frame_to_overwrite] = data;
+		page_table_get_physmem(pt)[frame_to_overwrite] = *data;
 		//Update page table to reflect physical memory changes.
 		page_table_set_entry(pt, page, frame_to_overwrite, PROT_READ);
 	}
@@ -128,6 +129,7 @@ int main( int argc, char *argv[] )
 	}
 
 	frame_to_page = calloc(nframes, sizeof(int));
+	available_frames = page_table_get_nframes(pt);
 
 	char *virtmem = page_table_get_virtmem(pt);
 
