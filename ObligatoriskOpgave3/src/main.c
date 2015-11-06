@@ -62,8 +62,8 @@ void page_fault_handler( struct page_table *pt, int page )
 				//Oldest elements at top of physmem.
 				frame_to_overwrite = fifo_position;
 				//Take the topmost element, set fifo position ++.
-				//Fifo position must never be more than physmem size. 
-				fifo_position = (fifo_position+1) % page_table_get_nframes(pt));
+				//Fifo position must never be more than physmem size.
+				fifo_position = (fifo_position+1) % page_table_get_nframes(pt);
 				break;
 			case CUSTOM:
 				break;
