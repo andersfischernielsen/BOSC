@@ -15,10 +15,24 @@ how to use the page table and disk interfaces.
 #include <string.h>
 #include <errno.h>
 
+#define RAND 0
+#define FIFO 1
+#define CUSTOM 2
+
 struct disk *disk;
+
+int handler_type;
 
 void page_fault_handler( struct page_table *pt, int page )
 {
+	switch (handler_type) {
+		case RAND:
+			break;
+		case FIFO:
+			break;
+		case CUSTOM:
+			break;
+	}
 	printf("page fault on page #%d\n",page);
 	exit(1);
 }
@@ -32,7 +46,19 @@ int main( int argc, char *argv[] )
 
 	int npages = atoi(argv[1]);
 	int nframes = atoi(argv[2]);
+	const char *handler = argv[3];
 	const char *program = argv[4];
+
+	if(!strcmp(handler,"rand"))	{
+		handler_type = RAND;
+	} else if (!strcmp(handler,"fifo")){
+		handler_type = FIFO;
+	} else if (!strcmp(handler,"custom")) {
+		handler_type = CUSTOM;
+	} else {
+		fprintf(stderr,"unknown handler: %s\n", handler);
+		return;
+	}
 
 	disk = disk_open("myvirtualdisk",npages);
 	if(!disk) {
@@ -61,7 +87,7 @@ int main( int argc, char *argv[] )
 		focus_program(virtmem,npages*PAGE_SIZE);
 
 	} else {
-		fprintf(stderr,"unknown program: %s\n",argv[4]);
+		fprintf(stderr,"unknown program: %s\n", program);
 
 	}
 
