@@ -89,6 +89,7 @@ void page_fault_handler( struct page_table *pt, int page )
 		page_table_get_physmem(pt)[frame_to_overwrite] = *data;
 		//Update page table to reflect physical memory changes.
 		page_table_set_entry(pt, page, frame_to_overwrite, PROT_READ);
+		frame_to_page[frame_to_overwrite] = page;
 	}
 }
 
