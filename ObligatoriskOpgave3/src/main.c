@@ -85,7 +85,7 @@ int main( int argc, char *argv[] )
 		handler_type = CUSTOM;
 	} else {
 		fprintf(stderr,"unknown handler: %s\n", handler);
-		return;
+		return 1;
 	}
 
 	disk = disk_open("myvirtualdisk",npages);
