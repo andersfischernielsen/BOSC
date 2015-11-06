@@ -23,6 +23,7 @@ struct disk *disk;
 int handler_type;
 int available_frames;
 int *frame_to_page;
+int fifo_position = 0;
 
 void page_fault_handler( struct page_table *pt, int page )
 {
@@ -38,7 +39,7 @@ void page_fault_handler( struct page_table *pt, int page )
 	}
 
 	else if (available_frames) {
-		// get the store location.
+		//Get the store location.
 		int store_location = page_table_get_nframes(pt) - available_frames;
 		//Store value in physical memory.
 		disk_read(disk, page, &page_table_get_physmem(pt)[store_location]);
@@ -58,13 +59,18 @@ void page_fault_handler( struct page_table *pt, int page )
 				frame_to_overwrite = rand() % page_table_get_nframes(pt);
 				break;
 			case FIFO:
+				//Oldest elements at top of physmem.
+				frame_to_overwrite = fifo_position;
+				//Take the topmost element, set fifo position ++.
+				//Fifo position must never be more than physmem size. 
+				fifo_position = (fifo_position+1) % page_table_get_nframes(pt));
 				break;
 			case CUSTOM:
 				break;
 		}
-		//find page index to overwrite rights for.
+		//Find page index to overwrite rights for.
 		int index_of_overriden_page = frame_to_page[frame_to_overwrite];
-		//get the page entry.
+		//Get the page entry.
 		page_table_get_entry(pt, index_of_overriden_page, &frame, &bits);
 
 		if (bits == (PROT_READ|PROT_WRITE)) {
