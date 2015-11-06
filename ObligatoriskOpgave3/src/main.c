@@ -28,8 +28,8 @@ void page_fault_handler( struct page_table *pt, int page )
 {
 	printf("page fault on page #%d\n",page);
 
-	int* frame;
-	int* bits;
+	int* frame = malloc(sizeof(int));
+	int* bits = malloc(sizeof(int));
 	page_table_get_entry(pt, page, frame, bits);
 
 	//If physical memory location has read, add write.
@@ -40,12 +40,12 @@ void page_fault_handler( struct page_table *pt, int page )
 
 	if (available_frames) {
 		//What to  store in physical memory.
-		char what_to_write;
+		char* what_to_write = malloc(sizeof(char));
 		//Read from disk.
-		disk_read(disk, page, &what_to_write);
+		disk_read(disk, page, what_to_write);
 		int store_location = page_table_get_nframes(pt) - available_frames;
 		//Store value in physical memory.
-		page_table_get_physmem(pt)[store_location] = what_to_write;
+		page_table_get_physmem(pt)[store_location] = *what_to_write;
 		//Set mapping back to page from frame (for performance later).
 		frame_to_page[store_location] = page;
 		available_frames--;
@@ -55,6 +55,7 @@ void page_fault_handler( struct page_table *pt, int page )
 
 	else {
 		int frame_to_overwrite;
+		printf("%s\n", "tjek 9");
 		//No space in physical memory, replace frame with requested page.
 		switch (handler_type) {
 			case RAND:
@@ -62,16 +63,15 @@ void page_fault_handler( struct page_table *pt, int page )
 				frame_to_overwrite = rand() % page_table_get_nframes(pt);
 				break;
 			case FIFO:
-
 				break;
 			case CUSTOM:
-
 				break;
 		}
-
+		printf("%s\n", "tjek 10");
 		//Override old page.
 		int index_of_overriden_page = frame_to_page[frame_to_overwrite];
 		page_table_get_entry(pt, index_of_overriden_page, frame, bits);
+		printf("%s\n", "tjek 11");
 
 		if (*bits == (PROT_READ|PROT_WRITE)) {
 			//Write old data to disk.
@@ -79,6 +79,7 @@ void page_fault_handler( struct page_table *pt, int page )
 			old_data = page_table_get_physmem(pt)[frame_to_overwrite];
 			disk_write(disk, index_of_overriden_page, &old_data);
 		}
+		printf("%s\n", "tjek 12");
 		//Set bit to 0 to indicate the value has been overriden.
 		*bits = 0;
 
