@@ -35,20 +35,18 @@ void page_fault_handler( struct page_table *pt, int page )
 	//If physical memory location has read, add write.
 	if (bits == PROT_READ) {
 		printf("First if:\n");
-		printf("%i\n", page);
-		printf("%i\n", frame);
 		page_table_set_entry(pt, page, frame, (PROT_READ|PROT_WRITE));
 	}
 
 	else if (available_frames) {
 		printf("Second if.\n");
 		//What to  store in physical memory.
-		char* what_to_write = malloc(sizeof(char));
+		char what_to_write;
 		//Read from disk.
-		disk_read(disk, page, what_to_write);
+		disk_read(disk, page, &what_to_write);
 		int store_location = page_table_get_nframes(pt) - available_frames;
 		//Store value in physical memory.
-		page_table_get_physmem(pt)[store_location] = *what_to_write;
+		page_table_get_physmem(pt)[store_location] = what_to_write;
 		//Set mapping back to page from frame (for performance later).
 		frame_to_page[store_location] = page;
 		available_frames--;
