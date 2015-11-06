@@ -15,6 +15,8 @@ how to use the page table and disk interfaces.
 #include <string.h>
 #include <errno.h>
 
+struct disk *disk;
+
 void page_fault_handler( struct page_table *pt, int page )
 {
 	printf("page fault on page #%d\n",page);
@@ -32,7 +34,7 @@ int main( int argc, char *argv[] )
 	int nframes = atoi(argv[2]);
 	const char *program = argv[4];
 
-	struct disk *disk = disk_open("myvirtualdisk",npages);
+	disk = disk_open("myvirtualdisk",npages);
 	if(!disk) {
 		fprintf(stderr,"couldn't create virtual disk: %s\n",strerror(errno));
 		return 1;
@@ -59,7 +61,7 @@ int main( int argc, char *argv[] )
 		focus_program(virtmem,npages*PAGE_SIZE);
 
 	} else {
-		fprintf(stderr,"unknown program: %s\n",argv[3]);
+		fprintf(stderr,"unknown program: %s\n",argv[4]);
 
 	}
 
