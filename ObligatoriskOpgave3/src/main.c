@@ -14,6 +14,7 @@ how to use the page table and disk interfaces.
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <time.h>
 
 #define RAND 0
 #define FIFO 1
@@ -56,7 +57,7 @@ void page_fault_handler( struct page_table *pt, int page )
 		switch (handler_type) {
 			case RAND:
 				//Generate random number up to nframes (exclusive).
-				frame_to_overwrite = rand() % page_table_get_nframes(pt);
+				frame_to_overwrite = lrand48() % page_table_get_nframes(pt);
 				break;
 			case FIFO:
 				//Oldest elements at top of physmem.
@@ -77,9 +78,6 @@ void page_fault_handler( struct page_table *pt, int page )
 			//Write the physical memory to the disk, since it is being swapped.
 			disk_write(disk, index_of_overriden_page, &page_table_get_physmem(pt)[frame_to_overwrite]);
 		}
-		//Set bit to 0 to indicate the value has been overriden.
-		bits = 0;
-
 		//Extract data from disk of the frame of the page.
 		disk_read(disk, page, &page_table_get_physmem(pt)[frame_to_overwrite]);
 
@@ -104,6 +102,7 @@ int main( int argc, char *argv[] )
 
 	if(!strcmp(handler,"rand"))	{
 		handler_type = RAND;
+		srand48(time(NULL));
 	} else if (!strcmp(handler,"fifo")){
 		handler_type = FIFO;
 	} else if (!strcmp(handler,"custom")) {
