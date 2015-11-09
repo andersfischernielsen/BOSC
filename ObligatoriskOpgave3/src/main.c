@@ -25,17 +25,20 @@ int handler_type;
 int available_frames;
 int *frame_to_page;
 int fifo_position = 0;
+int page_faults = 0;
+int write_faults = 0;
 
 void page_fault_handler( struct page_table *pt, int page )
 {
-	printf("page fault on page #%d\n",page);
-
+	//printf("page fault on page #%d\n",page);
+	page_faults++;
 	int frame;
 	int bits;
 	page_table_get_entry(pt, page, &frame, &bits);
 
 	//If physical memory location has read, add write rights.
 	if (bits == PROT_READ) {
+		write_faults++;
 		page_table_set_entry(pt, page, frame, PROT_READ|PROT_WRITE);
 	}
 	else if (available_frames) {
@@ -153,6 +156,9 @@ int main( int argc, char *argv[] )
 	page_table_delete(pt);
 	disk_close(disk);
 	free(frame_to_page);
+
+	printf("Page faults: %d\n", page_faults);
+	printf("Thereof write faults: %d\n", write_faults);
 
 	return 0;
 }
