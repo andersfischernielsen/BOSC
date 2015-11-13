@@ -32,6 +32,7 @@ void page_fault_handler( struct page_table *pt, int page )
 {
 	//printf("page fault on page #%d\n",page);
 	page_faults++;
+
 	int frame;
 	int bits;
 	page_table_get_entry(pt, page, &frame, &bits);
@@ -45,8 +46,7 @@ void page_fault_handler( struct page_table *pt, int page )
 		//Get the store location.
 		int store_location = page_table_get_nframes(pt) - available_frames;
 		//Store value in physical memory.
-
-		disk_read(disk, page, page_table_get_physmem(pt) + store_location);
+		disk_read(disk, page, page_table_get_physmem(pt) + PAGE_SIZE * store_location);
 
 		//Set mapping back to page from frame (for performance later).
 		frame_to_page[store_location] = page;
@@ -79,10 +79,10 @@ void page_fault_handler( struct page_table *pt, int page )
 
 		if (bits == (PROT_READ|PROT_WRITE)) {
 			//Write the physical memory to the disk, since it is being swapped.
-			disk_write(disk, index_of_overriden_page, page_table_get_physmem(pt) + frame_to_overwrite);
+			disk_write(disk, index_of_overriden_page, page_table_get_physmem(pt) + PAGE_SIZE * frame_to_overwrite);
 		}
 		//Extract data from disk of the frame of the page.
-		disk_read(disk, page, &page_table_get_physmem(pt)[frame_to_overwrite]);
+		disk_read(disk, page, page_table_get_physmem(pt) + PAGE_SIZE * frame_to_overwrite);
 
 		// Clear old value in virtual memory.
 		page_table_set_entry(pt, index_of_overriden_page, 0, PROT_NONE);
