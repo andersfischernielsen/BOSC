@@ -50,18 +50,18 @@ thread_data *generate_work_structs() {
 	int partition_size = iterations/threads;
 
 	//Struct containing work amount.
-	thread_data *work = malloc(sizeof(thread_data)*threads);	
+	thread_data *work = malloc(sizeof(thread_data)*threads);
 
 	//Init structs for work.
 	for (i = 0; i < threads; i++) {
-		//Init interval in structs. 
-		//Example: 
+		//Init interval in structs.
+		//Example:
 		//partition_size = 2500
 		//First struct:  { from = 2500*0 = 0,    to = 2500*1 = 2500   }
 		//Second struct: { from = 2500*1 = 2500, to = 2500 * 2 = 5000 } etc.
 		thread_data data = { partition_size * i, partition_size * (i + 1), 0 };
 		//Store in array of work.
-		work[i+1] = data;
+		work[i] = data;
 	}
 
 	return work;
