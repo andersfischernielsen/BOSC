@@ -27,11 +27,13 @@ int *frame_to_page;
 int fifo_position = 0;
 int page_faults = 0;
 int write_faults = 0;
+int *pages_faults;
 
 void page_fault_handler( struct page_table *pt, int page )
 {
 	//printf("page fault on page #%d\n",page);
 	page_faults++;
+	pages_faults[page]++;
 
 	int frame;
 	int bits;
@@ -70,6 +72,14 @@ void page_fault_handler( struct page_table *pt, int page )
 				fifo_position = (fifo_position+1) % page_table_get_nframes(pt);
 				break;
 			case CUSTOM:
+				frame_to_overwrite = -1;
+				while (frame_to_overwrite == -1) {
+					if (pages_faults[frame_to_page[fifo_position]] <= 2) {
+						frame_to_overwrite = fifo_position;
+					}
+					pages_faults[frame_to_page[fifo_position]] = 0;
+					fifo_position = (fifo_position+1) % page_table_get_nframes(pt);
+				}
 				break;
 		}
 		//Find page index to overwrite rights for.
@@ -106,6 +116,8 @@ int main( int argc, char *argv[] )
 	int nframes = atoi(argv[2]);
 	const char *handler = argv[3];
 	const char *program = argv[4];
+
+	pages_faults = calloc(npages, sizeof(int));
 
 	if(!strcmp(handler,"rand"))	{
 		handler_type = RAND;
@@ -156,6 +168,7 @@ int main( int argc, char *argv[] )
 	page_table_delete(pt);
 	disk_close(disk);
 	free(frame_to_page);
+	free(pages_faults);
 
 	printf("Page faults: %d\n", page_faults);
 	printf("Thereof write faults: %d\n", write_faults);
