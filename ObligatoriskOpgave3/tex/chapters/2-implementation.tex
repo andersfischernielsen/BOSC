@@ -1,10 +1,10 @@
 \section{Implementation}
-\subsection{Fault Handlers}
-\subsubsection{Rand Algorithm}
-The random fault handler algorithm  picks an index in the physical memory at random and swaps the element out with the faulting page. The random index is calculated by using the library function: lrand48() and applying it to modulo the amount of frames in the physical memory.
-\subsubsection{Fifo Algorithm}
-The fifo page fault handler swaps the elements in the physical memory in the first-in-first-out order. This is achieved by having a global integer which is incremented and applied to modulo the amount of frames in the physical memory, each time the page fault handler is in used.
+\subsection{Sideudskiftnings algoritme}
+\subsubsection{Tilfældig}
+Implementationen af den tilfældige sideudskiftningsalgoritme er baseret på at udskifte en tilfældig side fra den fysiske hukkomelse. Det tilfældige index bliver udregnet med biblioteksfunktionen lrand48 hvorefter der findes resten af heltalsdivisionen af antallet af rammer i den fysiske hukommelse.
 
-\subsubsection{Custom Algorithm}
-The custom algorithm is based on the the least-used page fault algorithm\footnote{See \todo{ref}}. Each time a page fault occurs, a corrosponding value for that page is incremented. In case of writefault the value is incremented twice.
-To decide which frame to take over the algorithm iterates over all the pages in the physical memory, and picks the one with the lowest amount of page faults. This page must be the one which is used the least, and therefore statistically the page which has the lowest chance of being loaded into the physical memory again.
+\subsubsection{Kø}
+Implementationen af køudgaven af sideudskiftningsalgoritmen fungerer ved at at et globalt heltal fungerer som indeks i den fysiske hukommelse. Hver gang sideudskiftningsalgoritmen bliver brugt forøges indeks med én og der findes resten af heltalsdivisionen af antallet af rammer i den fysiske hukommelse.
+
+\subsubsection{Brugerdefineret}
+Den brugerdefinerede algoritme er baseret på "least-used" algoritmen\footnote{See \todo{ref}}. Hver gang at der sker en side fejl, tælles en sammenhørende værdi op med én, eller to hvis der er tale om en skrivesidefejl. Sideudskifteren itererer over siderne i den fysiske hukkomelse og finder ud af hvilken side der har færrest sidefejl, og denne side bliver skiftet ud. Den side med de færreste sidefejl må være den side der mindst bliver taget ind i hukkommelsen, og derfor giver det mening at skifte denne ud da den statistisk set har lille chance for at blive taget ind igen.
