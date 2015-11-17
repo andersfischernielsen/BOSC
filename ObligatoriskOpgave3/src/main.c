@@ -27,6 +27,8 @@ int *frame_to_page;
 int fifo_position = 0;
 int page_faults = 0;
 int write_faults = 0;
+int disk_reads = 0;
+int disk_writes = 0;
 int *pages_faults;
 
 void page_fault_handler( struct page_table *pt, int page )
@@ -52,6 +54,7 @@ void page_fault_handler( struct page_table *pt, int page )
 		int store_location = nframes - available_frames;
 		//Store value in physical memory.
 		disk_read(disk, page, page_table_get_physmem(pt) + PAGE_SIZE * store_location);
+		disk_reads++;
 
 		//Set mapping back to page from frame (for performance later).
 		frame_to_page[store_location] = page;
@@ -102,9 +105,11 @@ void page_fault_handler( struct page_table *pt, int page )
 		if (bits == (PROT_READ|PROT_WRITE)) {
 			//Write the physical memory to the disk, since it is being swapped.
 			disk_write(disk, index_of_overriden_page, page_table_get_physmem(pt) + PAGE_SIZE * frame_to_overwrite);
+			disk_writes++;
 		}
 		//Extract data from disk of the frame of the page.
 		disk_read(disk, page, page_table_get_physmem(pt) + PAGE_SIZE * frame_to_overwrite);
+		disk_reads++;
 
 		// Clear old value in virtual memory.
 		page_table_set_entry(pt, index_of_overriden_page, 0, PROT_NONE);
@@ -182,8 +187,8 @@ int main( int argc, char *argv[] )
 	free(frame_to_page);
 	free(pages_faults);
 
-	printf("Page faults: %d\n", page_faults);
-	printf("Thereof write faults: %d\n", write_faults);
+	printf("Page faults: %d, Write faults: %d\n", page_faults, write_faults);
+	printf("Disk reads: %d, Disk writes: %d\n", disk_reads, disk_writes);
 
 	return 0;
 }
