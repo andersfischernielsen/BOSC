@@ -33,6 +33,7 @@ void page_fault_handler( struct page_table *pt, int page )
 {
 	//printf("page fault on page #%d\n",page);
 	page_faults++;
+	// a page fault happened for this page.
 	pages_faults[page]++;
 
 	int frame;
@@ -42,6 +43,8 @@ void page_fault_handler( struct page_table *pt, int page )
 	//If physical memory location has read, add write rights.
 	if (bits == PROT_READ) {
 		write_faults++;
+		// write faults are worse therefore counts double.
+		pages_faults[page]++;
 		page_table_set_entry(pt, page, frame, PROT_READ|PROT_WRITE);
 	}
 	else if (available_frames) {
@@ -58,6 +61,9 @@ void page_fault_handler( struct page_table *pt, int page )
 	}
 	else {
 		int frame_to_overwrite;
+		int i;
+		int value;
+		int pageValue;
 		//No space in physical memory, replace frame with requested page.
 		switch (handler_type) {
 			case RAND:
@@ -72,16 +78,31 @@ void page_fault_handler( struct page_table *pt, int page )
 				fifo_position = (fifo_position+1) % page_table_get_nframes(pt);
 				break;
 			case CUSTOM:
+				i = 0;
 				frame_to_overwrite = -1;
-				while (frame_to_overwrite == -1) {
-					if (pages_faults[frame_to_page[fifo_position]] <= 2) {
-						frame_to_overwrite = fifo_position;
+				while (i < page_table_get_nframes(pt)) {
+					// find the amount of page faults for the current frame.
+					pageValue = pages_faults[frame_to_page[i]];
+					// if first iteration use the first frame.
+					if (frame_to_overwrite == -1)
+					{
+						frame_to_overwrite = i;
+						value = pageValue;
+					} // if the current element has fewer faults then use that instead
+					else if (value > pageValue)
+					{
+						frame_to_overwrite = i;
+						value = pageValue;
 					}
-					pages_faults[frame_to_page[fifo_position]] = 0;
-					fifo_position = (fifo_position+1) % page_table_get_nframes(pt);
+					else
+					{
+						pages_faults[frame_to_page[i]]--;
+					}
+					i++;
 				}
 				break;
 		}
+
 		//Find page index to overwrite rights for.
 		int index_of_overriden_page = frame_to_page[frame_to_overwrite];
 		//Get the page entry.
