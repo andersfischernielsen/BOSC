@@ -23,18 +23,22 @@ how to use the page table and disk interfaces.
 struct disk *disk;
 int handler_type;
 int available_frames;
+//"Reverse" mapping from frame to a page.
 int *frame_to_page;
+
+//Initial variables for page fault handlers.
 int fifo_position = 0;
 int page_faults = 0;
 int write_faults = 0;
 int disk_reads = 0;
 int disk_writes = 0;
+//Array of which pages have faulted how many times.
 int *pages_faults;
 
 void page_fault_handler( struct page_table *pt, int page )
 {
+	//A page fault happened for this page.
 	page_faults++;
-	// a page fault happened for this page.
 	pages_faults[page]++;
 
 	int nframes = page_table_get_nframes(pt);
@@ -45,25 +49,26 @@ void page_fault_handler( struct page_table *pt, int page )
 	//If physical memory location has read, add write rights.
 	if (bits == PROT_READ) {
 		write_faults++;
-		// write faults are worse therefore counts double.
+		//Write faults are considered worse than read faults, therefore count double.
 		pages_faults[page]++;
 		page_table_set_entry(pt, page, frame, PROT_READ|PROT_WRITE);
 	}
 	else if (available_frames) {
+		//There are still available frames to store pages in.
 		//Get the store location.
 		int store_location = nframes - available_frames;
-		//Store value in physical memory.
+		//Store page in physical memory.
 		disk_read(disk, page, page_table_get_physmem(pt) + PAGE_SIZE * store_location);
 		disk_reads++;
 
-		//Set mapping back to page from frame (for performance later).
+		//Set mapping back to page from frame (for later use).
 		frame_to_page[store_location] = page;
 		available_frames--;
 
 		page_table_set_entry(pt, page, store_location, PROT_READ);
 	}
 	else {
-		//No space in physical memory, replace frame with requested page.
+		//No space left in physical memory, replace frame with requested page.
 		int frame_to_overwrite, i, value, pageValue;
 		switch (handler_type) {
 			case RAND:
@@ -78,16 +83,20 @@ void page_fault_handler( struct page_table *pt, int page )
 				fifo_position = (fifo_position+1) % nframes;
 				break;
 			case CUSTOM:
+				//Find the frame with the fewest faults.
+				//A page that faults often would be better to keep in memory longer.
+				//A page that almost never faults isn't needed as often. Therefore
+				//we can replace it.
 				frame_to_overwrite = -1;
 				for (i = 0; i < nframes; i++) {
-					// find the amount of page faults for the current frame.
+					//Find the amount of page faults for the current frame.
 					pageValue = pages_faults[frame_to_page[i]];
-					// if first iteration use the first frame.
+					//If this is the first iteration, use the first frame.
 					if (frame_to_overwrite == -1)
 					{
 						frame_to_overwrite = i;
 						value = pageValue;
-					} // if the current element has fewer faults then use that instead
+					} //If the current element has fewer faults, then use that instead
 					else if (value > pageValue)
 					{
 						frame_to_overwrite = i;
@@ -165,8 +174,6 @@ int main( int argc, char *argv[] )
 	available_frames = page_table_get_nframes(pt);
 
 	char *virtmem = page_table_get_virtmem(pt);
-
-	//char *physmem = page_table_get_physmem(pt);
 
 	if(!strcmp(program,"sort")) {
 		sort_program(virtmem,npages*PAGE_SIZE);
