@@ -2,39 +2,39 @@
 - 100 10
 	- Rand: 	1718
 	- Fifo:		1612
-	- Custom:	1803
+	- Custom:	4870
 - 100 20
 	- Rand:		1314
 	- Fifo:		1300
-	- Custom:	1435
+	- Custom:	2161
 - 100 30
 	- Rand:		1128
 	- Fifo:		1000
-	- Custom:	1188
+	- Custom:	1313
 - 100 40
 	- Rand:		983
 	- Fifo:		1000
-	- Custom:	1023
+	- Custom:	962
 - 100 50
 	- Rand:		896
 	- Fifo:		800
-	- Custom:	789
+	- Custom:	704
 - 100 60
 	- Rand:		755
 	- Fifo:		700
-	- Custom:	726
+	- Custom:	570
 - 100 70
 	- Rand:		634
 	- Fifo:		700
-	- Custom:	629
+	- Custom:	531
 - 100 80
 	- Rand:		513
 	- Fifo:		700
-	- Custom:	515
+	- Custom:	441
 - 100 90
 	- Rand:		326
 	- Fifo:		700
-	- Custom:	493
+	- Custom:	421
 - 100 100
 	- Rand: 	200
 	- Fifo: 	200
@@ -44,39 +44,39 @@
 - 100 10
 	- Rand:		1200
 	- Fifo:		1200
-	- Custom:	1130
+	- Custom:	1155
 - 100 20
 	- Rand:		1193
 	- Fifo:		1200
-	- Custom:	1042
+	- Custom:	1044
 - 100 30
 	- Rand:		1156
 	- Fifo:		1200
-	- Custom:	952
+	- Custom:	974
 - 100 40
 	- Rand:		1099
 	- Fifo:		1200
-	- Custom:	858
+	- Custom:	900
 - 100 50
 	- Rand:		993
 	- Fifo:		1200
-	- Custom:	775
+	- Custom:	857
 - 100 60
 	- Rand:		863
 	- Fifo:		1200
-	- Custom:	686
+	- Custom:	800
 - 100 70
 	- Rand:		737
 	- Fifo:		1200
-	- Custom:	556
+	- Custom:	782
 - 100 80
 	- Rand:		565
 	- Fifo:		1200
-	- Custom:	476
+	- Custom:	722
 - 100 90
 	- Rand:		392
 	- Fifo:		1200
-	- Custom:	396
+	- Custom:	700
 - 100 100
 	- Rand: 	200
 	- Fifo: 	200
@@ -86,39 +86,39 @@
 - 100 10
 	- Rand:		480
 	- Fifo:		477
-	- Custom:	480
+	- Custom:	472
 - 100 20
 	- Rand:		458
 	- Fifo:		456
-	- Custom:	452
+	- Custom:	435
 - 100 30
 	- Rand:		422
 	- Fifo:		421
-	- Custom:	416
+	- Custom:	421
 - 100 40
 	- Rand:		395
 	- Fifo:		401
-	- Custom:	370
+	- Custom:	375
 - 100 50
 	- Rand:		353
 	- Fifo:		389
-	- Custom:	365
+	- Custom:	339
 - 100 60
 	- Rand:		359
 	- Fifo:		341
-	- Custom:	342
+	- Custom:	332
 - 100 70
 	- Rand:		311
 	- Fifo:		337
-	- Custom:	319
+	- Custom:	323
 - 100 80
 	- Rand:		274
 	- Fifo:		320
-	- Custom:	300
+	- Custom:	316
 - 100 90
 	- Rand:		228
 	- Fifo:		311
-	- Custom:	301
+	- Custom:	307
 - 100 100
 	- Rand: 	200
 	- Fifo: 	200
