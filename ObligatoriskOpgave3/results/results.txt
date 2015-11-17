@@ -1,0 +1,125 @@
+#Sort
+- 100 10
+	- Rand: 	1718
+	- Fifo:		1612
+	- Custom:	1803
+- 100 20
+	- Rand:		1314
+	- Fifo:		1300
+	- Custom:	1435
+- 100 30
+	- Rand:		1128
+	- Fifo:		1000
+	- Custom:	1188
+- 100 40
+	- Rand:		983
+	- Fifo:		1000
+	- Custom:	1023
+- 100 50
+	- Rand:		896
+	- Fifo:		800
+	- Custom:	789
+- 100 60
+	- Rand:		755
+	- Fifo:		700
+	- Custom:	726
+- 100 70
+	- Rand:		634
+	- Fifo:		700
+	- Custom:	629
+- 100 80
+	- Rand:		513
+	- Fifo:		700
+	- Custom:	515
+- 100 90
+	- Rand:		326
+	- Fifo:		700
+	- Custom:	493
+- 100 100
+	- Rand: 	200
+	- Fifo: 	200
+	- Custom: 	200
+
+#Scan
+- 100 10
+	- Rand:		1200
+	- Fifo:		1200
+	- Custom:	1130
+- 100 20
+	- Rand:		1193
+	- Fifo:		1200
+	- Custom:	1042
+- 100 30
+	- Rand:		1156
+	- Fifo:		1200
+	- Custom:	952
+- 100 40
+	- Rand:		1099
+	- Fifo:		1200
+	- Custom:	858
+- 100 50
+	- Rand:		993
+	- Fifo:		1200
+	- Custom:	775
+- 100 60
+	- Rand:		863
+	- Fifo:		1200
+	- Custom:	686
+- 100 70
+	- Rand:		737
+	- Fifo:		1200
+	- Custom:	556
+- 100 80
+	- Rand:		565
+	- Fifo:		1200
+	- Custom:	476
+- 100 90
+	- Rand:		392
+	- Fifo:		1200
+	- Custom:	396
+- 100 100
+	- Rand: 	200
+	- Fifo: 	200
+	- Custom: 	200
+
+#Focus
+- 100 10
+	- Rand:		480
+	- Fifo:		477
+	- Custom:	480
+- 100 20
+	- Rand:		458
+	- Fifo:		456
+	- Custom:	452
+- 100 30
+	- Rand:		422
+	- Fifo:		421
+	- Custom:	416
+- 100 40
+	- Rand:		395
+	- Fifo:		401
+	- Custom:	370
+- 100 50
+	- Rand:		353
+	- Fifo:		389
+	- Custom:	365
+- 100 60
+	- Rand:		359
+	- Fifo:		341
+	- Custom:	342
+- 100 70
+	- Rand:		311
+	- Fifo:		337
+	- Custom:	319
+- 100 80
+	- Rand:		274
+	- Fifo:		320
+	- Custom:	300
+- 100 90
+	- Rand:		228
+	- Fifo:		311
+	- Custom:	301
+- 100 100
+	- Rand: 	200
+	- Fifo: 	200
+	- Custom: 	200
