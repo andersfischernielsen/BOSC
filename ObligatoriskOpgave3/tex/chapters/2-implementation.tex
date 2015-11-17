@@ -1,1 +1,10 @@
 \section{Implementation}
+\subsection{Fault Handlers}
+\subsubsection{Rand Algorithm}
+The random fault handler algorithm  picks an index in the physical memory at random and swaps the element out with the faulting page. The random index is calculated by using the library function: lrand48() and applying it to modulo the amount of frames in the physical memory.
+\subsubsection{Fifo Algorithm}
+The fifo page fault handler swaps the elements in the physical memory in the first-in-first-out order. This is achieved by having a global integer which is incremented and applied to modulo the amount of frames in the physical memory, each time the page fault handler is in used.
+
+\subsubsection{Custom Algorithm}
+The custom algorithm is based on the the least-used page fault algorithm\footnote{See \todo{ref}}. Each time a page fault occurs, a corrosponding value for that page is incremented. In case of writefault the value is incremented twice.
+To decide which frame to take over the algorithm iterates over all the pages in the physical memory, and picks the one with the lowest amount of page faults. This page must be the one which is used the least, and therefore statistically the page which has the lowest chance of being loaded into the physical memory again.
