@@ -6,5 +6,5 @@ main.pdf: $(OBJS)
 	pdflatex main.tex
 
 clean:
-	rm -f *.aux *.log main.pdf *.out *.toc
-	rm -f chapters/*.aux
+	rm -f *.aux *.log main.pdf *.out *.toc *.synctex.gz
+	rm -f chapters/*.aux chapters/*.log
