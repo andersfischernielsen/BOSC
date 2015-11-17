@@ -12,7 +12,7 @@ Med alle sideudskiftningsalgoritmer er programmerne kørt med 100 siders virtuel
 
 Som det ses i Figur \ref{fig:sortstatistic} er den brugerdefinerede sideudskiftningsalgoritme ikke effektiv i situationer hvor der er meget begrænset fysisk hukommelse, og hukommelsen bliver tilgået meget spredt.\\
 
-Dog når den brugerdefinerede algoritme hurtigt ned på samme antal fejl når antallet af rammer stiger en smule. Algoritmen bliver dog overhalet på antal fejl af den tilfældige algoritme når mængden af fysisk hukommelse nærmer sig mængden af virtuel hukommelse.\\
+Dog når den brugerdefinerede algoritme hurtigt ned på samme antal fejl, når antallet af rammer stiger en smule. Algoritmen bliver dog overhalet på antal fejl af den tilfældige algoritme, når mængden af fysisk hukommelse nærmer sig mængden af virtuel hukommelse.\\
 
 \begin{figure}[H]
 	\centering
@@ -30,9 +30,9 @@ I Figur \ref{fig:scanstatistic} ses det at den brugerdefinerede algoritme klarer
 	\label{fig:focusstatistic}
 \end{figure}
 
-I Figur \ref{fig:focusstatistic} er den brugerdefinerede algoritme omtrent lige så god som de andre (marginalt bedre) indtil den fysiske hukommelse er ca. 70 \% af den virtuelle. Herefter fører den tilfældige algoritme igen.\\
+I Figur \ref{fig:focusstatistic} er den brugerdefinerede algoritme omtrent lige så god som de andre (marginalt bedre), indtil den fysiske hukommelse er ca. 70 \% af den virtuelle hukommelse. Herefter fører den tilfældige algoritme igen.\\
 
-Vi har altså ikke formået at skabe en algoritme der altid kan opnå færre sidefejl end de 2 andre i alle situationer. Dog kan det ses at når den fysiske hukommelse er halvt så stor som den virtuelle, har vores brugerdefinerede algoritme førertrøjen marginalt.\\
+Det er drmed ikke lykkedes at skabe en algoritme der altid kan opnå færre sidefejl end de 2 andre i \textit{alle} situationer. Dog ses det, at når den fysiske hukommelse er halvt så stor som den virtuelle, fører den brugerdefinerede algoritme marginalt.\\
 
 \begin{figure}[H]
 	\centering
@@ -55,4 +55,4 @@ Vi har altså ikke formået at skabe en algoritme der altid kan opnå færre sid
 	\label{fig:focusdisk}
 \end{figure}
 
-I diagrammerne på figur \ref{fig:sortdisk}, \ref{fig:scandisk} og \ref{fig:focusdisk} ses det at tilgangen til lageret stemmer nogenlunde overens med antallet af sidefejl, som beskrevet tidligere. Særligt i de to første figurer ses det, at antallet af læsninger overstiger antallet af skrivninger for alle sideudskiftningsalgoritmerne.\todo{Jeg ved ikke om vi skal tilføje mere bavl her, som vi kan konkludere noget ud fra i sidste ende}
+I diagrammerne på figur \ref{fig:sortdisk}, \ref{fig:scandisk} og \ref{fig:focusdisk} ses det, at tilgangen til lageret stemmer nogenlunde overens med antallet af sidefejl, som beskrevet tidligere. Særligt i de to første figurer ses det, at antallet af læsninger overstiger antallet af skrivninger for alle sideudskiftningsalgoritmerne.\todo{Jeg ved ikke om vi skal tilføje mere bavl her, som vi kan konkludere noget ud fra i sidste ende}
