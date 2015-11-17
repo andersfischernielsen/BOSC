@@ -32,4 +32,27 @@ I Figur \ref{fig:scanstatistic} ses det at den brugerdefinerede algoritme klarer
 
 I Figur \ref{fig:focusstatistic} er den brugerdefinerede algoritme omtrent lige så god som de andre (marginalt bedre) indtil den fysiske hukommelse er ca. 70 \% af den virtuelle. Herefter fører den tilfældige algoritme igen.\\
 
-Vi har altså ikke formået at skabe en algoritme der altid kan opnå færre sidefejl end de 2 andre i alle situationer. Dog kan det ses at når den fysiske hukommelse er halvt så stor som den virtuelle, har vores brugerdefinerede algoritme førertrøjen marginalt.
+Vi har altså ikke formået at skabe en algoritme der altid kan opnå færre sidefejl end de 2 andre i alle situationer. Dog kan det ses at når den fysiske hukommelse er halvt så stor som den virtuelle, har vores brugerdefinerede algoritme førertrøjen marginalt.\\
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.85\textwidth]{figures/SortReads.png}	\includegraphics[width=0.85\textwidth]{figures/SortWrites.png}	\includegraphics[width=0.85\textwidth]{figures/SortAccess.png}
+	\caption{Kørsler af Sort-programmet. De 3 diagrammer viser henholdsvis lagerlæsninger, lagerskrivninger, og lagertilgange. Det sidste diagram er altså en sum af de 2 forrige.}
+	\label{fig:sortdisk}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.85\textwidth]{figures/ScanReads.png}	\includegraphics[width=0.85\textwidth]{figures/ScanWrites.png}	\includegraphics[width=0.85\textwidth]{figures/ScanAccess.png}
+	\caption{Kørsler af Scan-programmet. De 3 diagrammer viser henholdsvis lagerlæsninger, lagerskrivninger, og lagertilgange. Det sidste diagram er altså en sum af de 2 forrige.}
+	\label{fig:scandisk}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.85\textwidth]{figures/FocusReads.png}	\includegraphics[width=0.85\textwidth]{figures/FocusWrites.png}	\includegraphics[width=0.85\textwidth]{figures/FocusAccess.png}
+	\caption{Kørsler af Focus-programmet. De 3 diagrammer viser henholdsvis lagerlæsninger, lagerskrivninger, og lagertilgange. Det sidste diagram er altså en sum af de 2 forrige.}
+	\label{fig:focusdisk}
+\end{figure}
+
+I diagrammerne på figur \ref{fig:sortdisk}, \ref{fig:scandisk} og \ref{fig:focusdisk} ses det at tilgangen til lageret stemmer nogenlunde overens med antallet af sidefejl, som beskrevet tidligere. Særligt i de to første figurer ses det, at antallet af læsninger overstiger antallet af skrivninger for alle sideudskiftningsalgoritmerne.\todo{Jeg ved ikke om vi skal tilføje mere bavl her, som vi kan konkludere noget ud fra i sidste ende}
