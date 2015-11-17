@@ -1,5 +1,13 @@
 \section{Implementation}
-\subsection{Sideudskiftnings algoritme}
+\subsection{Sidefejlshåndtering}
+Når vores sidefejlshåndtering køres opdateres statistikken over sidefejl som det første. Det samlede antal sidefejl, samt antallet af sidefejl pr. side forøges med 1. Herefter læses sidens indgang i sidetabellen, for at undersøge om siden allerede er indlæst i den fysiske hukommelse, eller om den skal læses ind fra lageret.\\
+
+Hvis siden allerede er indlæst, men kun har læseadgang, antages det at sidefejlen er opstået, fordi det kørende program vil have adgang til at skrive til siden. I dette tilfælde forøges antallet af sidefejl der er forårsaget af manglende skriveadgang. Dette tal printes ud ved afslutning af kørslen. Herefter opgraderes adgangen til siden til en skriveadgang.\\
+
+Hvis ikke siden er i den fysiske hukommelse, men der er flere ledige rammer, bruges en kø til at fylde alle rammerne ud. Den næste ramme vælges, siden indlæses fra lageret, og sidetabellen opdateres, således at sidens indgang nu peger på den valgte ramme i den fysiske hukommelse.
+\todo{Beskriv den generelle håndtering af sidefejl.}
+
+\subsection{Sideudskiftnings algoritme}\todo{For hvert afnit, peg på hvor i koden denne algoritme ses}
 \subsubsection{Tilfældig}
 Implementationen af den tilfældige sideudskiftningsalgoritme er baseret på at udskifte en tilfældig side fra den fysiske hukkomelse. Det tilfældige index bliver udregnet med biblioteksfunktionen lrand48 hvorefter der findes resten af heltalsdivisionen af antallet af rammer i den fysiske hukommelse.
 
