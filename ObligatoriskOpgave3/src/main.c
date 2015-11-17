@@ -78,9 +78,8 @@ void page_fault_handler( struct page_table *pt, int page )
 				fifo_position = (fifo_position+1) % page_table_get_nframes(pt);
 				break;
 			case CUSTOM:
-				i = 0;
 				frame_to_overwrite = -1;
-				while (i < page_table_get_nframes(pt)) {
+				for (i = 0; i < page_table_get_nframes(pt); i++) {
 					// find the amount of page faults for the current frame.
 					pageValue = pages_faults[frame_to_page[i]];
 					// if first iteration use the first frame.
@@ -94,11 +93,6 @@ void page_fault_handler( struct page_table *pt, int page )
 						frame_to_overwrite = i;
 						value = pageValue;
 					}
-					else
-					{
-						pages_faults[frame_to_page[i]]--;
-					}
-					i++;
 				}
 				break;
 		}
