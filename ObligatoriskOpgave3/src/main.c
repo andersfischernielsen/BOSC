@@ -31,13 +31,13 @@ int *pages_faults;
 
 void page_fault_handler( struct page_table *pt, int page )
 {
-	//printf("page fault on page #%d\n",page);
 	page_faults++;
 	// a page fault happened for this page.
 	pages_faults[page]++;
 
-	int frame;
-	int bits;
+	int nframes = page_table_get_nframes(pt);
+
+	int frame, bits;
 	page_table_get_entry(pt, page, &frame, &bits);
 
 	//If physical memory location has read, add write rights.
@@ -49,7 +49,7 @@ void page_fault_handler( struct page_table *pt, int page )
 	}
 	else if (available_frames) {
 		//Get the store location.
-		int store_location = page_table_get_nframes(pt) - available_frames;
+		int store_location = nframes - available_frames;
 		//Store value in physical memory.
 		disk_read(disk, page, page_table_get_physmem(pt) + PAGE_SIZE * store_location);
 
@@ -60,26 +60,23 @@ void page_fault_handler( struct page_table *pt, int page )
 		page_table_set_entry(pt, page, store_location, PROT_READ);
 	}
 	else {
-		int frame_to_overwrite;
-		int i;
-		int value;
-		int pageValue;
 		//No space in physical memory, replace frame with requested page.
+		int frame_to_overwrite, i, value, pageValue;
 		switch (handler_type) {
 			case RAND:
 				//Generate random number up to nframes (exclusive).
-				frame_to_overwrite = lrand48() % page_table_get_nframes(pt);
+				frame_to_overwrite = lrand48() % nframes;
 				break;
 			case FIFO:
 				//Oldest elements at top of physmem.
 				frame_to_overwrite = fifo_position;
 				//Take the topmost element, set fifo position ++.
 				//Fifo position must never be more than physmem size.
-				fifo_position = (fifo_position+1) % page_table_get_nframes(pt);
+				fifo_position = (fifo_position+1) % nframes;
 				break;
 			case CUSTOM:
 				frame_to_overwrite = -1;
-				for (i = 0; i < page_table_get_nframes(pt); i++) {
+				for (i = 0; i < nframes; i++) {
 					// find the amount of page faults for the current frame.
 					pageValue = pages_faults[frame_to_page[i]];
 					// if first iteration use the first frame.
