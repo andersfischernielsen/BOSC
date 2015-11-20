@@ -1,1 +1,8 @@
 \section{Diskussion}
+Den brugerdefinerede løsning viser sig ikke altid at være den bedste, især ved lav procentmæssig fysisk hukommelse ved kørsel af \texttt{sort} programmet bruger den næsten hele 3 gange flere disktilgange end kø- og den tilfældige algoritme. Problemet med den brugerdefinerede algoritme er at der i \texttt{sort} kommer til at være en stor del af hukommelsen fyldt op med sider der ikke bruges, men som tidligere har haft mange pagefaults. Med Køen og den tilfældige bliver hele den fysiske hukommelsen hele tiden skiftet ud med de relevante sider. På den måde vil de hele tiden være relevante sider der bliver skiftet ud, og når de endelig har fået en høj nok mængde sidefejl, vil siden ikke længere være i brug.\\
+
+Grunden til at den brugerdefinerede algoritme ikke fungerer fuldstændig optimalt ved høje procentmæssige relationer mellem den fysiske og den virtuelle hukommelse, skyldes at algoritmen har en meget begrænset statistik over hvilke sider der bliver brugt mere, eftersom der opstår færre sidefejl.\\
+
+Det kan argumenteres at årsagen til at den brugerdefinerede algoritme fungerer godt ved et forhold mellem den fysiske og den virtuelle hukommelse på omkring de 50\%, er at algoritmen kan opbygge en god statistik på grund af antallet af sidefejl, samtidig med at en stor del af den virtuelle hukommelse er tilgængelig i den fysiske hukommelse.\\
+
+Hvis information om antal gange en side blev brugt, var tilgængeligt fra \texttt{pagetable.h} ville det være muligt at lave en brugerdefineret algoritme der helt svarede overens til "least recently used" sideudskiftningsalgoritmen. Ved at tælle værdierne op hver gang en side blev brugt, i stedet for hver gang der opstod en sidefejl, ville vi få det helt ægte billede af brugen af en side.
